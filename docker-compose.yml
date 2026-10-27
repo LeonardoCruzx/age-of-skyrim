@@ -1,0 +1,23 @@
+name: age-of-skyrim
+
+services:
+  dev:
+    build:
+      context: .devcontainer
+      dockerfile: Dockerfile
+    container_name: age-of-skyrim-dev
+    working_dir: /workspaces/AgeOfSkyrim
+    user: vscode
+    command: sleep infinity
+    stdin_open: true
+    tty: true
+    environment:
+      # Login/config do Claude ficam só no volume abaixo (isolado da conta de trabalho no host).
+      CLAUDE_CONFIG_DIR: /home/vscode/.claude
+    volumes:
+      - .:/workspaces/AgeOfSkyrim:cached
+      - claude-config:/home/vscode/.claude
+
+volumes:
+  claude-config:
+    name: aos-claude-config

@@ -69,13 +69,20 @@ entre neutro e cada estilo, com notificação na tela.
 - Que o vcpkg baseline do `vcpkg.json` (o mesmo usado pela CommonLibSSE-NG 3.x) resolve `spdlog`/`nlohmann-json` sem conflito.
 - Ordem de eventos: `Revert → Load (cosave) → kPostLoadGame → ApplyAll`.
 
-## Devcontainer (Claude com conta pessoal)
+## Docker Compose / Devcontainer (Claude com conta pessoal)
 
-`Reopen in Container` no VS Code (extensão *Dev Containers*). O container serve para **editar o código e
-usar o Claude Code**; o DLL só compila no Windows com MSVC (veja "Build"), e o clangd no Linux tem
-diagnósticos parciais por causa dos headers específicos de MSVC.
+```bash
+git clone --recursive <url-do-seu-repo> && cd AgeOfSkyrim
+docker compose up -d --build
+docker compose exec dev bash     # dentro: rode `claude` e entre com a conta PESSOAL
+docker compose down              # para o container (o login permanece no volume)
+```
 
-Isolamento de conta: o login do Claude fica em um volume Docker próprio do container
-(`CLAUDE_CONFIG_DIR=/home/vscode/.claude`), sem montar o `~/.claude` do host. No primeiro uso rode
-`claude` e entre com a conta pessoal. Para "sair" dela: `claude /logout` ou apague o volume
-(`docker volume ls | grep aos-claude-config`).
+Ou, no VS Code: *Dev Containers: Reopen in Container* (usa o mesmo `docker-compose.yml`).
+
+O container serve para **editar o código e usar o Claude Code**; o DLL só compila no Windows com MSVC
+(veja "Build"), e o clangd no Linux tem diagnósticos parciais por causa dos headers específicos de MSVC.
+
+Isolamento de conta: o login do Claude fica no volume `aos-claude-config`
+(`CLAUDE_CONFIG_DIR=/home/vscode/.claude`), sem montar o `~/.claude` do host. Para apagar o login:
+`docker compose down -v`.
