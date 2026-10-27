@@ -68,3 +68,14 @@ entre neutro e cada estilo, com notificação na tela.
 - `TESObjectREFR::Enable(false)` / `Disable()` em refs de células descarregadas (esperado: ok para refs persistentes).
 - Que o vcpkg baseline do `vcpkg.json` (o mesmo usado pela CommonLibSSE-NG 3.x) resolve `spdlog`/`nlohmann-json` sem conflito.
 - Ordem de eventos: `Revert → Load (cosave) → kPostLoadGame → ApplyAll`.
+
+## Devcontainer (Claude com conta pessoal)
+
+`Reopen in Container` no VS Code (extensão *Dev Containers*). O container serve para **editar o código e
+usar o Claude Code**; o DLL só compila no Windows com MSVC (veja "Build"), e o clangd no Linux tem
+diagnósticos parciais por causa dos headers específicos de MSVC.
+
+Isolamento de conta: o login do Claude fica em um volume Docker próprio do container
+(`CLAUDE_CONFIG_DIR=/home/vscode/.claude`), sem montar o `~/.claude` do host. No primeiro uso rode
+`claude` e entre com a conta pessoal. Para "sair" dela: `claude /logout` ou apague o volume
+(`docker volume ls | grep aos-claude-config`).

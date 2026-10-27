@@ -1,0 +1,32 @@
+{
+  "name": "Age of Skyrim (Claude pessoal)",
+  "build": { "dockerfile": "Dockerfile" },
+
+  "remoteUser": "vscode",
+
+  // Isolamento da conta: a config/login do Claude vive num volume Docker exclusivo deste
+  // container. Nada de ~/.claude do host é montado, então a sua conta de trabalho não é tocada.
+  "mounts": [
+    "source=aos-claude-config-${devcontainerId},target=/home/vscode/.claude,type=volume"
+  ],
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "files.eol": "\n",
+        "editor.formatOnSave": false,
+        "clangd.arguments": ["--header-insertion=never", "--log=error"]
+      }
+    }
+  }
+}
