@@ -1,0 +1,61 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  # Mesmo commit do builtin-baseline do vcpkg.json (e da CommonLibSSE-NG 3.7).
+  VCPKG_COMMIT_ID: fc3f61366102c1f0d4547c06d03c523bb18c13a7
+  # Cache binário do vcpkg em disco (backend "files"), persistido com actions/cache.
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg-bincache
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Criar pasta do cache binário
+        run: New-Item -ItemType Directory -Force -Path $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
+
+      - name: Cache do vcpkg
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-${{ env.VCPKG_COMMIT_ID }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: vcpkg-${{ env.VCPKG_COMMIT_ID }}-
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
+          vcpkgJsonGlob: vcpkg.json
+          runVcpkgInstall: false
+
+      - name: Configure
+        run: cmake --preset windows-msvc
+
+      - name: Build
+        run: cmake --build --preset release
+
+      - name: Montar pacote do mod
+        shell: pwsh
+        run: |
+          $stage = "package"
+          New-Item -ItemType Directory -Force -Path "$stage/SKSE/Plugins" | Out-Null
+          Copy-Item -Recurse -Force data/* $stage
+          Copy-Item build/Release/AgeOfSkyrim.dll "$stage/SKSE/Plugins/"
+          Copy-Item build/Release/AgeOfSkyrim.pdb "$stage/SKSE/Plugins/" -ErrorAction SilentlyContinue
+
+      - name: Publicar artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: AgeOfSkyrim-${{ github.sha }}
+          path: package/
+          if-no-files-found: error
