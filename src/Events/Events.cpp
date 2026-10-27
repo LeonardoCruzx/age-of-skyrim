@@ -3,6 +3,8 @@
 #include "Banner/BannerController.h"
 #include "Core/I18n.h"
 #include "Debug/SelfTest.h"
+#include "Sim/Economy.h"  // M12/M13
+#include "Sim/Routes.h"   // M12/M13
 #include "Stock/Stock.h"
 #include "World/Claims.h"
 
@@ -56,6 +58,19 @@ namespace AoS::Events
                         continue;
                     }
                     const auto key = static_cast<int>(b->GetIDCode());
+                    // ---- M12/M13: economia e rotas ----
+                    if (key == dbg.economyHotkey || key == dbg.routeHotkey) {
+                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
+                            continue;
+                        }
+                        if (key == dbg.economyHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([h = dbg.economyHours] { Economy::Get().DebugForceHours(h); });
+                        } else {
+                            SKSE::GetTaskInterface()->AddTask([] { Routes::Get().DebugCreateNearest(); });
+                        }
+                        continue;
+                    }
+                    // ---- fim M12/M13 ----
                     if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
                         key != dbg.claimHotkey) {
                         continue;
@@ -112,6 +127,8 @@ namespace AoS::Events
                 const auto& d = Config::Get().Debug();
                 logger::info("Debug hotkeys ativas (alternar 0x{:X}, autoteste 0x{:X}, estoque 0x{:X}, claim 0x{:X}).",
                              d.hotkey, d.selfTestHotkey, d.stockHotkey, d.claimHotkey);
+                logger::info("Debug hotkeys M12/M13 (economia 0x{:X} = {} h, rota 0x{:X}).", d.economyHotkey,
+                             d.economyHours, d.routeHotkey);
             }
         }
     }

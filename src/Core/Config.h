@@ -90,6 +90,11 @@ namespace AoS
         int  selfTestHotkey{ 0x57 };  // DIK_F11: autoteste
         int  stockHotkey{ 0x42 };     // DIK_F8: estoque do inventário do jogador por categoria
         int  claimHotkey{ 0x43 };     // DIK_F9: Free Claim (fincar estandarte)
+        // ---- M12/M13: economia e rotas ----
+        int           economyHotkey{ 0x40 };  // DIK_F6: força N horas de tick e mostra o resumo
+        int           routeHotkey{ 0x41 };    // DIK_F7: rota entre os 2 territórios mais próximos do jogador
+        std::uint32_t economyHours{ 24 };     // horas forçadas pelo economyHotkey
+        // ---- fim M12/M13 ----
         Id   territory{ kNeutral };
     };
 
