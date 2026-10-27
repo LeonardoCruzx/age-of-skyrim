@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, "m*-*" ]  # main + branches de missão (ex.: m4-territorios)
   pull_request:
   workflow_dispatch:
 
