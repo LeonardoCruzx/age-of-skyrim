@@ -2,6 +2,9 @@
 
 #include "Core/Ids.h"
 
+#include <deque>
+#include <shared_mutex>
+
 namespace AoS
 {
     // "Plugin.esp|0x00ABCD": ID *local* do form (sem o índice de load order).
@@ -47,6 +50,7 @@ namespace AoS
         kCamp,
         kVillage,
         kCity,
+        kClaim,  // M8: estandarte do Free Claim (território dinâmico, criado em runtime)
     };
 
     [[nodiscard]] std::string_view             ToString(TerritoryType a_type) noexcept;
@@ -90,6 +94,7 @@ namespace AoS
         int  selfTestHotkey{ 0x57 };  // DIK_F11: autoteste
         int  stockHotkey{ 0x42 };     // DIK_F8: estoque do inventário do jogador por categoria
         int  claimHotkey{ 0x43 };     // DIK_F9: Free Claim (fincar estandarte)
+        int  conquestHotkey{ 0x41 };  // DIK_F7: simula a conquista do local atual (M5)
         Id   territory{ kNeutral };
     };
 
@@ -102,6 +107,30 @@ namespace AoS
         float   maxSlopeDegrees{ 35.0f };          // inclinação máxima do terreno
         float   forwardDistance{ 150.0f };         // à frente do jogador
     };
+
+    // ---- M5/M6 (conquista e sede) -------------------------------------------------------------
+    // settings.json -> "conquest": conquista por local limpo (ADR 0022).
+    struct ConquestSettings
+    {
+        bool                     enabled{ true };
+        bool                     requirePlayerInLocation{ true };  // false: vale também o local de onde acabou de sair
+        bool                     onlyFromNeutral{ false };         // true: não toma locais de outras facções
+        std::unordered_set<Id>   exclude;                          // MakeId("Plugin.esp|0x00ABCD") ou id de território
+        std::vector<std::string> excludePlugins;                   // locais destes plugins são ignorados (minúsculas)
+        std::string              defaultStyle;                     // facção criada na 1ª conquista; vazio = automático
+        std::uint32_t            defaultColor{ 0x2E7D32 };
+    };
+
+    // settings.json -> "seat": sede da facção (ADR 0023).
+    struct SeatSettings
+    {
+        bool                   askBeforeFounding{ true };
+        std::optional<FormRef> chest;     // objeto base do baú; nullopt = escolha automática (sem respawn)
+        std::optional<FormRef> warTable;  // objeto base da mesa de guerra; nullopt = escolha automática
+        RE::NiPoint3           chestOffset{ -100.0f, 150.0f, 0.0f };     // direita, frente, cima (relativo ao jogador)
+        RE::NiPoint3           warTableOffset{ 120.0f, 220.0f, 0.0f };
+    };
+    // ---- fim M5/M6 ------------------------------------------------------------------------------
 
     class Config
     {
@@ -119,10 +148,32 @@ namespace AoS
         [[nodiscard]] const DebugSettings&          Debug() const noexcept { return debug_; }
         [[nodiscard]] const ClaimSettings&          Claim() const noexcept { return claim_; }
         [[nodiscard]] const DiscoverySettings&      Discovery() const noexcept { return discovery_; }
+        [[nodiscard]] const ConquestSettings&       Conquest() const noexcept { return conquest_; }  // M5
+        [[nodiscard]] const SeatSettings&           Seat() const noexcept { return seat_; }          // M6
+
+        // ---- M8: territórios dinâmicos (claims), por save, criados em runtime (ADR 0024) ----
+        // Territories() continua só com os do JSON/descoberta; quem quer ver todos usa ForEachTerritory.
+        // Find() enxerga os dois. Ponteiros para dinâmicos ficam válidos até ClearDynamic (revert/novo load).
+        // Add/Clear só na thread principal (ou no callback de load do cosave).
+        const Territory* AddDynamic(Territory a_territory);  // completa província/vizinhos pelos estáticos
+        void             ClearDynamic();
+
+        template <class F>
+        void ForEachTerritory(F&& a_fn) const
+        {
+            for (const auto& t : territories_) {
+                a_fn(t);
+            }
+            std::shared_lock l{ dynamicLock_ };
+            for (const auto& t : dynamic_) {
+                a_fn(t);
+            }
+        }
 
     private:
         void LoadSettings(const fs::path& a_file);
         void LoadTerritoryFile(const fs::path& a_file);
+        void LoadConquestAndSeat(const nlohmann::json& a_json);  // M5/M6
         void RegisterName(Id a_id, const std::string& a_key);
         void MergeDiscovered();   // M4: territórios do jogo + vínculo dos JSON com "location"
         void ComputeNeighbors();
@@ -134,6 +185,13 @@ namespace AoS
         DebugSettings                           debug_;
         ClaimSettings                           claim_;
         DiscoverySettings                       discovery_;
+        ConquestSettings                        conquest_;
+        SeatSettings                            seat_;
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;
+
+        // M8: territórios dinâmicos (deque: push_back não invalida ponteiros).
+        mutable std::shared_mutex                         dynamicLock_;
+        std::deque<Territory>                             dynamic_;
+        std::unordered_map<Id, const Territory*>          dynamicIndex_;
     };
 }

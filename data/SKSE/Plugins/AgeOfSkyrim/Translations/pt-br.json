@@ -18,5 +18,26 @@
   "selftest.accents":       "AoS teste de texto: ação, coração, você, à",
   "selftest.persistOk":     "AoS persistência OK. Teste concluído!",
   "selftest.persistFailed": "AoS persistência FALHOU ({}). Envie o log.",
-  "selftest.playerFactionName": "Minha Facção (teste)"
+  "selftest.playerFactionName": "Minha Facção (teste)",
+  // ---- M5/M6/M8 (conquista, sede, claims como territórios) ----
+  "claim.territoryName":    "Estandarte nº {}",
+  "conquest.conquered":     "AoS: {} conquistado por {}",
+  "conquest.factionCreated": "AoS: sua facção '{}' foi fundada",
+  "conquest.defaultFactionName": "Companhia Livre",
+  "conquest.excluded":      "AoS: {} está excluído da conquista (settings)",
+  "conquest.alreadyYours":  "AoS: {} já é seu",
+  "conquest.ownedByOther":  "AoS: {} pertence a {} (onlyFromNeutral ligado)",
+  "conquest.noTerritoryHere": "AoS: nenhum território no seu local atual",
+  "seat.askFound":          "{} é seu.\nFundar a sede da sua facção aqui?",
+  "seat.askMove":           "Mudar a sede de {} para {}?\nO baú de estoque será levado junto.",
+  "seat.yes":               "Sim",
+  "seat.no":                "Não",
+  "seat.founded":           "AoS: sede fundada em {}",
+  "seat.moved":             "AoS: sede mudada para {} ({} itens levados)",
+  "seat.failed":            "AoS: não foi possível criar os objetos da sede. Envie o log.",
+  "seat.notOwned":          "AoS: {} precisa ser da sua facção para virar sede",
+  "seat.already":           "AoS: {} já é a sua sede",
+  "seat.warTable":          "AoS: mesa de guerra de {} (mapa tático em breve)",
+  "seat.stockTitle":        "AoS estoque da sede ({}):",
+  "seat.chestMissing":      "AoS: o baú da sede sumiu. Envie o log."
 }

@@ -5,6 +5,8 @@
 #include "Debug/SelfTest.h"
 #include "Stock/Stock.h"
 #include "World/Claims.h"
+#include "World/Conquest.h"
+#include "World/Seat.h"
 
 namespace AoS::Events
 {
@@ -57,7 +59,7 @@ namespace AoS::Events
                     }
                     const auto key = static_cast<int>(b->GetIDCode());
                     if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
-                        key != dbg.claimHotkey) {
+                        key != dbg.claimHotkey && key != dbg.conquestHotkey) {
                         continue;
                     }
                     if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
@@ -66,9 +68,14 @@ namespace AoS::Events
                     if (key == dbg.selfTestHotkey) {
                         SKSE::GetTaskInterface()->AddTask([] { SelfTest::Run(); });
                     } else if (key == dbg.stockHotkey) {
-                        SKSE::GetTaskInterface()->AddTask([] { Stock::Get().ReportPlayerInventory(); });
+                        SKSE::GetTaskInterface()->AddTask([] {
+                            Stock::Get().ReportPlayerInventory();
+                            Seat::Get().ReportStock();  // M6: estoque da sede, se existir
+                        });
                     } else if (key == dbg.claimHotkey) {
                         SKSE::GetTaskInterface()->AddTask([] { Claims::Get().TryClaimHere(); });
+                    } else if (key == dbg.conquestHotkey) {
+                        SKSE::GetTaskInterface()->AddTask([] { Conquest::Get().SimulateHere(); });  // M5
                     } else {
                         SKSE::GetTaskInterface()->AddTask([t = dbg.territory] { CycleOwner(t); });
                     }
@@ -110,8 +117,9 @@ namespace AoS::Events
             if (const auto input = RE::BSInputDeviceManager::GetSingleton()) {
                 input->AddEventSink(DebugHotkeySink::Get());
                 const auto& d = Config::Get().Debug();
-                logger::info("Debug hotkeys ativas (alternar 0x{:X}, autoteste 0x{:X}, estoque 0x{:X}, claim 0x{:X}).",
-                             d.hotkey, d.selfTestHotkey, d.stockHotkey, d.claimHotkey);
+                logger::info("Debug hotkeys ativas (alternar 0x{:X}, autoteste 0x{:X}, estoque 0x{:X}, claim 0x{:X}, "
+                             "conquista 0x{:X}).",
+                             d.hotkey, d.selfTestHotkey, d.stockHotkey, d.claimHotkey, d.conquestHotkey);
             }
         }
     }

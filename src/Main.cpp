@@ -4,7 +4,9 @@
 #include "Events/Events.h"
 #include "Stock/Stock.h"
 #include "World/Claims.h"
+#include "World/Conquest.h"
 #include "World/Placement.h"
+#include "World/Seat.h"
 
 namespace
 {
@@ -29,11 +31,13 @@ namespace
     // ---- Cosave ------------------------------------------------------------------------------------
     void OnSave(SKSE::SerializationInterface* a_intfc)
     {
+        // Ordem importa no load: FACT (facções) -> CLAM (claims viram territórios dinâmicos) -> TERR (donos).
         AoS::Factions::Get().Save(a_intfc);
+        AoS::Claims::Get().Save(a_intfc);
         AoS::State::Get().Save(a_intfc);
         AoS::Placement::Get().Save(a_intfc);
         AoS::SelfTest::Save(a_intfc);
-        AoS::Claims::Get().Save(a_intfc);
+        AoS::Seat::Get().Save(a_intfc);  // M6
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -57,6 +61,9 @@ namespace
             case AoS::Claims::kRecord:
                 AoS::Claims::Get().LoadRecord(a_intfc, version);
                 break;
+            case AoS::Seat::kRecord:  // M6
+                AoS::Seat::Get().LoadRecord(a_intfc, version);
+                break;
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -66,11 +73,12 @@ namespace
 
     void OnRevert(SKSE::SerializationInterface*)
     {
+        AoS::Claims::Get().Clear();  // antes do State: remove os territórios dinâmicos (M8)
+        AoS::Seat::Get().Clear();    // M6
         AoS::Factions::Get().ClearPlayerFactions();
         AoS::State::Get().ResetToDefaults();
         AoS::Placement::Get().Clear();
         AoS::SelfTest::Clear();
-        AoS::Claims::Get().Clear();
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -84,6 +92,8 @@ namespace
             AoS::Factions::Get().Load();  // depois da Config: valida estilos
             AoS::State::Get().ResetToDefaults();
             AoS::Stock::Get().Load();
+            AoS::Conquest::Get().Register();  // M5
+            AoS::Seat::Get().Load();          // M6: depois de Config/Factions/Stock
             AoS::Events::Register();
             break;
 
@@ -93,6 +103,7 @@ namespace
             SKSE::GetTaskInterface()->AddTask([] {
                 AoS::BannerController::Get().ApplyAll();
                 AoS::SelfTest::OnPostLoad();  // só age se o save tem registro do autoteste
+                AoS::Seat::Get().OnPostLoad();  // M6: observa e reconta o baú da sede
             });
             break;
 

@@ -19,12 +19,37 @@
     "exclude": [],
     "neighbors": 4
   },
+  // ---- M5: conquista por local limpo (ADR 0022) ----
+  // requirePlayerInLocation: false = vale também o local de onde o jogador acabou de sair.
+  // onlyFromNeutral: true = não toma locais que já têm dono (ex.: deixar a Guerra Civil com outro mod).
+  // exclude: ["Plugin.esp|0xID" (BGSLocation) ou "id_do_territorio"]; excludePlugins: ["MeuModDeGuerra.esp"].
+  // defaultStyle/defaultColor: facção criada na primeira conquista se você ainda não tem uma ("" = automático).
+  "conquest": {
+    "enabled": true,
+    "requirePlayerInLocation": true,
+    "onlyFromNeutral": false,
+    "exclude": [],
+    "excludePlugins": [],
+    "defaultStyle": "",
+    "defaultColor": "#2E7D32"
+  },
+  // ---- M6: sede da facção (ADR 0023) ----
+  // chest / warTable: "auto" (o DLL escolhe um baú vanilla SEM respawn e um ativador de mesa) ou "Plugin.esp|0xID".
+  // Offsets [direita, frente, cima] relativos ao jogador no momento da fundação (sem coordenadas curadas ainda).
+  "seat": {
+    "askBeforeFounding": true,
+    "chest": "auto",
+    "warTable": "auto",
+    "chestOffset": [-100, 150, 0],
+    "warTableOffset": [120, 220, 0]
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,
     "selfTestHotkey": 87,
     "stockHotkey": 66,
     "claimHotkey": 67,
+    "conquestHotkey": 65,
     "territory": "test_tower"
   }
 }
