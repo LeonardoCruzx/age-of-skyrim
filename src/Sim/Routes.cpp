@@ -253,19 +253,19 @@ namespace AoS
         const auto& cfg = Config::Get();
         const auto  pos = player->GetPosition();
 
-        std::vector<std::pair<float, const Territory*>> near;
+        std::vector<std::pair<float, const Territory*>> nearby;
         for (const auto& t : cfg.Territories()) {
             if (t.hasPosition && t.worldspace == ws->GetFormID()) {
-                near.emplace_back(Distance2D(pos, t.position), &t);
+                nearby.emplace_back(Distance2D(pos, t.position), &t);
             }
         }
-        if (near.size() < 2) {
+        if (nearby.size() < 2) {
             I18n::NotifyTr("route.debugNone");
             return;
         }
         constexpr std::size_t kScan = 16;
-        const auto            n     = std::min(kScan, near.size());
-        std::partial_sort(near.begin(), near.begin() + static_cast<std::ptrdiff_t>(n), near.end(),
+        const auto            n     = std::min(kScan, nearby.size());
+        std::partial_sort(nearby.begin(), nearby.begin() + static_cast<std::ptrdiff_t>(n), nearby.end(),
                           [](const auto& x, const auto& y) { return x.first < y.first; });
 
         // 1. Dupla mais próxima com o mesmo dono (não neutro).
@@ -274,10 +274,10 @@ namespace AoS
         const Territory* b = nullptr;
         for (std::size_t i = 0; i < n && !a; ++i) {
             for (std::size_t j = i + 1; j < n; ++j) {
-                const auto o = state.Owner(near[i].second->id);
-                if (o != kNeutral && CanTrade(o, state.Owner(near[j].second->id))) {
-                    a = near[i].second;
-                    b = near[j].second;
+                const auto o = state.Owner(nearby[i].second->id);
+                if (o != kNeutral && CanTrade(o, state.Owner(nearby[j].second->id))) {
+                    a = nearby[i].second;
+                    b = nearby[j].second;
                     break;
                 }
             }
@@ -297,8 +297,8 @@ namespace AoS
                 I18n::NotifyTr("route.debugNone");
                 return;
             }
-            a = near[0].second;
-            b = near[1].second;
+            a = nearby[0].second;
+            b = nearby[1].second;
             SetTerritoryOwner(a->id, pf->id);
             SetTerritoryOwner(b->id, pf->id);
             logger::info("Rotas (debug): '{}' e '{}' passaram para '{}' para o teste.", a->key, b->key, pf->key);

@@ -26,3 +26,6 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0019 | [Facções como donas de territórios](0019-modelo-de-faccoes.md) | Técnica | Aceita |
 | 0020 | [Melhorias de territórios (custo + tempo de obra, visual por nível)](0020-melhorias-de-territorios.md) | Decisão do usuário | Aceita |
 | 0021 | [Implementar as missões restantes sem esperar testes; teste único no fim](0021-implementar-tudo-teste-unico-no-fim.md) | Decisão do usuário | Aceita |
+| 0026 | [Tick da economia por hora de jogo, disparado por eventos baratos](0026-tick-por-hora-orientado-a-evento.md) | Técnica | Aceita |
+| 0027 | [Economia: produção data-driven, depósito da sede, saldos e consumo](0027-economia-producao-deposito-consumo.md) | Técnica | Aceita |
+| 0028 | [Rotas de comércio: renda por distância/tipo e corte por território inimigo](0028-rotas-de-comercio.md) | Técnica | Aceita |
