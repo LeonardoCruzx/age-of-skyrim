@@ -8,6 +8,7 @@ As decisões por trás deste plano estão em [docs/adr](adr/README.md).
 - UI = **MCM primeiro, PrismaUI depois**, sobre a mesma API nativa ([ADR 0010](adr/0010-ui-mcm-depois-prismaui.md)).
 - **Sede** entre candidatas, **estoque** com itens reais por categoria, **mesa de guerra** com mapa tático
   ([ADR 0011](adr/0011-sede-entre-candidatas.md), [0012](adr/0012-estoque-itens-reais.md), [0013](adr/0013-mesa-de-guerra-mapa-tatico.md)).
+- **Melhorias** de territórios com custo + tempo de obra e visual por nível ([ADR 0020](adr/0020-melhorias-de-territorios.md)).
 - Tudo traduzido em **inglês e PT-BR** ([ADR 0014](adr/0014-traducao-en-ptbr.md)).
 - Eu implemento tudo; o usuário só testa, com roteiro curto + autoteste ([ADR 0008](adr/0008-autoteste-e-fluxo-de-testes.md)).
 
@@ -79,7 +80,7 @@ Regras para todas as missões:
 ### M5. ⬜ 🎮 Conquista por "local limpo"
 - Sink `TESLocationClearedEvent` → lookup O(1) `BGSLocation` → território → `SetTerritoryOwner(território, facção do jogador)`.
 - Notificação na tela + log. Opção em `settings.json` para exigir que o jogador esteja no local.
-- Re-spawn de inimigos não reverte o dono; só a guerra (M15) reverte.
+- Re-spawn de inimigos não reverte o dono; só a guerra (M16) reverte.
 
 ### M6. ⬜ 🎮 Sede da facção (capital)
 - No JSON, territórios candidatos marcados com `"seat": { ... }` (1–2 por província, fortes/torres); outros mods podem
@@ -90,7 +91,7 @@ Regras para todas as missões:
 - Base objects (baú, mesa) definidos no `AgeOfSkyrim.esp` (ESL), sem tocar nos vanilla.
 - Mudar de sede: remove os objetos antigos (transferindo o conteúdo do baú) e cria na nova.
 
-### M7. 🔄 🎮 Estoque por categoria — núcleo pronto (branch `m7-m8-estoque-claim`), ligação ao baú na M6
+### M7. 🔄 🎮 Estoque por categoria — núcleo pronto (na main), ligação ao baú na M6
 - ✅ `Stock/`: `Resources.json` com categorias localizadas (ouro, comida, metais, materiais, alquimia, valiosos,
   equipamento) e regras por form, keyword vanilla e tipo de form; precedência e custo em [ADR 0017](adr/0017-estoque-classificacao-por-keyword.md).
 - ✅ `CountByCategory(container)`: uma passada em `GetInventoryCounts()`, classificação memorizada por objeto base.
@@ -98,7 +99,7 @@ Regras para todas as missões:
 - ✅ Debug F8: inventário do jogador por categoria na tela + log (EditorID de cada keyword no log).
 - ⬜ M6: `Stock::Observe(baú da sede)`; M9: evento `OnStockChanged`; M11: totais no mapa.
 
-### M8. 🔄 🎮 Free Claim (estandarte em local genérico) — branch `m7-m8-estoque-claim`
+### M8. 🔄 🎮 Free Claim (estandarte em local genérico) — núcleo pronto (na main)
 - ✅ Debug F9: raycast vertical (`bhkWorld::PickObject`) à frente do jogador → ponto + normal do terreno;
   estandarte criado com `Placement::PlaceAt`, alinhado à normal e sem física ([ADR 0018](adr/0018-free-claim-raycast.md)).
 - ✅ Cosave `CLAM` v1 (serial, Id estável, worldspace, posição, FormID do ref); limites em `settings.json → claim`
@@ -125,7 +126,7 @@ Regras para todas as missões:
 - Ativar a mesa de guerra da sede (evento de ativação filtrado pelo ref da sede) abre a view PrismaUI.
 - Mapa de Skyrim com: territórios por tipo e cor da facção dona, províncias, vizinhança, estoque da sede,
   painel de cada local (tipo, dono, guarnição, renda, rotas que passam por ele).
-- Ações no mapa: marcar alvos de ataque, traçar rotas de comércio (M13), ver ameaças (M15).
+- Ações no mapa: marcar alvos de ataque, traçar rotas de comércio (M13), ver ameaças (M16).
 - PrismaUI é dependência opcional, detectada em runtime: sem ela, a mesa abre um menu de listas vanilla
   (MessageBox / ListMenu) com as mesmas ações essenciais.
 - Dados enviados para a view só ao abrir e quando mudam (sem polling JS ↔ C++).
@@ -137,7 +138,7 @@ Regras para todas as missões:
 - Registro de cosave `ECON` v1 (último tick, saldos pendentes).
 
 ### M13. ⬜ Rotas de comércio
-- Rotas entre territórios da facção (ou com facções em paz, M16) traçadas no mapa; cosave `ROUT` v1.
+- Rotas entre territórios da facção (ou com facções em paz, M17) traçadas no mapa; cosave `ROUT` v1.
 - Rendem ouro por tick conforme distância/tipo dos pontos; rota passando por território inimigo pode ser cortada.
 - Simulação fora da tela (sem spawn de caravanas no MVP; caravanas visíveis ficam como extensão futura).
 
@@ -146,18 +147,30 @@ Regras para todas as missões:
 - Guardas registrados no cosave (`GARR` v1); limpeza ao perder o território. Teto global de NPCs configurável.
 - Manutenção paga com o estoque da sede (M12).
 
+### M15. ⬜ 🎮 Melhorias de fortes, torres e outros territórios — [ADR 0020](adr/0020-melhorias-de-territorios.md)
+- `Upgrades.json` (extensível por outros mods): melhorias por tipo de local, cada uma com níveis I → II → III.
+  Ex.: muralhas (defesa), quartel (guardas/reposição), torre de vigia (alerta e visão no mapa),
+  armazém (capacidade do estoque), mercado (renda/rotas), forja (metais → equipamento da guarnição).
+- Custo em **itens reais do baú da sede** (classificação da M7) + **tempo de obra** em horas de jogo; o local fica
+  "em obra" (mais vulnerável) até terminar. Obras conferidas no tick por hora já existente (M12), sem custo contínuo.
+- **Visual por nível:** objetos extras (barricadas, tendas, braseiros, estandartes) criados em runtime via `Placement`,
+  com coordenadas por local curadas em JSON; locais sem coordenadas recebem só os status.
+- Status numéricos no DLL (defesa, capacidade, renda, visão, guarnição máx.) lidos por M11/M12/M13/M14/M16;
+  cosave `UPGR` v1 (nível por melhoria, obra em andamento + término).
+- Iniciar/acompanhar obras pela mesa de guerra (M11) e pelo MCM (M10). Textos en/pt-br.
+
 ## Fase 3 — Mundo vivo
 
-### M15. ⬜ Facções de IA e contra-ataques
+### M16. ⬜ Facções de IA e contra-ataques
 - Tick estratégico (a cada X horas de jogo): cada facção de IA avalia vizinhos (`neighbors`) e decide atacar,
   considerando guarnição e estoque.
 - Ataque fora da tela: resolução por força. Na tela: spawn de grupo atacante + evento de defesa.
 - Ameaças e ataques em andamento aparecem no mapa tático.
 
-### M16. ⬜ Diplomacia básica
+### M17. ⬜ Diplomacia básica
 - Relações entre facções (guerra/paz/aliança) no cosave; afeta IA, rotas de comércio e hostilidade dos guardas.
 
-### M17. ⬜ Patches de compatibilidade + release
+### M18. ⬜ Patches de compatibilidade + release
 - Pacotes JSON opcionais para mods populares de locais/fortes (JK's, Lux, Open Cities...) incluindo coordenadas
   ajustadas de baú/mesa da sede; lista de exclusão para mods de guerra civil.
 - Perfil de performance num save grande (todos os territórios, guarnições, IA, rotas).

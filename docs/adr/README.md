@@ -24,3 +24,4 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0017 | [Classificação do estoque por keyword: implementação](0017-estoque-classificacao-por-keyword.md) | Técnica | Aceita |
 | 0018 | [Free Claim: raycast até o chão e alinhamento à normal do terreno](0018-free-claim-raycast.md) | Técnica | Aceita |
 | 0019 | [Facções como donas de territórios](0019-modelo-de-faccoes.md) | Técnica | Aceita |
+| 0020 | [Melhorias de territórios (custo + tempo de obra, visual por nível)](0020-melhorias-de-territorios.md) | Decisão do usuário | Aceita |
