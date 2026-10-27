@@ -52,7 +52,19 @@ namespace AoS
         bool enabled{ false };
         int  hotkey{ 0x44 };          // DIK_F10: alterna o dono
         int  selfTestHotkey{ 0x57 };  // DIK_F11: autoteste
+        int  stockHotkey{ 0x42 };     // DIK_F8: estoque do inventário do jogador por categoria
+        int  claimHotkey{ 0x43 };     // DIK_F9: Free Claim (fincar estandarte)
         Id   territory{ kNeutral };
+    };
+
+    // settings.json -> "claim": Free Claim (estandarte em local genérico).
+    struct ClaimSettings
+    {
+        FormRef banner{ "Skyrim.esm", 0x012EB7 };  // objeto base do estandarte (padrão: Iron Sword, fincada)
+        float   minDistance{ 2048.0f };            // unidades do jogo entre claims (~29 m)
+        int     maxClaims{ 10 };
+        float   maxSlopeDegrees{ 35.0f };          // inclinação máxima do terreno
+        float   forwardDistance{ 150.0f };         // à frente do jogador
     };
 
     class Config
@@ -68,6 +80,7 @@ namespace AoS
         [[nodiscard]] const std::vector<Id>&        Styles() const noexcept { return styles_; }
         [[nodiscard]] std::string_view              NameOf(Id a_id) const;  // para logs
         [[nodiscard]] const DebugSettings&          Debug() const noexcept { return debug_; }
+        [[nodiscard]] const ClaimSettings&          Claim() const noexcept { return claim_; }
 
     private:
         void LoadSettings(const fs::path& a_file);
@@ -79,5 +92,6 @@ namespace AoS
         std::vector<Id>                         styles_;
         std::unordered_map<Id, std::string>     names_;
         DebugSettings                           debug_;
+        ClaimSettings                           claim_;
     };
 }

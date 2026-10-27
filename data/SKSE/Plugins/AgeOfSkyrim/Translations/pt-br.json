@@ -1,5 +1,16 @@
 {
   // Textos para o jogador (UTF-8). Toda chave também deve existir em en.json. {} = valor preenchido pelo mod.
+  "claim.created":          "AoS: estandarte fincado ({} de {}, inclinação {}°)",
+  "claim.interior":         "AoS: não é possível fincar estandartes em interiores",
+  "claim.limit":            "AoS: limite de {} claims atingido",
+  "claim.tooClose":         "AoS: muito perto de outro claim ({} m, mínimo {} m)",
+  "claim.noGround":         "AoS: nenhum chão encontrado à frente",
+  "claim.tooSteep":         "AoS: terreno inclinado demais ({}°, máximo {}°)",
+  "claim.failed":           "AoS: não foi possível fincar o estandarte. Envie o log.",
+  "stock.disabled":         "AoS: estoque desativado (Resources.json ausente)",
+  "stock.title":            "AoS estoque (seu inventário):",
+  "stock.line":             "{}: {}",
+  "stock.unclassified":     "Sem categoria: {}",
   "debug.ownerChanged":     "AoS: {} -> {}",
   "selftest.noTerritory":   "AoS autoteste: configure debug.territory em settings.json",
   "selftest.ok":            "AoS autoteste OK ({} checagens). Agora salve e carregue.",

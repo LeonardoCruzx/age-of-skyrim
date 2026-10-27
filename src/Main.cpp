@@ -2,6 +2,8 @@
 #include "Core/Factions.h"
 #include "Debug/SelfTest.h"
 #include "Events/Events.h"
+#include "Stock/Stock.h"
+#include "World/Claims.h"
 #include "World/Placement.h"
 
 namespace
@@ -31,6 +33,7 @@ namespace
         AoS::State::Get().Save(a_intfc);
         AoS::Placement::Get().Save(a_intfc);
         AoS::SelfTest::Save(a_intfc);
+        AoS::Claims::Get().Save(a_intfc);
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -51,6 +54,9 @@ namespace
             case AoS::SelfTest::kRecord:
                 AoS::SelfTest::LoadRecord(a_intfc, version);
                 break;
+            case AoS::Claims::kRecord:
+                AoS::Claims::Get().LoadRecord(a_intfc, version);
+                break;
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -64,6 +70,7 @@ namespace
         AoS::State::Get().ResetToDefaults();
         AoS::Placement::Get().Clear();
         AoS::SelfTest::Clear();
+        AoS::Claims::Get().Clear();
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -76,6 +83,7 @@ namespace
             }
             AoS::Factions::Get().Load();  // depois da Config: valida estilos
             AoS::State::Get().ResetToDefaults();
+            AoS::Stock::Get().Load();
             AoS::Events::Register();
             break;
 

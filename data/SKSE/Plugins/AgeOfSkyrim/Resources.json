@@ -1,0 +1,45 @@
+{
+  // Categorias do estoque (comida, ouro, metais...). A ORDEM é a prioridade: um item com keywords de
+  // duas categorias conta na primeira. Para cada item: 1) "forms" (form específico), 2) "keywords"
+  // (keywords vanilla "Plugin.esp|0xID" — itens de outros mods entram sozinhos se as usam), 3) "formTypes"
+  // (fallback por tipo: Weapon, Armor, Ammo, Misc, Ingredient, AlchemyItem, Book, SoulGem, Scroll, KeyMaster).
+  // Mods podem adicionar keywords próprias aqui. O log mostra o EditorID de cada keyword resolvida.
+  "categories": [
+    {
+      "id": "gold",
+      "name": { "en": "Gold", "pt-br": "Ouro" },
+      "forms": ["Skyrim.esm|0x00000F"]
+    },
+    {
+      "id": "food",
+      "name": { "en": "Food", "pt-br": "Comida" },
+      "keywords": ["Skyrim.esm|0x08CDEA", "Skyrim.esm|0x0A0E56"]
+    },
+    {
+      "id": "metals",
+      "name": { "en": "Metals", "pt-br": "Metais" },
+      "keywords": ["Skyrim.esm|0x0914EC"]
+    },
+    {
+      "id": "materials",
+      "name": { "en": "Materials", "pt-br": "Materiais" },
+      "keywords": ["Skyrim.esm|0x0914EA", "Skyrim.esm|0x0914EB", "Skyrim.esm|0x0BECD7"]
+    },
+    {
+      "id": "alchemy",
+      "name": { "en": "Alchemy", "pt-br": "Alquimia" },
+      "keywords": ["Skyrim.esm|0x08CDEB", "Skyrim.esm|0x08CDEC", "Skyrim.esm|0x08CDED"]
+    },
+    {
+      "id": "valuables",
+      "name": { "en": "Valuables", "pt-br": "Valiosos" },
+      "keywords": ["Skyrim.esm|0x0914ED", "Skyrim.esm|0x08F95A"]
+    },
+    {
+      "id": "equipment",
+      "name": { "en": "Equipment", "pt-br": "Equipamento" },
+      "keywords": ["Skyrim.esm|0x08F958", "Skyrim.esm|0x08F959", "Skyrim.esm|0x08F95B", "Skyrim.esm|0x0917E7"],
+      "formTypes": ["Weapon", "Armor", "Ammo"]
+    }
+  ]
+}

@@ -2,10 +2,21 @@
   // "en", "pt-br" ou "auto" (idioma do jogo). textEncoding: "utf8" ou "cp1252" (se acentos aparecerem errados).
   "language": "pt-br",
   "textEncoding": "utf8",
+  // Free Claim: objeto do estandarte (padrão: Iron Sword "fincada"), distância mínima entre claims
+  // (unidades do jogo; 70 ≈ 1 m), máximo de claims, inclinação máxima do terreno e distância à frente.
+  "claim": {
+    "banner": "Skyrim.esm|0x012EB7",
+    "minDistance": 2048,
+    "maxClaims": 10,
+    "maxSlopeDegrees": 35,
+    "forwardDistance": 150
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,
     "selfTestHotkey": 87,
+    "stockHotkey": 66,
+    "claimHotkey": 67,
     "territory": "test_tower"
   }
 }

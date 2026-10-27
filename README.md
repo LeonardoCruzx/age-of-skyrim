@@ -64,6 +64,17 @@ e guarda a referência no cosave (registro `PLAC`). Nada de editar células vani
 `settings.json` → `debug`: **F10** (`hotkey`, DIK 68) alterna o dono de `debug.territory`; **F11**
 (`selfTestHotkey`, DIK 87) roda o autoteste (PASS/FAIL na tela e no log) e, depois de salvar e carregar,
 confere a persistência. Roteiro passo a passo em [TESTES.md](TESTES.md).
+**F8** (`stockHotkey`, DIK 66) mostra o inventário do jogador por categoria de estoque; **F9** (`claimHotkey`,
+DIK 67) finca um estandarte (Free Claim) à frente do jogador.
+
+### Estoque por categoria (`Resources.json`)
+Categorias ordenadas (a ordem é a prioridade) com nome `{en, pt-br}` e regras `forms` (form exato),
+`keywords` (keywords vanilla `VendorItem*`; itens de outros mods entram sozinhos) e `formTypes` (fallback).
+Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/0017-estoque-classificacao-por-keyword.md).
+
+### Free Claim (`settings.json` → `claim`)
+`banner` (objeto base, padrão provisório Iron Sword), `minDistance` (unidades; 70 ≈ 1 m), `maxClaims`,
+`maxSlopeDegrees`, `forwardDistance`. Claims ficam no cosave (registro `CLAM`). Ver [ADR 0018](docs/adr/0018-free-claim-raycast.md).
 
 ## Estrutura
 
@@ -77,6 +88,8 @@ confere a persistência. Roteiro passo a passo em [TESTES.md](TESTES.md).
 | `src/Core/Timer.h` | Tempo das operações no log (`[tempo] ...`) |
 | `src/World/Placement.*` | Objetos criados em runtime + refs no cosave (registro `PLAC` v1) |
 | `src/Debug/SelfTest.*` | Autoteste F11 e checagem de persistência (registro `TEST` v1) |
+| `src/Stock/Stock.*` | Estoque por categoria (`Resources.json`), recontagem ao fechar baú observado, debug F8 |
+| `src/World/Claims.*` | Free Claim: raycast + alinhamento à normal, limites, registro `CLAM` v1, debug F9 |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
 | `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F10/F11) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
@@ -86,7 +99,7 @@ confere a persistência. Roteiro passo a passo em [TESTES.md](TESTES.md).
 - [x] Compilar (CI)
 - [ ] Validar no jogo — roteiro M2 em [TESTES.md](TESTES.md) (ver "Pontos a verificar" abaixo)
 - [x] Criação de facção (nome, estilo, cor) com persistência no cosave (M3; UI vem no MCM)
-- [ ] *Free Claim*: raycast com alinhamento à normal do terreno para estandartes em locais genéricos
+- [x] *Free Claim*: raycast com alinhamento à normal do terreno (debug F9; falta virar território — M3/M4)
 - [ ] Ligar a conquista real (captura de local) a `SetTerritoryOwner`
 
 ## Pontos a verificar no primeiro teste

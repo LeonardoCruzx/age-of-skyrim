@@ -3,6 +3,8 @@
 #include "Banner/BannerController.h"
 #include "Core/I18n.h"
 #include "Debug/SelfTest.h"
+#include "Stock/Stock.h"
+#include "World/Claims.h"
 
 namespace AoS::Events
 {
@@ -54,7 +56,8 @@ namespace AoS::Events
                         continue;
                     }
                     const auto key = static_cast<int>(b->GetIDCode());
-                    if (key != dbg.hotkey && key != dbg.selfTestHotkey) {
+                    if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
+                        key != dbg.claimHotkey) {
                         continue;
                     }
                     if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
@@ -62,6 +65,10 @@ namespace AoS::Events
                     }
                     if (key == dbg.selfTestHotkey) {
                         SKSE::GetTaskInterface()->AddTask([] { SelfTest::Run(); });
+                    } else if (key == dbg.stockHotkey) {
+                        SKSE::GetTaskInterface()->AddTask([] { Stock::Get().ReportPlayerInventory(); });
+                    } else if (key == dbg.claimHotkey) {
+                        SKSE::GetTaskInterface()->AddTask([] { Claims::Get().TryClaimHere(); });
                     } else {
                         SKSE::GetTaskInterface()->AddTask([t = dbg.territory] { CycleOwner(t); });
                     }
@@ -102,8 +109,9 @@ namespace AoS::Events
         if (Config::Get().Debug().enabled) {
             if (const auto input = RE::BSInputDeviceManager::GetSingleton()) {
                 input->AddEventSink(DebugHotkeySink::Get());
-                logger::info("Debug hotkeys ativas (alternar: DIK 0x{:X}, autoteste: DIK 0x{:X}).",
-                             Config::Get().Debug().hotkey, Config::Get().Debug().selfTestHotkey);
+                const auto& d = Config::Get().Debug();
+                logger::info("Debug hotkeys ativas (alternar 0x{:X}, autoteste 0x{:X}, estoque 0x{:X}, claim 0x{:X}).",
+                             d.hotkey, d.selfTestHotkey, d.stockHotkey, d.claimHotkey);
             }
         }
     }

@@ -1,5 +1,16 @@
 {
   // Player-facing texts (UTF-8). Every key must also exist in pt-br.json. {} = value filled in by the mod.
+  "claim.created":          "AoS: banner planted ({} of {}, slope {}°)",
+  "claim.interior":         "AoS: banners can't be planted indoors",
+  "claim.limit":            "AoS: limit of {} claims reached",
+  "claim.tooClose":         "AoS: too close to another claim ({} m, minimum {} m)",
+  "claim.noGround":         "AoS: no ground found ahead",
+  "claim.tooSteep":         "AoS: ground too steep ({}°, maximum {}°)",
+  "claim.failed":           "AoS: could not plant the banner. Send the log.",
+  "stock.disabled":         "AoS: stockpile disabled (Resources.json missing)",
+  "stock.title":            "AoS stockpile (your inventory):",
+  "stock.line":             "{}: {}",
+  "stock.unclassified":     "Uncategorized: {}",
   "debug.ownerChanged":     "AoS: {} -> {}",
   "selftest.noTerritory":   "AoS self-test: set debug.territory in settings.json",
   "selftest.ok":            "AoS self-test OK ({} checks). Now save and load.",
