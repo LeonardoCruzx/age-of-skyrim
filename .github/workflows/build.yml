@@ -45,6 +45,19 @@ jobs:
       - name: Build
         run: cmake --build --preset release
 
+      # Expõe o fim dos logs do vcpkg/CMake como anotações (visíveis sem login, na aba Summary).
+      - name: Diagnóstico de falha
+        if: failure()
+        shell: pwsh
+        run: |
+          $logs = @(Get-ChildItem -Path build -Recurse -Include vcpkg-manifest-install.log, CMakeError.log -ErrorAction SilentlyContinue)
+          $logs += Get-ChildItem -Path "$env:VCPKG_ROOT/buildtrees" -Recurse -Filter *.log -ErrorAction SilentlyContinue |
+                   Where-Object { $_.Name -match 'out|err|config|build' } | Sort-Object LastWriteTime -Descending | Select-Object -First 6
+          foreach ($f in $logs) {
+            $tail = (Get-Content $f.FullName -Tail 60) -join '%0A'
+            Write-Output "::error title=$($f.Name)::$tail"
+          }
+
       - name: Montar pacote do mod
         shell: pwsh
         run: |
