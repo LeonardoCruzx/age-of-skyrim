@@ -1,0 +1,107 @@
+#include "Banner/BannerController.h"
+
+namespace AoS
+{
+    BannerController& BannerController::Get() noexcept
+    {
+        static BannerController instance;
+        return instance;
+    }
+
+    void BannerController::SetEnabled(RE::TESObjectREFR* a_ref, bool a_enabled)
+    {
+        if (!a_ref || a_ref->IsDeleted()) {
+            return;
+        }
+        // Só mexe quando o estado difere: evita trabalho e re-disparo de fade/OnLoad à toa.
+        if (a_enabled && a_ref->IsDisabled()) {
+            a_ref->Enable(false);
+        } else if (!a_enabled && !a_ref->IsDisabled()) {
+            a_ref->Disable();
+        }
+    }
+
+    void BannerController::ApplyTerritory(Id a_territory)
+    {
+        const auto* territory = Config::Get().Find(a_territory);
+        if (!territory) {
+            return;
+        }
+
+        const Id owner    = State::Get().Owner(a_territory);
+        bool     complete = true;
+
+        // Passo 1: desabilita tudo que NÃO é do dono (nunca há duas bandeiras ao mesmo tempo).
+        for (const auto& set : territory->banners) {
+            if (set.style == owner) {
+                continue;
+            }
+            for (const auto& ref : set.refs) {
+                if (const auto r = ref.Resolve()) {
+                    SetEnabled(r, false);
+                } else {
+                    complete = false;
+                }
+            }
+        }
+        // Passo 2: habilita as do dono (se neutro, nenhum conjunto casa e nada é habilitado).
+        for (const auto& set : territory->banners) {
+            if (set.style != owner) {
+                continue;
+            }
+            for (const auto& ref : set.refs) {
+                if (const auto r = ref.Resolve()) {
+                    SetEnabled(r, true);
+                } else {
+                    complete = false;
+                }
+            }
+        }
+
+        if (complete) {
+            pending_.erase(a_territory);
+        } else {
+            pending_.insert(a_territory);
+            logger::warn("Território '{}': referências de banner ainda não resolvidas; tentará de novo ao carregar células.",
+                         territory->key);
+        }
+    }
+
+    void BannerController::ApplyAll()
+    {
+        for (const auto& t : Config::Get().Territories()) {
+            ApplyTerritory(t.id);
+        }
+    }
+
+    void BannerController::RetryPending()
+    {
+        if (pending_.empty()) {
+            return;  // caminho quente: custo zero na maior parte do tempo
+        }
+        const auto copy = pending_;  // ApplyTerritory mexe em pending_
+        for (const auto id : copy) {
+            ApplyTerritory(id);
+        }
+    }
+
+    bool SetTerritoryOwner(Id a_territory, Id a_owner)
+    {
+        const auto& cfg = Config::Get();
+        const auto* t   = cfg.Find(a_territory);
+        if (!t) {
+            logger::warn("SetTerritoryOwner: território 0x{:08X} desconhecido.", a_territory);
+            return false;
+        }
+        if (!cfg.IsValidOwner(a_owner)) {
+            logger::warn("SetTerritoryOwner: estilo 0x{:08X} desconhecido.", a_owner);
+            return false;
+        }
+
+        State::Get().SetOwner(a_territory, a_owner);
+        logger::info("Território '{}' -> {}", t->key, cfg.NameOf(a_owner));
+
+        SKSE::GetTaskInterface()->AddTask([a_territory] { BannerController::Get().ApplyTerritory(a_territory); });
+        return true;
+    }
+}

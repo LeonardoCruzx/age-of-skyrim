@@ -1,0 +1,15 @@
+{
+  "styles": ["imperial", "stormcloak", "custom_red"],
+  "territories": [
+    {
+      "id": "test_tower",
+      "name": "Torre de teste",
+      "defaultOwner": "imperial",
+      "banners": {
+        "imperial":   ["AgeOfSkyrim.esp|0x000800"],
+        "stormcloak": ["AgeOfSkyrim.esp|0x000801"],
+        "custom_red": ["AgeOfSkyrim.esp|0x000802"]
+      }
+    }
+  ]
+}

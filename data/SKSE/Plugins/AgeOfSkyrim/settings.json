@@ -1,0 +1,7 @@
+{
+  "debug": {
+    "enabled": true,
+    "hotkey": 68,
+    "territory": "test_tower"
+  }
+}
