@@ -68,11 +68,13 @@ Regras para todas as missões:
 - `BannerController` resolve facção → estilo para escolher as bandeiras.
 - Hotkey de debug passa a ciclar entre facções.
 
-### M4. ⬜ Territórios vanilla + tipos de local
-- Arquivos JSON por região (`Territories/whiterun.json`, ...) com fortes, torres, acampamentos, vilas e cidades.
-- Campos novos por território: `location: "Skyrim.esm|0xID"` (para M5), `type` (fort/tower/camp/village/city),
-  `province` (hold), `position` (x,y do mapa) e `neighbors` — dados que o mapa tático (M11) e a IA (M15) usam.
-- Bandeiras pré-colocadas no ESP só onde necessário; lista de trabalho no CK (você coloca, eu gero o JSON).
+### M4. 🔄🎮 Territórios do jogo (auto-descoberta) + tipos de local
+- `World/Discovery`: territórios criados a partir dos `BGSLocation` pelas keywords `LocType*` (fort/camp/village/city),
+  incluindo os de outros mods ([ADR 0016](adr/0016-territorios-auto-descobertos.md)).
+- Por território: `type`, `province` (Hold), `position` (marcador do mapa), `neighbors` (k mais próximos), lookup
+  O(1) local → território (para a M5).
+- JSON com `"location"` sobrescreve/complementa; `settings.json` → `discovery` (tipos, exclusões, vizinhos).
+- Verificação: resumo PASS/FAIL no log + `SKSE/AgeOfSkyrim_territories.json` (debug).
 
 ### M5. ⬜ 🎮 Conquista por "local limpo"
 - Sink `TESLocationClearedEvent` → lookup O(1) `BGSLocation` → território → `SetTerritoryOwner(território, facção do jogador)`.

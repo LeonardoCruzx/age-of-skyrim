@@ -38,6 +38,20 @@ namespace AoS
         std::vector<PlacedSpec> placed;  // criadas em runtime
     };
 
+    // Tipo do local (mapa tático, IA, economia). "tower" só vem do JSON: o jogo não tem keyword de torre.
+    enum class TerritoryType : std::uint8_t
+    {
+        kUnknown,
+        kFort,
+        kTower,
+        kCamp,
+        kVillage,
+        kCity,
+    };
+
+    [[nodiscard]] std::string_view             ToString(TerritoryType a_type) noexcept;
+    [[nodiscard]] std::optional<TerritoryType> ParseTerritoryType(std::string_view a_text) noexcept;
+
     struct Territory
     {
         std::string            key;
@@ -45,6 +59,28 @@ namespace AoS
         std::string            name;
         Id                     defaultOwner{ kNeutral };  // facção
         std::vector<BannerSet> banners;
+
+        // ---- M4: geografia (auto-descoberta ou JSON) ----
+        bool                   discovered{ false };     // criado pela descoberta (não veio de um JSON)
+        std::optional<FormRef> locationRef;             // JSON: "location": "Skyrim.esm|0xID"
+        RE::BGSLocation*       location{ nullptr };     // resolvido em runtime
+        TerritoryType          type{ TerritoryType::kUnknown };
+        Id                     province{ kNeutral };    // Hold (LocTypeHold) acima do local
+        std::string            provinceName;
+        bool                   hasPosition{ false };
+        RE::NiPoint3           position;                // marcador do mapa (unidades do jogo)
+        RE::FormID             worldspace{ 0 };         // vizinhos só no mesmo worldspace
+        std::vector<Id>        neighbors;               // k mais próximos, calculado no load
+    };
+
+    // settings.json -> "discovery": territórios a partir dos BGSLocation do jogo (inclui os de outros mods).
+    struct DiscoverySettings
+    {
+        bool                       enabled{ true };
+        std::vector<TerritoryType> types{ TerritoryType::kFort, TerritoryType::kCamp, TerritoryType::kVillage,
+                                          TerritoryType::kCity };
+        std::unordered_set<Id>     exclude;             // MakeId("Plugin.esp|0x00ABCD")
+        std::size_t                neighbors{ 4 };
     };
 
     struct DebugSettings
@@ -76,16 +112,20 @@ namespace AoS
         bool Load();
 
         [[nodiscard]] const Territory*              Find(Id a_territory) const;
+        [[nodiscard]] const Territory*              FindByLocation(const RE::BGSLocation* a_location) const;  // O(1)
         [[nodiscard]] const std::vector<Territory>& Territories() const noexcept { return territories_; }
         [[nodiscard]] const std::vector<Id>&        Styles() const noexcept { return styles_; }
         [[nodiscard]] std::string_view              NameOf(Id a_id) const;  // para logs
         [[nodiscard]] const DebugSettings&          Debug() const noexcept { return debug_; }
         [[nodiscard]] const ClaimSettings&          Claim() const noexcept { return claim_; }
+        [[nodiscard]] const DiscoverySettings&      Discovery() const noexcept { return discovery_; }
 
     private:
         void LoadSettings(const fs::path& a_file);
         void LoadTerritoryFile(const fs::path& a_file);
         void RegisterName(Id a_id, const std::string& a_key);
+        void MergeDiscovered();   // M4: territórios do jogo + vínculo dos JSON com "location"
+        void ComputeNeighbors();
 
         std::vector<Territory>                  territories_;
         std::unordered_map<Id, std::size_t>     index_;
@@ -93,5 +133,7 @@ namespace AoS
         std::unordered_map<Id, std::string>     names_;
         DebugSettings                           debug_;
         ClaimSettings                           claim_;
+        DiscoverySettings                       discovery_;
+        std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;
     };
 }

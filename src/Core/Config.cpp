@@ -1,6 +1,8 @@
 #include "Core/Config.h"
 
 #include "Core/I18n.h"
+#include "Core/Timer.h"
+#include "World/Discovery.h"
 
 namespace AoS
 {
@@ -43,6 +45,31 @@ namespace AoS
         return FormRef{ std::string(a_text.substr(0, bar)), value };
     }
 
+    // ---- TerritoryType --------------------------------------------------------------------------
+
+    std::string_view ToString(TerritoryType a_type) noexcept
+    {
+        switch (a_type) {
+        case TerritoryType::kFort:    return "fort";
+        case TerritoryType::kTower:   return "tower";
+        case TerritoryType::kCamp:    return "camp";
+        case TerritoryType::kVillage: return "village";
+        case TerritoryType::kCity:    return "city";
+        default:                      return "unknown";
+        }
+    }
+
+    std::optional<TerritoryType> ParseTerritoryType(std::string_view a_text) noexcept
+    {
+        for (const auto t : { TerritoryType::kFort, TerritoryType::kTower, TerritoryType::kCamp,
+                              TerritoryType::kVillage, TerritoryType::kCity }) {
+            if (_strnicmp(a_text.data(), ToString(t).data(), a_text.size()) == 0 && a_text.size() == ToString(t).size()) {
+                return t;
+            }
+        }
+        return std::nullopt;
+    }
+
     // ---- Config ---------------------------------------------------------------------------------
 
     Config& Config::Get() noexcept
@@ -63,6 +90,7 @@ namespace AoS
     {
         territories_.clear();
         index_.clear();
+        byLocation_.clear();
         styles_.clear();
         names_.clear();
 
@@ -79,6 +107,11 @@ namespace AoS
         std::sort(files.begin(), files.end());  // ordem determinística entre arquivos
         for (const auto& f : files) {
             LoadTerritoryFile(f);
+        }
+        MergeDiscovered();
+        Discovery::LogSummary();
+        if (debug_.enabled) {
+            Discovery::WriteDump();
         }
 
         logger::info("Config: {} território(s), {} estilo(s) de bandeira.", territories_.size(), styles_.size());
@@ -112,6 +145,30 @@ namespace AoS
             claim_.maxClaims       = c->value("maxClaims", claim_.maxClaims);
             claim_.maxSlopeDegrees = c->value("maxSlopeDegrees", claim_.maxSlopeDegrees);
             claim_.forwardDistance = c->value("forwardDistance", claim_.forwardDistance);
+        }
+        if (const auto d = json->find("discovery"); d != json->end() && d->is_object()) {
+            discovery_.enabled   = d->value("enabled", true);
+            discovery_.neighbors = d->value("neighbors", std::size_t{ 4 });
+            if (const auto types = d->find("types"); types != d->end() && types->is_array()) {
+                discovery_.types.clear();
+                for (const auto& v : *types) {
+                    const auto type = v.is_string() ? ParseTerritoryType(v.get<std::string>()) : std::nullopt;
+                    if (type) {
+                        discovery_.types.push_back(*type);
+                    } else {
+                        logger::warn("settings.json: tipo de descoberta inválido ignorado.");
+                    }
+                }
+            }
+            if (const auto ex = d->find("exclude"); ex != d->end() && ex->is_array()) {
+                for (const auto& v : *ex) {
+                    // Normaliza ("Skyrim.esm|0x1A2B" == "skyrim.esm|0x001a2b") para o mesmo formato de KeyOf.
+                    const auto ref = v.is_string() ? FormRef::Parse(v.get<std::string>()) : std::nullopt;
+                    if (ref) {
+                        discovery_.exclude.insert(MakeId(std::format("{}|0x{:06X}", ref->plugin, ref->localId)));
+                    }
+                }
+            }
         }
     }
 
@@ -156,6 +213,16 @@ namespace AoS
                 continue;
             }
             RegisterName(t.id, t.key);
+
+            if (const auto loc = jt.value("location", std::string{}); !loc.empty()) {
+                t.locationRef = FormRef::Parse(loc);
+                if (!t.locationRef) {
+                    logger::warn("'{}': location inválido (use \"Plugin.esp|0xID\").", t.key);
+                }
+            }
+            if (const auto type = jt.value("type", std::string{}); !type.empty()) {
+                t.type = ParseTerritoryType(type).value_or(TerritoryType::kUnknown);
+            }
 
             // Facção dona em jogo novo; validada em State::ResetToDefaults (facções carregam depois).
             if (const auto owner = jt.value("defaultOwner", std::string{}); !owner.empty()) {
@@ -203,6 +270,108 @@ namespace AoS
             index_.emplace(t.id, territories_.size());
             territories_.push_back(std::move(t));
         }
+    }
+
+    void Config::MergeDiscovered()
+    {
+        ScopedTimer timer{ "Config::MergeDiscovered" };
+
+        // Preenche o que o JSON não disse com o que o jogo sabe do local (tipo, Hold, posição, nome).
+        const auto fill = [](Territory& a_t, const Discovery::Found& a_f) {
+            a_t.location = a_f.location;
+            if (a_t.type == TerritoryType::kUnknown) {
+                a_t.type = a_f.type;
+            }
+            if (a_t.province == kNeutral && a_f.hold) {
+                a_t.province = MakeId(Discovery::KeyOf(a_f.hold));
+                const auto n = a_f.hold->GetFullName();
+                a_t.provinceName = n && *n ? n : Discovery::KeyOf(a_f.hold);
+            }
+            if (!a_t.hasPosition && a_f.hasPosition) {
+                a_t.hasPosition = true;
+                a_t.position    = a_f.position;
+                a_t.worldspace  = a_f.worldspace;
+            }
+            if (a_t.name == a_t.key) {  // JSON sem "name": usa o nome do jogo (já no idioma do jogo)
+                if (const auto n = a_f.location->GetFullName(); n && *n) {
+                    a_t.name = n;
+                }
+            }
+        };
+
+        // 1. Territórios do JSON ligados a um local do jogo.
+        for (std::size_t i = 0; i < territories_.size(); ++i) {
+            auto& t = territories_[i];
+            if (!t.locationRef) {
+                continue;
+            }
+            const auto loc = t.locationRef->Resolve<RE::BGSLocation>();
+            if (!loc) {
+                logger::warn("'{}': location {}|0x{:X} não encontrado (plugin ausente?).", t.key, t.locationRef->plugin,
+                             t.locationRef->localId);
+                continue;
+            }
+            if (!byLocation_.try_emplace(loc, i).second) {
+                logger::warn("'{}': location já usado por outro território; ignorado.", t.key);
+                continue;
+            }
+            fill(t, Discovery::Describe(loc));
+        }
+
+        // 2. Locais do jogo ainda sem território.
+        if (discovery_.enabled) {
+            for (const auto& f : Discovery::Scan(discovery_)) {
+                if (byLocation_.contains(f.location)) {
+                    continue;
+                }
+                Territory t;
+                t.key        = f.key;
+                t.id         = MakeId(t.key);
+                t.name       = t.key;
+                t.discovered = true;
+                if (index_.contains(t.id)) {
+                    continue;
+                }
+                fill(t, f);
+                RegisterName(t.id, t.key);
+                index_.emplace(t.id, territories_.size());
+                byLocation_.emplace(f.location, territories_.size());
+                territories_.push_back(std::move(t));
+            }
+        }
+
+        ComputeNeighbors();
+    }
+
+    // k vizinhos mais próximos no mesmo worldspace. O(n²) uma vez no load (n ~ centenas).
+    void Config::ComputeNeighbors()
+    {
+        ScopedTimer timer{ "Config::ComputeNeighbors" };
+        const auto  k = discovery_.neighbors;
+        std::vector<std::pair<float, Id>> dist;
+        for (auto& t : territories_) {
+            t.neighbors.clear();
+            if (!t.hasPosition || k == 0) {
+                continue;
+            }
+            dist.clear();
+            for (const auto& o : territories_) {
+                if (&o != &t && o.hasPosition && o.worldspace == t.worldspace) {
+                    dist.emplace_back(t.position.GetSquaredDistance(o.position), o.id);
+                }
+            }
+            const auto n = std::min(k, dist.size());
+            std::partial_sort(dist.begin(), dist.begin() + static_cast<std::ptrdiff_t>(n), dist.end());
+            for (std::size_t i = 0; i < n; ++i) {
+                t.neighbors.push_back(dist[i].second);
+            }
+        }
+    }
+
+    const Territory* Config::FindByLocation(const RE::BGSLocation* a_location) const
+    {
+        const auto it = byLocation_.find(a_location);
+        return it == byLocation_.end() ? nullptr : &territories_[it->second];
     }
 
     const Territory* Config::Find(Id a_territory) const

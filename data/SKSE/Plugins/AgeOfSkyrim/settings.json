@@ -11,6 +11,14 @@
     "maxSlopeDegrees": 35,
     "forwardDistance": 150
   },
+  // Territórios descobertos dos locais do jogo (vanilla + mods) pelas keywords LocType*.
+  // types: "fort", "camp", "village", "city" ("tower" só via JSON). exclude: ["Plugin.esp|0xID", ...].
+  "discovery": {
+    "enabled": true,
+    "types": ["fort", "camp", "village", "city"],
+    "exclude": [],
+    "neighbors": 4
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,

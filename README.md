@@ -86,6 +86,7 @@ Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/00
 | `src/Core/Factions.*` | Facções pré-definidas (`Factions/*.json`) + do jogador (registro `FACT` v1); dono → estilo |
 | `src/Core/I18n.*` | Textos para o jogador (en / pt-br), fallback para inglês, notificações na tela |
 | `src/Core/Timer.h` | Tempo das operações no log (`[tempo] ...`) |
+| `src/World/Discovery.*` | Territórios descobertos dos `BGSLocation` (tipo, província, posição, vizinhos) |
 | `src/World/Placement.*` | Objetos criados em runtime + refs no cosave (registro `PLAC` v1) |
 | `src/Debug/SelfTest.*` | Autoteste F11 e checagem de persistência (registro `TEST` v1) |
 | `src/Stock/Stock.*` | Estoque por categoria (`Resources.json`), recontagem ao fechar baú observado, debug F8 |
