@@ -64,8 +64,10 @@ e guarda a referência no cosave (registro `PLAC`). Nada de editar células vani
 `settings.json` → `debug`: **F10** (`hotkey`, DIK 68) alterna o dono de `debug.territory`; **F11**
 (`selfTestHotkey`, DIK 87) roda o autoteste (PASS/FAIL na tela e no log) e, depois de salvar e carregar,
 confere a persistência. Roteiro passo a passo em [TESTES.md](TESTES.md).
-**F8** (`stockHotkey`, DIK 66) mostra o inventário do jogador por categoria de estoque; **F9** (`claimHotkey`,
-DIK 67) finca um estandarte (Free Claim) à frente do jogador.
+**F8** (`stockHotkey`, DIK 66) mostra o inventário do jogador por categoria de estoque (e o estoque da sede, se
+houver); **F9** (`claimHotkey`, DIK 67) finca um estandarte (Free Claim) à frente do jogador; **F7**
+(`conquestHotkey`, DIK 65) conquista o território do local atual sem precisar limpar (fora de um território, usa
+`debug.territory`).
 
 ### Estoque por categoria (`Resources.json`)
 Categorias ordenadas (a ordem é a prioridade) com nome `{en, pt-br}` e regras `forms` (form exato),
@@ -76,12 +78,25 @@ Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/00
 `banner` (objeto base, padrão provisório Iron Sword), `minDistance` (unidades; 70 ≈ 1 m), `maxClaims`,
 `maxSlopeDegrees`, `forwardDistance`. Claims ficam no cosave (registro `CLAM`). Ver [ADR 0018](docs/adr/0018-free-claim-raycast.md).
 
+### Conquista (`settings.json` → `conquest`)
+Limpar um local (todos os inimigos mortos) passa o território para a sua facção — criada na hora, se você ainda não
+tem uma. `enabled`, `requirePlayerInLocation` (false = vale também o local de onde acabou de sair), `onlyFromNeutral`,
+`exclude` (`"Plugin.esp|0xID"` de `BGSLocation` ou id de território), `excludePlugins` (para mods de guerra civil),
+`defaultStyle`, `defaultColor`. Ver [ADR 0022](docs/adr/0022-conquista-implementacao.md).
+
+### Sede (`Seats/*.json` + `settings.json` → `seat`)
+Conquistar uma candidata pergunta se você quer fundar (ou mudar) a sede ali; baú de estoque e mesa de guerra nascem
+à sua frente. Candidatas: regra `auto` (N fortes/torres por província) + lista explícita + `exclude`. Settings:
+`askBeforeFounding`, `chest`/`warTable` (`"auto"` ou `"Plugin.esp|0xID"`), `chestOffset`/`warTableOffset`.
+Cosave `SEAT` v1. Ver [ADR 0023](docs/adr/0023-sede-implementacao.md) e [0025](docs/adr/0025-objetos-base-da-sede.md).
+Claims (F9) viram territórios do tipo `claim` da sua facção ([ADR 0024](docs/adr/0024-claims-como-territorios.md)).
+
 ## Estrutura
 
 | Arquivo | Responsabilidade |
 |---|---|
 | `src/Core/Ids.h` | IDs por hash FNV-1a (estáveis entre versões do JSON) |
-| `src/Core/Config.*` | Leitura dos JSONs, validação, resolução de `Plugin.esp\|0xID` |
+| `src/Core/Config.*` | Leitura dos JSONs, validação, resolução de `Plugin.esp\|0xID`; territórios dinâmicos (claims) |
 | `src/Core/State.*` | Facção dona de cada território + persistência no cosave (registro `TERR` v2, migra v1) |
 | `src/Core/Factions.*` | Facções pré-definidas (`Factions/*.json`) + do jogador (registro `FACT` v1); dono → estilo |
 | `src/Core/I18n.*` | Textos para o jogador (en / pt-br), fallback para inglês, notificações na tela |
@@ -90,9 +105,12 @@ Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/00
 | `src/World/Placement.*` | Objetos criados em runtime + refs no cosave (registro `PLAC` v1) |
 | `src/Debug/SelfTest.*` | Autoteste F11 e checagem de persistência (registro `TEST` v1) |
 | `src/Stock/Stock.*` | Estoque por categoria (`Resources.json`), recontagem ao fechar baú observado, debug F8 |
-| `src/World/Claims.*` | Free Claim: raycast + alinhamento à normal, limites, registro `CLAM` v1, debug F9 |
+| `src/World/Claims.*` | Free Claim: raycast + alinhamento à normal, limites, registro `CLAM` v2, claim = território dinâmico, debug F9 |
+| `src/World/Conquest.*` | Conquista por local limpo (`LocationCleared`), facção padrão, exclusões, ganchos, debug F7 |
+| `src/World/Seat.*` | Sede: candidatas (`Seats/*.json`), pergunta, baú + mesa em runtime, mudança, registro `SEAT` v1 |
+| `src/UI/Prompt.*` | MessageBox vanilla com botões e callback (sem ESP/Papyrus) |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
-| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F10/F11) |
+| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F7–F11) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
 
 ## Pendências conhecidas da Fase 1
@@ -101,7 +119,7 @@ Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/00
 - [ ] Validar no jogo — roteiro M2 em [TESTES.md](TESTES.md) (ver "Pontos a verificar" abaixo)
 - [x] Criação de facção (nome, estilo, cor) com persistência no cosave (M3; UI vem no MCM)
 - [x] *Free Claim*: raycast com alinhamento à normal do terreno (debug F9; falta virar território — M3/M4)
-- [ ] Ligar a conquista real (captura de local) a `SetTerritoryOwner`
+- [x] Ligar a conquista real (captura de local) a `SetTerritoryOwner` (M5, aguardando teste)
 
 ## Pontos a verificar no primeiro teste
 
