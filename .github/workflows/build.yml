@@ -14,7 +14,8 @@ env:
 
 jobs:
   build:
-    runs-on: windows-latest
+    # Fixo no 2022: o preset usa o gerador "Visual Studio 17 2022" e o vcpkg do baseline só conhece até o VS 2022.
+    runs-on: windows-2022
     steps:
       - name: Checkout
         uses: actions/checkout@v4
