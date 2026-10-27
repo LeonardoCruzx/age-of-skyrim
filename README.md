@@ -2,8 +2,9 @@
 
 Mod de gestão de facções e conquista territorial para Skyrim SE/AE (um único DLL, via SKSE + CommonLibSSE-NG).
 
-**Estado atual — Fase 1 (Core & Banners), esqueleto inicial.** Escrito sem acesso a um compilador MSVC/Skyrim:
-as APIs da CommonLibSSE-NG foram conferidas no código-fonte, mas o projeto **ainda não foi compilado nem testado no jogo**.
+[![Build](https://github.com/LeonardoCruzx/age-of-skyrim/actions/workflows/build.yml/badge.svg)](https://github.com/LeonardoCruzx/age-of-skyrim/actions/workflows/build.yml)
+
+**Estado atual — Fase 1 (Core & Banners), esqueleto inicial.** Compila no CI (MSVC), mas **ainda não foi testado no jogo**.
 
 ## Pré-requisitos (Windows)
 
@@ -26,6 +27,13 @@ Para copiar DLL + JSONs automaticamente para a pasta do mod (MO2/Vortex) a cada 
 ```powershell
 setx AOS_DEPLOY_DIR "D:\MO2\mods\AgeOfSkyrim"
 ```
+
+### Build pelo CI (sem Visual Studio)
+
+Cada push em `main` compila o DLL no GitHub Actions (`.github/workflows/build.yml`, runner `windows-2022`).
+Em *Actions → Build → (run) → Artifacts*, baixe `AgeOfSkyrim-<sha>`: o zip já está no layout do mod
+(`SKSE/Plugins/AgeOfSkyrim.dll` + JSONs) e pode ser instalado direto no MO2/Vortex.
+Se o build falhar, o fim dos logs do vcpkg/CMake aparece como anotações no *Summary* do run.
 
 O log fica em `Documents\My Games\Skyrim Special Edition\SKSE\AgeOfSkyrim.log`.
 
@@ -58,7 +66,8 @@ entre neutro e cada estilo, com notificação na tela.
 
 ## Pendências conhecidas da Fase 1
 
-- [ ] Compilar e validar no jogo (ver "Pontos a verificar" abaixo)
+- [x] Compilar (CI)
+- [ ] Validar no jogo (ver "Pontos a verificar" abaixo)
 - [ ] Criação de facção (nome, estilo, cor) com persistência no cosave
 - [ ] *Free Claim*: raycast com alinhamento à normal do terreno para estandartes em locais genéricos
 - [ ] Ligar a conquista real (captura de local) a `SetTerritoryOwner`
