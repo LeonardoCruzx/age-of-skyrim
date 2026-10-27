@@ -7,8 +7,9 @@ on:
   workflow_dispatch:
 
 env:
-  # Mesmo commit do builtin-baseline do vcpkg.json (e da CommonLibSSE-NG 3.7).
-  VCPKG_COMMIT_ID: fc3f61366102c1f0d4547c06d03c523bb18c13a7
+  # Ferramenta + scripts do vcpkg (tag 2026.07.29). As VERSÕES das libs continuam fixadas pelo
+  # builtin-baseline do vcpkg.json; o checkout antigo do baseline não serve mais (mirrors do MSYS2 dão 404).
+  VCPKG_COMMIT_ID: 9e593bb18ea69cc5095e012465dcd675a822ed0d
   # Cache binário do vcpkg em disco (backend "files"), persistido com actions/cache.
   VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg-bincache
 
@@ -32,7 +33,7 @@ jobs:
           key: vcpkg-${{ env.VCPKG_COMMIT_ID }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: vcpkg-${{ env.VCPKG_COMMIT_ID }}-
 
-      # vcpkg clonado à mão no commit do baseline (sem lukka/run-vcpkg, que força o backend x-gha).
+      # vcpkg clonado à mão em VCPKG_COMMIT_ID (sem lukka/run-vcpkg, que força o backend x-gha).
       - name: Setup vcpkg
         shell: pwsh
         run: |
