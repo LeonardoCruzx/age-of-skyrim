@@ -1,6 +1,7 @@
 #include "Events/Events.h"
 
 #include "Banner/BannerController.h"
+#include "Core/I18n.h"
 #include "Debug/SelfTest.h"
 
 namespace AoS::Events
@@ -86,8 +87,7 @@ namespace AoS::Events
                 const auto next = order[(static_cast<std::size_t>(it - order.begin()) + 1) % order.size()];
 
                 if (SetTerritoryOwner(a_territory, next)) {
-                    const auto msg = std::format("AoS: {} -> {}", t->name, cfg.NameOf(next));
-                    RE::DebugNotification(msg.c_str());
+                    I18n::NotifyTr("debug.ownerChanged", t->name, cfg.NameOf(next));
                 }
             }
         };

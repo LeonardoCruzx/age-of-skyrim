@@ -1,5 +1,7 @@
 #include "Core/Config.h"
 
+#include "Core/I18n.h"
+
 namespace AoS
 {
     namespace
@@ -86,6 +88,9 @@ namespace AoS
     void Config::LoadSettings(const fs::path& a_file)
     {
         const auto json = ReadJson(a_file);
+        // Idioma antes de tudo: nomes de territórios são escolhidos na leitura.
+        I18n::Load(json ? json->value("language", "auto"s) : "auto"s,
+                   json ? json->value("textEncoding", "utf8"s) : "utf8"s);
         if (!json) {
             return;  // settings.json é opcional
         }
@@ -134,7 +139,7 @@ namespace AoS
                 continue;
             }
             t.id   = MakeId(t.key);
-            t.name = jt.value("name", t.key);
+            t.name = jt.contains("name") ? I18n::Pick(jt["name"], t.key) : t.key;  // "texto" ou {"en":..,"pt-br":..}
             if (index_.contains(t.id)) {
                 logger::warn("Território duplicado '{}', ignorado.", t.key);
                 continue;

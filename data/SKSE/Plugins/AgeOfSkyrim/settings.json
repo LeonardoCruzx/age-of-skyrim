@@ -1,4 +1,7 @@
 {
+  // "en", "pt-br" ou "auto" (idioma do jogo). textEncoding: "utf8" ou "cp1252" (se acentos aparecerem errados).
+  "language": "pt-br",
+  "textEncoding": "utf8",
   "debug": {
     "enabled": true,
     "hotkey": 68,

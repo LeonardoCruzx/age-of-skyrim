@@ -1,6 +1,7 @@
 #include "Debug/SelfTest.h"
 
 #include "Banner/BannerController.h"
+#include "Core/I18n.h"
 #include "Core/Timer.h"
 
 namespace AoS::SelfTest
@@ -33,12 +34,6 @@ namespace AoS::SelfTest
             }
         };
 
-        void Notify(const std::string& a_msg)
-        {
-            logger::info("[autoteste] {}", a_msg);
-            RE::DebugNotification(a_msg.c_str());
-        }
-
         // Confere que só as bandeiras do dono estão habilitadas. Retorna quantas refs foram vistas.
         std::size_t CheckVisible(Report& a_report, const Territory& a_t, Id a_owner)
         {
@@ -63,7 +58,7 @@ namespace AoS::SelfTest
         const auto& cfg = Config::Get();
         const auto* t   = cfg.Find(cfg.Debug().territory);
         if (!t) {
-            Notify("AoS autoteste: configure debug.territory em settings.json");
+            I18n::NotifyTr("selftest.noTerritory");
             return;
         }
         logger::info("[autoteste] ===== início ('{}') =====", t->key);
@@ -110,11 +105,11 @@ namespace AoS::SelfTest
 
         logger::info("[autoteste] ===== fim: {} PASS, {} FAIL =====", report.passed, report.failed);
         if (report.failed == 0) {
-            Notify(std::format("AoS autoteste OK ({} checagens). Agora salve e carregue.", report.passed));
+            I18n::NotifyTr("selftest.ok", report.passed);
         } else {
-            Notify(std::format("AoS autoteste FALHOU: {} de {}. Envie o log.", report.failed,
-                               report.passed + report.failed));
+            I18n::NotifyTr("selftest.failed", report.failed, report.passed + report.failed);
         }
+        I18n::NotifyTr("selftest.accents");  // confere se o HUD exibe acentos (utf8 vs cp1252)
     }
 
     void OnPostLoad()
@@ -138,8 +133,11 @@ namespace AoS::SelfTest
         report.Check(seen > 0, std::format("{} objeto(s) de teste encontrado(s) após carregar", seen));
 
         logger::info("[autoteste] ===== persistência: {} PASS, {} FAIL =====", report.passed, report.failed);
-        Notify(report.failed == 0 ? std::string("AoS persistência OK. Teste concluído!")
-                                  : std::format("AoS persistência FALHOU ({}). Envie o log.", report.failed));
+        if (report.failed == 0) {
+            I18n::NotifyTr("selftest.persistOk");
+        } else {
+            I18n::NotifyTr("selftest.persistFailed", report.failed);
+        }
     }
 
     void Clear()

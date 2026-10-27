@@ -23,6 +23,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Conferir traduções (en / pt-br)
+        run: python tools/check_translations.py
+
       - name: Criar pasta do cache binário
         run: New-Item -ItemType Directory -Force -Path $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
 

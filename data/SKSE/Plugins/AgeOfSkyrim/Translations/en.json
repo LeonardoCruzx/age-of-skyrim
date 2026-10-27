@@ -1,0 +1,10 @@
+{
+  // Player-facing texts (UTF-8). Every key must also exist in pt-br.json. {} = value filled in by the mod.
+  "debug.ownerChanged":     "AoS: {} -> {}",
+  "selftest.noTerritory":   "AoS self-test: set debug.territory in settings.json",
+  "selftest.ok":            "AoS self-test OK ({} checks). Now save and load.",
+  "selftest.failed":        "AoS self-test FAILED: {} of {}. Send the log.",
+  "selftest.accents":       "AoS text check: ação, coração, você, à",
+  "selftest.persistOk":     "AoS persistence OK. Test complete!",
+  "selftest.persistFailed": "AoS persistence FAILED ({}). Send the log."
+}

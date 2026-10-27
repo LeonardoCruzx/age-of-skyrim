@@ -6,6 +6,12 @@ Mod de gestão de facções e conquista territorial para Skyrim SE/AE (um único
 
 **Estado atual — Fase 1 (Core & Banners), esqueleto inicial.** Compila no CI (MSVC), mas **ainda não foi testado no jogo**.
 
+**Documentação:** [Roadmap](docs/ROADMAP.md) · [Decisões (ADRs)](docs/adr/README.md) · [Roteiros de teste](TESTES.md)
+
+**Idiomas:** inglês e português do Brasil. `settings.json` → `"language": "en" | "pt-br" | "auto"`.
+Textos em `Data/SKSE/Plugins/AgeOfSkyrim/Translations/*.json`; o CI falha se os dois idiomas divergirem
+(`tools/check_translations.py`).
+
 ## Pré-requisitos (Windows)
 
 - Visual Studio 2022 com a carga de trabalho *Desenvolvimento para desktop com C++*
@@ -49,9 +55,15 @@ O log fica em `Documents\My Games\Skyrim Special Edition\SKSE\AgeOfSkyrim.log`.
 Por que "estilos" e não "uma bandeira por facção"? Facções criadas pelo jogador são ilimitadas, mas referências
 pré-colocadas no CK são finitas. Cada facção escolhe um estilo de um conjunto fechado (os que você modelar/colocar).
 
+### Objetos criados em runtime (sem ESP)
+Além de refs pré-colocadas (`"Plugin.esp|0xID"`), cada item de `banners` pode ser
+`{ "place": "Plugin.esp|0xID", "offset": [direita, frente, cima] }`: o DLL cria o objeto (hoje relativo ao jogador)
+e guarda a referência no cosave (registro `PLAC`). Nada de editar células vanilla no ESP.
+
 ### Teste rápido sem UI
-`settings.json` → `debug`: a tecla configurada (padrão F10, DIK 68) alterna o dono de `debug.territory`
-entre neutro e cada estilo, com notificação na tela.
+`settings.json` → `debug`: **F10** (`hotkey`, DIK 68) alterna o dono de `debug.territory`; **F11**
+(`selfTestHotkey`, DIK 87) roda o autoteste (PASS/FAIL na tela e no log) e, depois de salvar e carregar,
+confere a persistência. Roteiro passo a passo em [TESTES.md](TESTES.md).
 
 ## Estrutura
 
@@ -60,14 +72,18 @@ entre neutro e cada estilo, com notificação na tela.
 | `src/Core/Ids.h` | IDs por hash FNV-1a (estáveis entre versões do JSON) |
 | `src/Core/Config.*` | Leitura dos JSONs, validação, resolução de `Plugin.esp\|0xID` |
 | `src/Core/State.*` | Dono de cada território + persistência no cosave (registro `TERR` v1) |
+| `src/Core/I18n.*` | Textos para o jogador (en / pt-br), fallback para inglês, notificações na tela |
+| `src/Core/Timer.h` | Tempo das operações no log (`[tempo] ...`) |
+| `src/World/Placement.*` | Objetos criados em runtime + refs no cosave (registro `PLAC` v1) |
+| `src/Debug/SelfTest.*` | Autoteste F11 e checagem de persistência (registro `TEST` v1) |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
-| `src/Events/Events.*` | Retentativa ao carregar células; hotkey de debug |
-| `src/Main.cpp` | Entrada SKSE, log, callbacks de cosave e mensagens |
+| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F10/F11) |
+| `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
 
 ## Pendências conhecidas da Fase 1
 
 - [x] Compilar (CI)
-- [ ] Validar no jogo (ver "Pontos a verificar" abaixo)
+- [ ] Validar no jogo — roteiro M2 em [TESTES.md](TESTES.md) (ver "Pontos a verificar" abaixo)
 - [ ] Criação de facção (nome, estilo, cor) com persistência no cosave
 - [ ] *Free Claim*: raycast com alinhamento à normal do terreno para estandartes em locais genéricos
 - [ ] Ligar a conquista real (captura de local) a `SetTerritoryOwner`

@@ -1,0 +1,10 @@
+{
+  // Textos para o jogador (UTF-8). Toda chave também deve existir em en.json. {} = valor preenchido pelo mod.
+  "debug.ownerChanged":     "AoS: {} -> {}",
+  "selftest.noTerritory":   "AoS autoteste: configure debug.territory em settings.json",
+  "selftest.ok":            "AoS autoteste OK ({} checagens). Agora salve e carregue.",
+  "selftest.failed":        "AoS autoteste FALHOU: {} de {}. Envie o log.",
+  "selftest.accents":       "AoS teste de texto: ação, coração, você, à",
+  "selftest.persistOk":     "AoS persistência OK. Teste concluído!",
+  "selftest.persistFailed": "AoS persistência FALHOU ({}). Envie o log."
+}

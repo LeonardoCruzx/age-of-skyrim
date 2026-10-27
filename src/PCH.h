@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include <algorithm>
+#include <cctype>
 #include <charconv>
 #include <chrono>
 #include <cmath>

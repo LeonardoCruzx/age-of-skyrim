@@ -9,7 +9,7 @@
   "territories": [
     {
       "id": "test_tower",
-      "name": "Torre de teste",
+      "name": { "en": "Test tower", "pt-br": "Torre de teste" },
       "defaultOwner": "imperial",
       "banners": {
         "imperial":   [{ "place": "Skyrim.esm|0x00000F", "offset": [-80, 150, 30] }],
