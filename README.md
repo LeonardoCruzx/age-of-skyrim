@@ -6,7 +6,7 @@ Mod de gestão de facções e conquista territorial para Skyrim SE/AE (um único
 
 **Estado atual — Fase 1 (Core & Banners), esqueleto inicial.** Compila no CI (MSVC), mas **ainda não foi testado no jogo**.
 
-**Documentação:** [Roadmap](docs/ROADMAP.md) · [Decisões (ADRs)](docs/adr/README.md) · [Roteiros de teste](TESTES.md)
+**Documentação:** [Roadmap](docs/ROADMAP.md) · [Decisões (ADRs)](docs/adr/README.md) · [Roteiros de teste](TESTES.md) · [Referências](docs/REFERENCIAS.md) · [Comparativo com Conquest of Skyrim](docs/COMPARATIVO-CONQUEST-OF-SKYRIM.md)
 
 **Idiomas:** inglês e português do Brasil. `settings.json` → `"language": "en" | "pt-br" | "auto"`.
 Textos em `Data/SKSE/Plugins/AgeOfSkyrim/Translations/*.json`; o CI falha se os dois idiomas divergirem
