@@ -32,12 +32,16 @@ jobs:
           key: vcpkg-${{ env.VCPKG_COMMIT_ID }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: vcpkg-${{ env.VCPKG_COMMIT_ID }}-
 
+      # vcpkg clonado à mão no commit do baseline (sem lukka/run-vcpkg, que força o backend x-gha).
       - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: ${{ env.VCPKG_COMMIT_ID }}
-          vcpkgJsonGlob: vcpkg.json
-          runVcpkgInstall: false
+        shell: pwsh
+        run: |
+          $root = "${{ github.workspace }}/vcpkg"
+          git clone --quiet https://github.com/microsoft/vcpkg.git $root
+          git -C $root checkout --quiet $env:VCPKG_COMMIT_ID
+          & "$root/bootstrap-vcpkg.bat" -disableMetrics
+          "VCPKG_ROOT=$root" >> $env:GITHUB_ENV
+          "VCPKG_BINARY_SOURCES=clear;files,$env:VCPKG_DEFAULT_BINARY_CACHE,readwrite" >> $env:GITHUB_ENV
 
       - name: Configure
         run: cmake --preset windows-msvc
