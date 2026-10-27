@@ -22,28 +22,34 @@ Ver [REFERENCIAS.md](REFERENCIAS.md) e [ADR 0030](adr/0030-referencias-externas-
 
 | Problema no CoS | Regra para nós | Missão |
 |---|---|---|
-| CTD ao carregar cerco com 40+ atores e Papyrus congestionado (`ISSUE-CTD-01`, `-04`) | Lógica no DLL, sem loops Papyrus; **teto global de atores** criados e spawn em lotes por frame | M14, M16 |
-| Crash de pathfinding com navmesh alterado (`ISSUE-CTD-02`) | Nunca editar navmesh/células vanilla; NPCs só em marcadores existentes | M14, M16 |
-| Soldados sem FaceGen (`ISSUE-CTD-03`) | Usar NPCs/leveled lists vanilla com FaceGen pronto, nada de NPC gerado sem malha | M14 |
-| "Tropas peladas": outfit não aplicado (`ISSUE-GAME-01`) | Aplicar outfit no DLL ao criar o ator e conferir no carregamento da célula | M14 |
+| CTD ao carregar cerco com 40+ atores e Papyrus congestionado (`ISSUE-CTD-01`, `-04`) | Lógica no DLL, sem loops Papyrus; **teto global de atores** criados e spawn em lotes por frame | M14, M16, M20, M21 |
+| Crash de pathfinding com navmesh alterado (`ISSUE-CTD-02`) | Nunca editar navmesh/células vanilla; NPCs só em marcadores existentes | M14, M16, M21 |
+| Soldados sem FaceGen (`ISSUE-CTD-03`) | Usar NPCs/leveled lists vanilla com FaceGen pronto, nada de NPC gerado sem malha | M14, M20 |
+| "Tropas peladas": outfit não aplicado (`ISSUE-GAME-01`) | Aplicar outfit no DLL ao criar o ator e conferir no carregamento da célula | M14, M20, M21 |
 | Recompensa (bounty) da facção antiga continua (`ISSUE-GAME-02`) | Ao trocar dono de cidade, tratar a facção de crime da província (opcional, configurável) | M16/M17 |
-| Conflito com quests da Guerra Civil vanilla (`ISSUE-QST-03/04`) | Lista de exclusão e detecção de quests da Guerra Civil ativas; não tocar aliases vanilla | M5, M18 |
+| Conflito com quests da Guerra Civil vanilla (`ISSUE-QST-03/04`) | Lista de exclusão e detecção de quests da Guerra Civil ativas; não tocar aliases vanilla | M5, M23 |
 | Contagem de capitais dessincronizada e captura que não dispara (`ISSUE-QST-01/02`) | Estado derivado de uma única fonte (State) + evento de local limpo, sem gatilhos de proximidade | M5 |
-| Pacotes de IA presos (`ISSUE-GAME-03`) | Não reaproveitar NPCs vanilla com pacotes/aliases; criar os nossos | M14 |
+| Pacotes de IA presos (`ISSUE-GAME-03`) | Não reaproveitar NPCs vanilla com pacotes/aliases; criar os nossos | M14, M18, M20 |
 
-## 3. Funcionalidades do CoS que NÃO estão no roadmap (candidatas)
+## 3. Adotadas na Fase 4 ([ADR 0031](adr/0031-exercito-governo-populacao-titulos.md))
+
+| Conquest of Skyrim | Age of Skyrim |
+|---|---|
+| Doutrina, cargos (mordomo/comandante/ferreiro), governadores (`FEAT-FACT-04`, `FEAT-GOV-*`, `FEAT-SETT-02`) | M18 governo e doutrina |
+| População, trabalho, alistamento (`FEAT-POP-01..03`) | M19 população |
+| Oficiais, tropas, divisões, equipamento, treino (`FEAT-MIL-01..05`) | M20 exército e recrutamento |
+| Batalhas em tempo real, formações (`FEAT-BAT-01/02`) | M21 batalhas em tempo real |
+| Títulos (`FEAT-PROG-01`) | M22 títulos e progressão |
+
+## 4. Funcionalidades do CoS ainda fora do roadmap (candidatas)
 
 Decisão do usuário se entram como missões novas:
 
-- **Recrutamento e exército:** oficiais, tropas, divisões, equipamento padrão, treino (`FEAT-MIL-01..05`).
-- **Batalhas em tempo real:** formações, desfiles de vitória (`FEAT-BAT-01..03`).
 - **Cercos de capitais:** início do cerco, armas de cerco, invasão, rendição (`FEAT-SIEG-01..04`).
-- **Governo:** doutrina (feudal/militar/república), governadores e troca de jarl, mordomo/comandante/ferreiro
-  (`FEAT-FACT-04`, `FEAT-SETT-01/02`, `FEAT-GOV-*`, `FEAT-JARL-*`).
-- **População:** contagem, trabalho, alistamento (`FEAT-POP-01..03`).
+- **Troca de jarl** e lealdade dos jarls (`FEAT-JARL-*`, `FEAT-SETT-01`).
 - **Lei:** recompensas, prisioneiros, resgates, execuções, prisões (`FEAT-LAW-*`, `FEAT-DIPL-03`).
 - **Estabilidade:** ordem pública, rebeliões (`FEAT-STAB-01/02`).
-- **Progressão e vitória:** títulos, corte, conquistar as 9 províncias, Moot e coroação
-  (`FEAT-PROG-*`, `FEAT-VICT-*`).
+- **Desfiles de vitória** (`FEAT-BAT-03`), **corte e guarda real** (`FEAT-PROG-02`).
+- **Vitória:** conquistar as 9 províncias, Moot e coroação (`FEAT-VICT-*`).
 - **Pesquisa militar** (`FEAT-TECH-01`).
 - **Diálogo imersivo** com NPCs da facção (`FEAT-UI-01`), o que exige ESP com quests e diálogo, e voz.

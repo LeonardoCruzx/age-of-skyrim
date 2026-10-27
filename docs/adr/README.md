@@ -27,3 +27,4 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0020 | [Melhorias de territórios (custo + tempo de obra, visual por nível)](0020-melhorias-de-territorios.md) | Decisão do usuário | Aceita |
 | 0021 | [Implementar as missões restantes sem esperar testes; teste único no fim](0021-implementar-tudo-teste-unico-no-fim.md) | Decisão do usuário | Aceita |
 | 0030 | [Dogfish / Conquest of Skyrim como referência de design (sem copiar conteúdo)](0030-referencias-externas-dogfish.md) | Decisão do usuário | Aceita |
+| 0031 | [Fase 4: governo e doutrina, população, exército, batalhas em tempo real, títulos](0031-exercito-governo-populacao-titulos.md) | Decisão do usuário | Aceita |

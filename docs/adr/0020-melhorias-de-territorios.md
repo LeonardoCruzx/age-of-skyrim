@@ -22,7 +22,7 @@ locais tomados para que fiquem mais fortes ou mais úteis, dando uso ao estoque 
   onde agir; IA, diplomacia e release viram M16–M18.
 
 ## Consequências
-- Coordenadas visuais só existem para locais curados; patches de compatibilidade (M18) precisam ajustá-las
+- Coordenadas visuais só existem para locais curados; patches de compatibilidade (M23, antes M18) precisam ajustá-las
   quando outro mod muda o layout de um forte.
 - Balanceamento de custos/tempos fica todo em JSON, ajustável sem recompilar.
 - Textos de melhorias e níveis em en.json e pt-br.json.

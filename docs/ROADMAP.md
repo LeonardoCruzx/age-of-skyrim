@@ -169,11 +169,54 @@ Regras para todas as missões:
 
 ### M17. ⬜ Diplomacia básica
 - Relações entre facções (guerra/paz/aliança) no cosave; afeta IA, rotas de comércio e hostilidade dos guardas.
+- Na Fase 4, a IA (M16) e a diplomacia passam a usar exércitos (M20) e batalhas (M21) no lugar da resolução por força simples.
 
-### M18. ⬜ Patches de compatibilidade + release
+## Fase 4 — Reino e exército ([ADR 0031](adr/0031-exercito-governo-populacao-titulos.md))
+
+Inspiradas no Conquest of Skyrim ([comparativo](COMPARATIVO-CONQUEST-OF-SKYRIM.md)), mas com as lições da seção 2
+como requisito: lógica no DLL, teto de atores, sem navmesh nem NPC vanilla com pacotes.
+
+### M18. ⬜ Governo e doutrina
+- Doutrinas data-driven (`Doctrines.json`, extensível): ex. feudal, militar, república, mercantil. Cada uma é
+  um conjunto de modificadores numéricos (produção, impostos, custo/velocidade de recrutamento, crescimento da
+  população, defesa) lidos por M12/M13/M14/M19/M20. Escolha na fundação da facção, troca com custo e espera.
+- Cargos da facção (mordomo → economia, comandante → exército, ferreiro → equipamento): NPCs **nossos**
+  (base vanilla, sem aliases/pacotes vanilla) colocados na sede, cada um dá bônus e abre o menu da sua área.
+- Governadores por província conquistada (bônus regional). Cosave `GOVT` v1. Textos en/pt-br.
+
+### M19. ⬜ População
+- Cada território tem população numérica por tipo (vila/cidade/forte), simulada no tick por hora (M12):
+  cresce com comida no estoque, cai com fome, guerra e alistamento.
+- Mão de obra multiplica a produção (M12); população é a fonte de recrutas (M20) e de impostos (doutrina M18).
+- Sem atores: só números. Cosave `POPL` v1; visível no mapa tático (M11) e no MCM (M10).
+
+### M20. ⬜ 🎮 Exército e recrutamento
+- Recrutar soldados nos territórios (consome população, ouro e equipamento do estoque; tempo de treino).
+  Tipos de tropa data-driven (`Troops.json`: leveled list/NPC vanilla base com FaceGen pronto, outfit por estilo
+  da facção aplicado pelo DLL, custo, força).
+- Exércitos = unidades **abstratas** (contagens por tipo, força, moral, posição em território) no cosave `ARMY` v1;
+  movem-se entre vizinhos no mapa tático. Só viram atores perto do jogador (M21).
+- Oficiais/comandantes de exército; manutenção paga pela economia; falta de comida/ouro → deserção.
+- O jogador pode levar um grupo pequeno como escolta (teto configurável).
+
+### M21. ⬜ 🎮 Batalhas em tempo real
+- Quando um exército encontra outro (ou ataca um território) com o jogador por perto, a batalha é
+  **materializada**: atores criados em lotes por frame nos marcadores do local, **teto global de atores**
+  (configurável; o restante entra como reforço quando alguém morre), facções de combate por facção do mod.
+- Formações simples (linha, cunha, defesa) por posição de spawn e pacotes nossos; reforços em ondas.
+- Resultado da batalha atualiza as contagens do exército abstrato; longe do jogador, a resolução é numérica
+  (a mesma da M16). Limpeza dos atores ao fim ou ao sair da área. Desempenho medido no log (meta: sem picos > 5 ms/frame).
+
+### M22. ⬜ Títulos e progressão
+- Títulos da facção do jogador por marcos (territórios, províncias, população, exército): ex. Chefe de bando →
+  Senhor → Jarl → Rei/Rainha Supremo(a) de Skyrim. Tabela data-driven (`Titles.json`), textos en/pt-br.
+- Cada título destrava coisas (mais cargos, doutrinas, teto de exército) e é anunciado na tela.
+- Cosave junto do `FACT` (subir versão com migração) ou `TITL` v1.
+
+### M23. ⬜ Patches de compatibilidade + release
 - Pacotes JSON opcionais para mods populares de locais/fortes (JK's, Lux, Open Cities...) incluindo coordenadas
   ajustadas de baú/mesa da sede; lista de exclusão para mods de guerra civil.
-- Perfil de performance num save grande (todos os territórios, guarnições, IA, rotas).
+- Perfil de performance num save grande (todos os territórios, guarnições, exércitos, IA, rotas, batalhas).
 - Release: FOMOD (patches selecionáveis), página do Nexus, changelog; CI publica release em tag `v*`.
 
 ---
