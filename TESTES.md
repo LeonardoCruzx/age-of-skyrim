@@ -28,3 +28,24 @@ Não precisa de ESP: o mod cria 3 objetos de teste na sua frente (moeda de ouro,
 
 **Se algo der diferente** (mensagem de FALHOU, nenhuma mensagem, objeto errado, crash): só me envie o log
 e diga em qual passo parou.
+
+---
+
+## M7 (núcleo) — Estoque por categoria (≈ 2 min)
+
+1. Carregue um save em que você tenha comida, ouro e algum lingote/minério no inventário.
+2. Aperte **F8**. Aparece **"AoS estoque (seu inventário):"** e uma linha por categoria
+   (ex.: "Ouro: 350", "Comida: 12", "Metais: 4"...) e por último "Sem categoria: ...".
+3. Confira se os números fazem sentido (ex.: o ouro bate com o ouro do inventário).
+4. Me envie o `AgeOfSkyrim.log` (ele lista o nome de cada keyword usada, para eu conferir os IDs).
+
+## M8 — Free Claim (≈ 3 min)
+
+1. Num lugar **aberto** (fora de cidades/cavernas), olhe para a frente e aperte **F9**.
+   Deve aparecer **"AoS: estandarte fincado (1 de 10, ...)"** e uma **espada de ferro** surge no chão à sua frente,
+   parada (não cai nem rola). Não pegue a espada.
+2. Aperte **F9** de novo no mesmo lugar: deve aparecer **"muito perto de outro claim"**.
+3. Vá até uma **ladeira** (afaste-se uns 30 m), olhe morro acima e aperte **F9**: a espada deve ficar
+   **inclinada acompanhando o chão**. Repare se ela inclina para o lado certo ou ao contrário.
+4. **Salve**, **carregue** o save e confira que as espadas continuam lá.
+5. Me envie o `AgeOfSkyrim.log` + diga como ficou a inclinação do passo 3.

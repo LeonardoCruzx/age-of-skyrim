@@ -75,6 +75,31 @@ namespace AoS
         return ref.get();
     }
 
+    RE::TESObjectREFR* Placement::PlaceAt(RE::TESBoundObject* a_base, const RE::NiPoint3& a_pos,
+                                          const RE::NiPoint3& a_angle, bool a_keyframed)
+    {
+        const auto player = RE::PlayerCharacter::GetSingleton();
+        if (!a_base || !player || !player->GetParentCell() || !player->Is3DLoaded()) {
+            return nullptr;
+        }
+        const auto ref = player->PlaceObjectAtMe(a_base, /*forcePersist*/ true);
+        if (!ref) {
+            logger::error("Placement: PlaceObjectAtMe falhou para 0x{:08X}.", a_base->GetFormID());
+            return nullptr;
+        }
+        ref->data.angle = a_angle;  // SetPosition reaplica data.angle junto com a posição
+        ref->SetPosition(a_pos);
+        if (a_keyframed && !ref->SetMotionType(RE::TESObjectREFR::MotionType::kKeyframed)) {
+            // 3D recém-criado pode ainda não existir: tenta de novo no próximo frame.
+            SKSE::GetTaskInterface()->AddTask([id = ref->GetFormID()] {
+                if (const auto r = RE::TESForm::LookupByID<RE::TESObjectREFR>(id)) {
+                    r->SetMotionType(RE::TESObjectREFR::MotionType::kKeyframed);
+                }
+            });
+        }
+        return ref.get();
+    }
+
     void Placement::Clear()
     {
         std::scoped_lock l{ lock_ };

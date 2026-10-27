@@ -98,9 +98,20 @@ namespace AoS
             debug_.enabled = dbg->value("enabled", false);
             debug_.hotkey         = dbg->value("hotkey", 0x44);
             debug_.selfTestHotkey = dbg->value("selfTestHotkey", 0x57);
+            debug_.stockHotkey    = dbg->value("stockHotkey", 0x42);
+            debug_.claimHotkey    = dbg->value("claimHotkey", 0x43);
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
+        }
+        if (const auto c = json->find("claim"); c != json->end() && c->is_object()) {
+            if (const auto b = FormRef::Parse(c->value("banner", std::string{}))) {
+                claim_.banner = *b;
+            }
+            claim_.minDistance     = c->value("minDistance", claim_.minDistance);
+            claim_.maxClaims       = c->value("maxClaims", claim_.maxClaims);
+            claim_.maxSlopeDegrees = c->value("maxSlopeDegrees", claim_.maxSlopeDegrees);
+            claim_.forwardDistance = c->value("forwardDistance", claim_.forwardDistance);
         }
     }
 

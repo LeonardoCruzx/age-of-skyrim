@@ -22,6 +22,11 @@ namespace AoS
         // Retorna quantos falharam (base inexistente, jogador sem célula carregada...).
         std::size_t EnsurePlaced(const Territory& a_territory);
 
+        // Cria um objeto em posição/ângulo absolutos na célula do jogador (não entra no registro PLAC: quem
+        // chama guarda o FormID, ex.: Claims). a_keyframed: desliga a física (itens não caem nem tombam).
+        [[nodiscard]] static RE::TESObjectREFR* PlaceAt(RE::TESBoundObject* a_base, const RE::NiPoint3& a_pos,
+                                                        const RE::NiPoint3& a_angle, bool a_keyframed);
+
         void Clear();
         void Save(SKSE::SerializationInterface* a_intfc) const;
         void LoadRecord(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);

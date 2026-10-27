@@ -88,19 +88,20 @@ Regras para todas as missões:
 - Base objects (baú, mesa) definidos no `AgeOfSkyrim.esp` (ESL), sem tocar nos vanilla.
 - Mudar de sede: remove os objetos antigos (transferindo o conteúdo do baú) e cria na nova.
 
-### M7. ⬜ 🎮 Estoque por categoria
-- O baú guarda **itens reais**; o DLL classifica por keyword padrão do jogo (`VendorItemFood`, `VendorItemOreIngot`,
-  `VendorItemIngredient`, ouro `Gold001`, ...) → categorias Comida, Ouro, Metais, Materiais, Equipamento.
-- Mapeamento keyword → categoria em JSON (`Resources.json`), extensível: itens de outros mods entram automaticamente
-  se usam as keywords padrão; mods com keywords próprias adicionam linhas.
-- Recontagem só no evento de fechar o baú (`MenuOpenCloseEvent` do ContainerMenu com o ref da sede) + cache;
-  zero custo contínuo. Totais expostos na API (M9) e no mapa (M11).
+### M7. 🔄 🎮 Estoque por categoria — núcleo pronto (branch `m7-m8-estoque-claim`), ligação ao baú na M6
+- ✅ `Stock/`: `Resources.json` com categorias localizadas (ouro, comida, metais, materiais, alquimia, valiosos,
+  equipamento) e regras por form, keyword vanilla e tipo de form; precedência e custo em [ADR 0017](adr/0017-estoque-classificacao-por-keyword.md).
+- ✅ `CountByCategory(container)`: uma passada em `GetInventoryCounts()`, classificação memorizada por objeto base.
+- ✅ Sink de `ContainerMenu`: reconta ao fechar só containers observados (custo zero sem observados).
+- ✅ Debug F8: inventário do jogador por categoria na tela + log (EditorID de cada keyword no log).
+- ⬜ M6: `Stock::Observe(baú da sede)`; M9: evento `OnStockChanged`; M11: totais no mapa.
 
-### M8. ⬜ 🎮 Free Claim (estandarte em local genérico)
-- Item/power "Fincar Estandarte": raycast (`bhkPickData`) do jogador até o chão, normal do terreno → `PlaceObjectAtMe`
-  + rotação alinhada.
-- Território dinâmico salvo no cosave (`CLAM` v1: posição, worldspace/célula, facção, FormID do ref criado).
-- Limites: distância mínima entre claims, máximo por facção (config).
+### M8. 🔄 🎮 Free Claim (estandarte em local genérico) — branch `m7-m8-estoque-claim`
+- ✅ Debug F9: raycast vertical (`bhkWorld::PickObject`) à frente do jogador → ponto + normal do terreno;
+  estandarte criado com `Placement::PlaceAt`, alinhado à normal e sem física ([ADR 0018](adr/0018-free-claim-raycast.md)).
+- ✅ Cosave `CLAM` v1 (serial, Id estável, worldspace, posição, FormID do ref); limites em `settings.json → claim`
+  (distância mínima, máximo, inclinação máxima, sem interiores).
+- ⬜ Depois de M3/M4: claim vira território dinâmico da facção do jogador; item/power "Fincar Estandarte" no lugar da hotkey.
 
 ## Fase 2 — Interface e gestão
 

@@ -20,3 +20,5 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0013 | [Mesa de guerra na sede abre mapa tático em PrismaUI](0013-mesa-de-guerra-mapa-tatico.md) | Decisão do usuário | Aceita |
 | 0014 | [Mod traduzido em inglês e português do Brasil](0014-traducao-en-ptbr.md) | Decisão do usuário | Aceita |
 | 0015 | [Desenvolvimento em missões sequenciais](0015-roadmap-em-missoes.md) | Decisão do usuário | Aceita |
+| 0017 | [Classificação do estoque por keyword: implementação](0017-estoque-classificacao-por-keyword.md) | Técnica | Aceita |
+| 0018 | [Free Claim: raycast até o chão e alinhamento à normal do terreno](0018-free-claim-raycast.md) | Técnica | Aceita |
