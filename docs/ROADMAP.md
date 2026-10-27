@@ -60,7 +60,7 @@ Regras para todas as missões:
 - Infra de tradução (`Core/I18n`, `Translations/en.json` + `pt-br.json`) e checagem de acentos no HUD.
 - Despacho central do cosave em `Main.cpp`; tempo das operações no log.
 
-### M3. ⬜ Facções do jogador (modelo + cosave)
+### M3. 🔄 Facções do jogador (modelo + cosave) — [ADR 0019](adr/0019-modelo-de-faccoes.md)
 - `src/Core/Factions.{h,cpp}`: `Faction { Id id; std::string name; Id style; std::uint32_t color; bool isPlayer; }`.
 - Registro de cosave `FACT` v1. O dono de território passa a ser **facção** (não estilo): `TERR` v2 com migração
   (v1: o estilo gravado vira uma facção pré-definida de mesmo nome).

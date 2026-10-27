@@ -30,7 +30,8 @@ namespace AoS
             return;
         }
 
-        const Id owner    = State::Get().Owner(a_territory);
+        // Bandeiras são por estilo; o dono é uma facção. Neutro -> estilo neutro -> nada habilitado.
+        const Id owner    = Factions::Get().StyleOf(State::Get().Owner(a_territory));
         bool     complete = true;
 
         // Passo 1: desabilita tudo que NÃO é do dono (nunca há duas bandeiras ao mesmo tempo).
@@ -82,13 +83,13 @@ namespace AoS
             logger::warn("SetTerritoryOwner: território 0x{:08X} desconhecido.", a_territory);
             return false;
         }
-        if (!cfg.IsValidOwner(a_owner)) {
-            logger::warn("SetTerritoryOwner: estilo 0x{:08X} desconhecido.", a_owner);
+        if (!Factions::Get().IsValidOwner(a_owner)) {
+            logger::warn("SetTerritoryOwner: facção 0x{:08X} desconhecida.", a_owner);
             return false;
         }
 
         State::Get().SetOwner(a_territory, a_owner);
-        logger::info("Território '{}' -> {}", t->key, cfg.NameOf(a_owner));
+        logger::info("Território '{}' -> {}", t->key, Factions::Get().NameOf(a_owner));
 
         SKSE::GetTaskInterface()->AddTask([a_territory] { BannerController::Get().ApplyTerritory(a_territory); });
         return true;

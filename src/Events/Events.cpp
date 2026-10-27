@@ -80,14 +80,15 @@ namespace AoS::Events
                 }
                 Placement::Get().EnsurePlaced(*t);  // objetos de teste nascem na primeira vez
                 std::vector<Id> order{ kNeutral };
-                order.insert(order.end(), cfg.Styles().begin(), cfg.Styles().end());
+                const auto factions = Factions::Get().Ids();
+                order.insert(order.end(), factions.begin(), factions.end());
 
                 const auto cur  = State::Get().Owner(a_territory);
                 const auto it   = std::find(order.begin(), order.end(), cur);
                 const auto next = order[(static_cast<std::size_t>(it - order.begin()) + 1) % order.size()];
 
                 if (SetTerritoryOwner(a_territory, next)) {
-                    I18n::NotifyTr("debug.ownerChanged", t->name, cfg.NameOf(next));
+                    I18n::NotifyTr("debug.ownerChanged", t->name, Factions::Get().NameOf(next));
                 }
             }
         };

@@ -6,5 +6,6 @@
   "selftest.failed":        "AoS autoteste FALHOU: {} de {}. Envie o log.",
   "selftest.accents":       "AoS teste de texto: ação, coração, você, à",
   "selftest.persistOk":     "AoS persistência OK. Teste concluído!",
-  "selftest.persistFailed": "AoS persistência FALHOU ({}). Envie o log."
+  "selftest.persistFailed": "AoS persistência FALHOU ({}). Envie o log.",
+  "selftest.playerFactionName": "Minha Facção (teste)"
 }

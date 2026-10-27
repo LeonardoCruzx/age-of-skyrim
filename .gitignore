@@ -6,3 +6,4 @@ vcpkg_installed/
 CMakeUserPresets.json
 *.user
 *.aps
+.claude/

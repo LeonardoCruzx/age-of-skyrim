@@ -146,12 +146,9 @@ namespace AoS
             }
             RegisterName(t.id, t.key);
 
+            // Facção dona em jogo novo; validada em State::ResetToDefaults (facções carregam depois).
             if (const auto owner = jt.value("defaultOwner", std::string{}); !owner.empty()) {
                 t.defaultOwner = MakeId(owner);
-                if (std::find(styles_.begin(), styles_.end(), t.defaultOwner) == styles_.end()) {
-                    logger::warn("'{}': defaultOwner '{}' não é um estilo declarado; usando neutro.", t.key, owner);
-                    t.defaultOwner = kNeutral;
-                }
             }
 
             if (const auto b = jt.find("banners"); b != jt.end() && b->is_object()) {
@@ -201,11 +198,6 @@ namespace AoS
     {
         const auto it = index_.find(a_territory);
         return it == index_.end() ? nullptr : &territories_[it->second];
-    }
-
-    bool Config::IsValidOwner(Id a_owner) const
-    {
-        return a_owner == kNeutral || std::find(styles_.begin(), styles_.end(), a_owner) != styles_.end();
     }
 
     std::string_view Config::NameOf(Id a_id) const

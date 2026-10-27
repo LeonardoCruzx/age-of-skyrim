@@ -1,16 +1,16 @@
 {
   // Território de teste: nenhum ESP necessário. Cada estilo tem um objeto vanilla bem diferente,
   // criado pelo DLL na frente do jogador na primeira vez que F10/F11 é usado (e salvo no cosave).
-  //   imperial   -> moeda de ouro (Gold001)
-  //   stormcloak -> lingote de ferro (IngotIron)
-  //   custom_red -> sweetroll
+  //   imperial   -> moeda de ouro (Gold001)      — Legião Imperial
+  //   stormcloak -> lingote de ferro (IngotIron) — Mantos da Tempestade
+  //   custom_red -> sweetroll                    — facção do jogador criada pelo autoteste
   // Bandeiras reais pré-colocadas num plugin usam o formato curto: "MeuMod.esp|0x000800".
   "styles": ["imperial", "stormcloak", "custom_red"],
   "territories": [
     {
       "id": "test_tower",
       "name": { "en": "Test tower", "pt-br": "Torre de teste" },
-      "defaultOwner": "imperial",
+      "defaultOwner": "imperial",            // facção (Factions/*.json)
       "banners": {
         "imperial":   [{ "place": "Skyrim.esm|0x00000F", "offset": [-80, 150, 30] }],
         "stormcloak": [{ "place": "Skyrim.esm|0x05ACE4", "offset": [0, 150, 30] }],

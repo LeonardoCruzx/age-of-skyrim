@@ -1,4 +1,5 @@
 #include "Banner/BannerController.h"
+#include "Core/Factions.h"
 #include "Debug/SelfTest.h"
 #include "Events/Events.h"
 #include "World/Placement.h"
@@ -26,6 +27,7 @@ namespace
     // ---- Cosave ------------------------------------------------------------------------------------
     void OnSave(SKSE::SerializationInterface* a_intfc)
     {
+        AoS::Factions::Get().Save(a_intfc);
         AoS::State::Get().Save(a_intfc);
         AoS::Placement::Get().Save(a_intfc);
         AoS::SelfTest::Save(a_intfc);
@@ -37,6 +39,9 @@ namespace
         std::uint32_t type{}, version{}, length{};
         while (a_intfc->GetNextRecordInfo(type, version, length)) {
             switch (type) {
+            case AoS::Factions::kRecord:
+                AoS::Factions::Get().LoadRecord(a_intfc, version);
+                break;
             case AoS::State::kRecord:
                 AoS::State::Get().LoadRecord(a_intfc, version);
                 break;
@@ -55,6 +60,7 @@ namespace
 
     void OnRevert(SKSE::SerializationInterface*)
     {
+        AoS::Factions::Get().ClearPlayerFactions();
         AoS::State::Get().ResetToDefaults();
         AoS::Placement::Get().Clear();
         AoS::SelfTest::Clear();
@@ -68,6 +74,7 @@ namespace
             if (!AoS::Config::Get().Load()) {
                 logger::warn("Nenhum território carregado; verifique Data/SKSE/Plugins/AgeOfSkyrim/Territories/.");
             }
+            AoS::Factions::Get().Load();  // depois da Config: valida estilos
             AoS::State::Get().ResetToDefaults();
             AoS::Events::Register();
             break;

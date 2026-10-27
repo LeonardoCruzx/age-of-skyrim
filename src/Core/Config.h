@@ -43,7 +43,7 @@ namespace AoS
         std::string            key;
         Id                     id{ kNeutral };
         std::string            name;
-        Id                     defaultOwner{ kNeutral };
+        Id                     defaultOwner{ kNeutral };  // facção
         std::vector<BannerSet> banners;
     };
 
@@ -66,7 +66,6 @@ namespace AoS
         [[nodiscard]] const Territory*              Find(Id a_territory) const;
         [[nodiscard]] const std::vector<Territory>& Territories() const noexcept { return territories_; }
         [[nodiscard]] const std::vector<Id>&        Styles() const noexcept { return styles_; }
-        [[nodiscard]] bool                          IsValidOwner(Id a_owner) const;
         [[nodiscard]] std::string_view              NameOf(Id a_id) const;  // para logs
         [[nodiscard]] const DebugSettings&          Debug() const noexcept { return debug_; }
 

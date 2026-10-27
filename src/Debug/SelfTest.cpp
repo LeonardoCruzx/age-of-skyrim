@@ -1,6 +1,7 @@
 #include "Debug/SelfTest.h"
 
 #include "Banner/BannerController.h"
+#include "Core/Factions.h"
 #include "Core/I18n.h"
 #include "Core/Timer.h"
 
@@ -12,7 +13,7 @@ namespace AoS::SelfTest
         struct Expectation
         {
             Id territory{ kNeutral };
-            Id owner{ kNeutral };
+            Id owner{ kNeutral };  // facção do jogador criada pelo autoteste
         };
 
         std::optional<Expectation> expected_;  // estado atual (vai para o próximo save)
@@ -37,15 +38,17 @@ namespace AoS::SelfTest
         // Confere que só as bandeiras do dono estão habilitadas. Retorna quantas refs foram vistas.
         std::size_t CheckVisible(Report& a_report, const Territory& a_t, Id a_owner)
         {
-            const auto& cfg   = Config::Get();
-            std::size_t seen  = 0;
+            const auto& cfg      = Config::Get();
+            const auto& factions = Factions::Get();
+            const auto  style    = factions.StyleOf(a_owner);
+            std::size_t seen     = 0;
             for (const auto& set : a_t.banners) {
-                const bool shouldShow = set.style == a_owner;
+                const bool shouldShow = set.style == style;
                 ForEachBanner(set, [&](RE::TESObjectREFR* r) {
                     ++seen;
                     a_report.Check(r->IsDisabled() != shouldShow,
-                                   std::format("dono={} -> ref 0x{:08X} ({}) {}", cfg.NameOf(a_owner), r->GetFormID(),
-                                               cfg.NameOf(set.style), shouldShow ? "visível" : "oculta"));
+                                   std::format("dono={} -> ref 0x{:08X} ({}) {}", factions.NameOf(a_owner),
+                                               r->GetFormID(), cfg.NameOf(set.style), shouldShow ? "visível" : "oculta"));
                 });
             }
             return seen;
@@ -82,23 +85,30 @@ namespace AoS::SelfTest
         }
         report.Check(complete && total > 0, std::format("{} bandeira(s) resolvida(s)", total));
 
-        // 3. Cada dono (neutro + estilos): só as bandeiras dele visíveis.
+        // 3. Facção do jogador (cria uma de teste se ainda não existe), com o último estilo declarado.
+        auto& factions = Factions::Get();
+        auto  player   = factions.PlayerFaction();
+        if (!player && !cfg.Styles().empty()) {
+            if (const auto id = factions.CreatePlayerFaction(I18n::Tr("selftest.playerFactionName"),
+                                                             cfg.Styles().back(), 0x2E7D32)) {
+                player = factions.Find(*id);
+            }
+        }
+        report.Check(player.has_value(), "facção do jogador existe");
+        report.Check(factions.Ids().size() >= 3, std::format("{} facção(ões) no total", factions.Ids().size()));
+
+        // 4. Cada dono (neutro + todas as facções): só as bandeiras do estilo dele visíveis.
         std::vector<Id> owners{ kNeutral };
-        owners.insert(owners.end(), cfg.Styles().begin(), cfg.Styles().end());
+        const auto      all = factions.Ids();
+        owners.insert(owners.end(), all.begin(), all.end());
         for (const auto owner : owners) {
             State::Get().SetOwner(t->id, owner);
             BannerController::Get().ApplyTerritory(t->id);  // síncrono: já estamos na thread principal
             CheckVisible(report, *t, owner);
         }
 
-        // 4. Deixa um dono diferente do padrão para o teste de persistência (salvar -> carregar).
-        Id finalOwner = t->defaultOwner;
-        for (const auto s : cfg.Styles()) {
-            if (s != t->defaultOwner) {
-                finalOwner = s;
-                break;
-            }
-        }
+        // 5. Deixa a facção do jogador como dona para o teste de persistência (FACT + TERR no cosave).
+        const Id finalOwner = player ? player->id : t->defaultOwner;
         State::Get().SetOwner(t->id, finalOwner);
         BannerController::Get().ApplyTerritory(t->id);
         expected_ = Expectation{ t->id, finalOwner };
@@ -125,9 +135,12 @@ namespace AoS::SelfTest
         if (!t) {
             return;
         }
-        logger::info("[autoteste] ===== persistência ('{}', esperado: {}) =====", t->key, cfg.NameOf(exp.owner));
+        logger::info("[autoteste] ===== persistência ('{}', esperado: {}) =====", t->key,
+                     Factions::Get().NameOf(exp.owner));
 
-        Report report;
+        Report     report;
+        const auto faction = Factions::Get().Find(exp.owner);
+        report.Check(faction && faction->player, "facção do jogador restaurada do cosave");
         report.Check(State::Get().Owner(exp.territory) == exp.owner, "dono restaurado do cosave");
         const auto seen = CheckVisible(report, *t, exp.owner);
         report.Check(seen > 0, std::format("{} objeto(s) de teste encontrado(s) após carregar", seen));
@@ -146,7 +159,7 @@ namespace AoS::SelfTest
         loaded_.reset();
     }
 
-    // Formato do registro 'TEST' v1:  u32 territoryId, u32 ownerId.
+    // Formato do registro 'TEST' v2:  u32 territoryId, u32 factionId (v1 era de antes das facções: ignorado).
     void Save(SKSE::SerializationInterface* a_intfc)
     {
         if (!expected_) {

@@ -1,0 +1,18 @@
+{
+  // Facções pré-definidas. Outros mods podem adicionar arquivos nesta pasta.
+  // "style" precisa ser um estilo declarado em Territories/*.json; "color" = "#RRGGBB" (mapa/UI).
+  "factions": [
+    {
+      "id": "imperial",
+      "name": { "en": "Imperial Legion", "pt-br": "Legião Imperial" },
+      "style": "imperial",
+      "color": "#9B1C1C"
+    },
+    {
+      "id": "stormcloak",
+      "name": { "en": "Stormcloaks", "pt-br": "Mantos da Tempestade" },
+      "style": "stormcloak",
+      "color": "#1F4E99"
+    }
+  ]
+}

@@ -12,17 +12,18 @@ Cada missão que precisa do jogo tem um roteiro curto aqui. No fim, envie o arqu
 
 ---
 
-## M2 — Bandeiras + salvar/carregar (≈ 5 min)
+## M2 + M3 — Bandeiras, facções e salvar/carregar (≈ 5 min)
 
-Não precisa de ESP: o mod cria 3 objetos de teste na sua frente (moeda de ouro, lingote de ferro, sweetroll).
+Não precisa de ESP: o mod cria 3 objetos de teste na sua frente — um por facção:
+moeda de ouro = Legião Imperial, lingote de ferro = Mantos da Tempestade, sweetroll = sua facção de teste.
 
 1. Carregue qualquer save e fique num lugar **aberto e plano** (ex.: na estrada, fora de Whiterun).
 2. Aperte **F11**. Em cima, à esquerda, deve aparecer: **"AoS autoteste OK (...). Agora salve e carregue."**
-   Na sua frente fica visível **só o lingote de ferro**. (Não pegue os objetos.)
+   Na sua frente fica visível **só o sweetroll** (sua facção). (Não pegue os objetos.)
    Logo depois aparece **"AoS teste de texto: ação, coração, você, à"** — repare se os acentos aparecem certos.
 3. Aperte **F10** algumas vezes: a cada toque, o objeto visível muda
-   (sweetroll → nada → moeda → lingote → ...) e aparece "AoS: Torre de teste -> ...".
-4. Aperte **F11** de novo (para voltar ao lingote), depois **salve** (save novo) e **carregue esse save**.
+   (nada → moeda → lingote → sweetroll → ...) e aparece "AoS: Torre de teste -> <facção>".
+4. Aperte **F11** de novo (volta ao sweetroll), depois **salve** (save novo) e **carregue esse save**.
    Deve aparecer: **"AoS persistência OK. Teste concluído!"**
 5. Feche o jogo e me envie o `AgeOfSkyrim.log` + diga se os **acentos** do passo 2 apareceram certos.
 

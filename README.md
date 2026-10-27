@@ -71,7 +71,8 @@ confere a persistência. Roteiro passo a passo em [TESTES.md](TESTES.md).
 |---|---|
 | `src/Core/Ids.h` | IDs por hash FNV-1a (estáveis entre versões do JSON) |
 | `src/Core/Config.*` | Leitura dos JSONs, validação, resolução de `Plugin.esp\|0xID` |
-| `src/Core/State.*` | Dono de cada território + persistência no cosave (registro `TERR` v1) |
+| `src/Core/State.*` | Facção dona de cada território + persistência no cosave (registro `TERR` v2, migra v1) |
+| `src/Core/Factions.*` | Facções pré-definidas (`Factions/*.json`) + do jogador (registro `FACT` v1); dono → estilo |
 | `src/Core/I18n.*` | Textos para o jogador (en / pt-br), fallback para inglês, notificações na tela |
 | `src/Core/Timer.h` | Tempo das operações no log (`[tempo] ...`) |
 | `src/World/Placement.*` | Objetos criados em runtime + refs no cosave (registro `PLAC` v1) |
@@ -84,7 +85,7 @@ confere a persistência. Roteiro passo a passo em [TESTES.md](TESTES.md).
 
 - [x] Compilar (CI)
 - [ ] Validar no jogo — roteiro M2 em [TESTES.md](TESTES.md) (ver "Pontos a verificar" abaixo)
-- [ ] Criação de facção (nome, estilo, cor) com persistência no cosave
+- [x] Criação de facção (nome, estilo, cor) com persistência no cosave (M3; UI vem no MCM)
 - [ ] *Free Claim*: raycast com alinhamento à normal do terreno para estandartes em locais genéricos
 - [ ] Ligar a conquista real (captura de local) a `SetTerritoryOwner`
 
