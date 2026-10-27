@@ -1,5 +1,7 @@
 #include "Banner/BannerController.h"
+#include "Debug/SelfTest.h"
 #include "Events/Events.h"
+#include "World/Placement.h"
 
 namespace
 {
@@ -22,9 +24,41 @@ namespace
     }
 
     // ---- Cosave ------------------------------------------------------------------------------------
-    void OnSave(SKSE::SerializationInterface* a_intfc) { AoS::State::Get().Save(a_intfc); }
-    void OnLoad(SKSE::SerializationInterface* a_intfc) { AoS::State::Get().Load(a_intfc); }
-    void OnRevert(SKSE::SerializationInterface*) { AoS::State::Get().ResetToDefaults(); }
+    void OnSave(SKSE::SerializationInterface* a_intfc)
+    {
+        AoS::State::Get().Save(a_intfc);
+        AoS::Placement::Get().Save(a_intfc);
+        AoS::SelfTest::Save(a_intfc);
+    }
+
+    // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
+    void OnLoad(SKSE::SerializationInterface* a_intfc)
+    {
+        std::uint32_t type{}, version{}, length{};
+        while (a_intfc->GetNextRecordInfo(type, version, length)) {
+            switch (type) {
+            case AoS::State::kRecord:
+                AoS::State::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Placement::kRecord:
+                AoS::Placement::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::SelfTest::kRecord:
+                AoS::SelfTest::LoadRecord(a_intfc, version);
+                break;
+            default:
+                logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
+                break;
+            }
+        }
+    }
+
+    void OnRevert(SKSE::SerializationInterface*)
+    {
+        AoS::State::Get().ResetToDefaults();
+        AoS::Placement::Get().Clear();
+        AoS::SelfTest::Clear();
+    }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
     void OnMessage(SKSE::MessagingInterface::Message* a_msg)
@@ -41,7 +75,10 @@ namespace
         case SKSE::MessagingInterface::kNewGame:
         case SKSE::MessagingInterface::kPostLoadGame:
             // Estado (padrão ou do cosave) -> mundo. Só altera refs cujo estado difere.
-            SKSE::GetTaskInterface()->AddTask([] { AoS::BannerController::Get().ApplyAll(); });
+            SKSE::GetTaskInterface()->AddTask([] {
+                AoS::BannerController::Get().ApplyAll();
+                AoS::SelfTest::OnPostLoad();  // só age se o save tem registro do autoteste
+            });
             break;
 
         default:

@@ -4,21 +4,38 @@
 
 namespace AoS
 {
-    // "Plugin.esp|0x00ABCD": ID *local* da referência (sem o índice de load order).
+    // "Plugin.esp|0x00ABCD": ID *local* do form (sem o índice de load order).
     struct FormRef
     {
         std::string   plugin;
         RE::FormID    localId{ 0 };
 
         [[nodiscard]] static std::optional<FormRef> Parse(std::string_view a_text);
-        [[nodiscard]] RE::TESObjectREFR*            Resolve() const;  // nullptr se ainda não existe
+
+        // nullptr se o plugin não está carregado ou o form não é do tipo pedido.
+        template <class T = RE::TESObjectREFR>
+        [[nodiscard]] T* Resolve() const
+        {
+            const auto dh = RE::TESDataHandler::GetSingleton();
+            return dh ? dh->LookupForm<T>(localId, plugin) : nullptr;
+        }
+    };
+
+    // Objeto criado pelo DLL em runtime (sem editar células no ESP). A referência criada fica no cosave
+    // (ver World/Placement). Fase atual: posição relativa ao jogador no momento da criação (só para teste).
+    struct PlacedSpec
+    {
+        Id          key{ kNeutral };     // "território/estilo/índice" -> chave estável no cosave
+        FormRef     base;                // objeto base (static, misc item...)
+        RE::NiPoint3 offset;             // x = direita, y = frente, z = cima, relativo ao jogador
     };
 
     // Banners de UM estilo (heráldica) dentro de UM território. Um forte pode ter várias bandeiras.
     struct BannerSet
     {
-        Id                   style{ kNeutral };
-        std::vector<FormRef> refs;
+        Id                      style{ kNeutral };
+        std::vector<FormRef>    refs;    // pré-colocadas num plugin
+        std::vector<PlacedSpec> placed;  // criadas em runtime
     };
 
     struct Territory
@@ -33,7 +50,8 @@ namespace AoS
     struct DebugSettings
     {
         bool enabled{ false };
-        int  hotkey{ 0x44 };  // DIK_F10
+        int  hotkey{ 0x44 };          // DIK_F10: alterna o dono
+        int  selfTestHotkey{ 0x57 };  // DIK_F11: autoteste
         Id   territory{ kNeutral };
     };
 

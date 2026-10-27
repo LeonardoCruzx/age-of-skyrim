@@ -41,12 +41,6 @@ namespace AoS
         return FormRef{ std::string(a_text.substr(0, bar)), value };
     }
 
-    RE::TESObjectREFR* FormRef::Resolve() const
-    {
-        const auto dh = RE::TESDataHandler::GetSingleton();
-        return dh ? dh->LookupForm<RE::TESObjectREFR>(localId, plugin) : nullptr;
-    }
-
     // ---- Config ---------------------------------------------------------------------------------
 
     Config& Config::Get() noexcept
@@ -97,7 +91,8 @@ namespace AoS
         }
         if (const auto dbg = json->find("debug"); dbg != json->end() && dbg->is_object()) {
             debug_.enabled = dbg->value("enabled", false);
-            debug_.hotkey  = dbg->value("hotkey", 0x44);
+            debug_.hotkey         = dbg->value("hotkey", 0x44);
+            debug_.selfTestHotkey = dbg->value("selfTestHotkey", 0x57);
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
@@ -163,13 +158,30 @@ namespace AoS
                     }
                     BannerSet set;
                     set.style = styleId;
+                    // Cada item: "Plugin.esp|0xID" (ref pré-colocada) ou
+                    // { "place": "Plugin.esp|0xID", "offset": [direita, frente, cima] } (criado em runtime).
                     for (const auto& r : refs) {
-                        const auto parsed = r.is_string() ? FormRef::Parse(r.get<std::string>()) : std::nullopt;
-                        if (parsed) {
-                            set.refs.push_back(*parsed);
-                        } else {
-                            logger::warn("'{}/{}': referência inválida (use \"Plugin.esp|0xID\").", t.key, styleKey);
+                        if (r.is_string()) {
+                            if (const auto parsed = FormRef::Parse(r.get<std::string>())) {
+                                set.refs.push_back(*parsed);
+                                continue;
+                            }
+                        } else if (r.is_object() && r.contains("place")) {
+                            const auto base = FormRef::Parse(r.value("place", std::string{}));
+                            const auto off  = r.value("offset", std::vector<float>{});
+                            if (base && (off.empty() || off.size() == 3)) {
+                                PlacedSpec spec;
+                                spec.key  = MakeId(std::format("{}/{}/{}", t.key, styleKey, set.placed.size()));
+                                spec.base = *base;
+                                if (off.size() == 3) {
+                                    spec.offset = { off[0], off[1], off[2] };
+                                }
+                                set.placed.push_back(std::move(spec));
+                                continue;
+                            }
                         }
+                        logger::warn("'{}/{}': item inválido (use \"Plugin.esp|0xID\" ou {{\"place\": ..., \"offset\": [x,y,z]}}).",
+                                     t.key, styleKey);
                     }
                     t.banners.push_back(std::move(set));
                 }

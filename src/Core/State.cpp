@@ -39,7 +39,7 @@ namespace AoS
     void State::Save(SKSE::SerializationInterface* a_intfc) const
     {
         std::scoped_lock l{ lock_ };
-        if (!a_intfc->OpenRecord(kRecordTerritories, kRecordVersion)) {
+        if (!a_intfc->OpenRecord(kRecord, kRecordVersion)) {
             logger::error("Cosave: falha ao abrir o registro TERR.");
             return;
         }
@@ -52,39 +52,33 @@ namespace AoS
         logger::info("Cosave: {} território(s) salvo(s).", count);
     }
 
-    void State::Load(SKSE::SerializationInterface* a_intfc)
+    void State::LoadRecord(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version)
     {
-        std::scoped_lock l{ lock_ };
-
-        std::uint32_t type{}, version{}, length{};
-        while (a_intfc->GetNextRecordInfo(type, version, length)) {
-            if (type != kRecordTerritories) {
-                continue;
-            }
-            if (version != kRecordVersion) {
-                logger::warn("Cosave: versão {} do registro TERR não suportada; usando padrões.", version);
-                continue;
-            }
-
-            std::uint32_t count{};
-            a_intfc->ReadRecordData(count);
-
-            const auto& cfg = Config::Get();
-            for (std::uint32_t i = 0; i < count; ++i) {
-                Id territory{}, owner{};
-                a_intfc->ReadRecordData(territory);
-                a_intfc->ReadRecordData(owner);
-
-                if (!cfg.Find(territory)) {
-                    logger::warn("Cosave: território 0x{:08X} não existe mais na config; descartado.", territory);
-                    continue;
-                }
-                if (!cfg.IsValidOwner(owner)) {
-                    logger::warn("Cosave: estilo 0x{:08X} não existe mais na config; território volta a neutro.", owner);
-                    owner = kNeutral;
-                }
-                owners_[territory] = owner;
-            }
+        if (a_version != kRecordVersion) {
+            logger::warn("Cosave: versão {} do registro TERR não suportada; usando padrões.", a_version);
+            return;
         }
+
+        std::scoped_lock l{ lock_ };
+        std::uint32_t    count{};
+        a_intfc->ReadRecordData(count);
+
+        const auto& cfg = Config::Get();
+        for (std::uint32_t i = 0; i < count; ++i) {
+            Id territory{}, owner{};
+            a_intfc->ReadRecordData(territory);
+            a_intfc->ReadRecordData(owner);
+
+            if (!cfg.Find(territory)) {
+                logger::warn("Cosave: território 0x{:08X} não existe mais na config; descartado.", territory);
+                continue;
+            }
+            if (!cfg.IsValidOwner(owner)) {
+                logger::warn("Cosave: estilo 0x{:08X} não existe mais na config; território volta a neutro.", owner);
+                owner = kNeutral;
+            }
+            owners_[territory] = owner;
+        }
+        logger::info("Cosave: {} território(s) carregado(s).", count);
     }
 }

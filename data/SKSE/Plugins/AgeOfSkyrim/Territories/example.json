@@ -1,4 +1,10 @@
 {
+  // Território de teste: nenhum ESP necessário. Cada estilo tem um objeto vanilla bem diferente,
+  // criado pelo DLL na frente do jogador na primeira vez que F10/F11 é usado (e salvo no cosave).
+  //   imperial   -> moeda de ouro (Gold001)
+  //   stormcloak -> lingote de ferro (IngotIron)
+  //   custom_red -> sweetroll
+  // Bandeiras reais pré-colocadas num plugin usam o formato curto: "MeuMod.esp|0x000800".
   "styles": ["imperial", "stormcloak", "custom_red"],
   "territories": [
     {
@@ -6,9 +12,9 @@
       "name": "Torre de teste",
       "defaultOwner": "imperial",
       "banners": {
-        "imperial":   ["AgeOfSkyrim.esp|0x000800"],
-        "stormcloak": ["AgeOfSkyrim.esp|0x000801"],
-        "custom_red": ["AgeOfSkyrim.esp|0x000802"]
+        "imperial":   [{ "place": "Skyrim.esm|0x00000F", "offset": [-80, 150, 30] }],
+        "stormcloak": [{ "place": "Skyrim.esm|0x05ACE4", "offset": [0, 150, 30] }],
+        "custom_red": [{ "place": "Skyrim.esm|0x064B3D", "offset": [80, 150, 30] }]
       }
     }
   ]

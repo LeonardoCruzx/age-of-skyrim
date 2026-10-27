@@ -1,6 +1,7 @@
 #include "Events/Events.h"
 
 #include "Banner/BannerController.h"
+#include "Debug/SelfTest.h"
 
 namespace AoS::Events
 {
@@ -25,7 +26,8 @@ namespace AoS::Events
             }
         };
 
-        // Ferramenta de teste: uma tecla alterna o dono de um território (settings.json -> debug).
+        // Ferramentas de teste (settings.json -> debug): uma tecla alterna o dono de um território,
+        // outra roda o autoteste. O trabalho vai para a fila da thread principal.
         class DebugHotkeySink final : public RE::BSTEventSink<RE::InputEvent*>
         {
         public:
@@ -47,14 +49,21 @@ namespace AoS::Events
                         continue;
                     }
                     const auto b = e->AsButtonEvent();
-                    if (!b || !b->IsDown() || b->GetDevice() != RE::INPUT_DEVICE::kKeyboard ||
-                        static_cast<int>(b->GetIDCode()) != dbg.hotkey) {
+                    if (!b || !b->IsDown() || b->GetDevice() != RE::INPUT_DEVICE::kKeyboard) {
+                        continue;
+                    }
+                    const auto key = static_cast<int>(b->GetIDCode());
+                    if (key != dbg.hotkey && key != dbg.selfTestHotkey) {
                         continue;
                     }
                     if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
                         continue;
                     }
-                    CycleOwner(dbg.territory);
+                    if (key == dbg.selfTestHotkey) {
+                        SKSE::GetTaskInterface()->AddTask([] { SelfTest::Run(); });
+                    } else {
+                        SKSE::GetTaskInterface()->AddTask([t = dbg.territory] { CycleOwner(t); });
+                    }
                 }
                 return RE::BSEventNotifyControl::kContinue;
             }
@@ -63,10 +72,12 @@ namespace AoS::Events
             static void CycleOwner(Id a_territory)
             {
                 const auto& cfg = Config::Get();
-                if (!cfg.Find(a_territory)) {
+                const auto* t = cfg.Find(a_territory);
+                if (!t) {
                     logger::warn("Debug hotkey: configure 'debug.territory' em settings.json.");
                     return;
                 }
+                Placement::Get().EnsurePlaced(*t);  // objetos de teste nascem na primeira vez
                 std::vector<Id> order{ kNeutral };
                 order.insert(order.end(), cfg.Styles().begin(), cfg.Styles().end());
 
@@ -75,7 +86,7 @@ namespace AoS::Events
                 const auto next = order[(static_cast<std::size_t>(it - order.begin()) + 1) % order.size()];
 
                 if (SetTerritoryOwner(a_territory, next)) {
-                    const auto msg = std::format("AoS: {} -> {}", cfg.Find(a_territory)->name, cfg.NameOf(next));
+                    const auto msg = std::format("AoS: {} -> {}", t->name, cfg.NameOf(next));
                     RE::DebugNotification(msg.c_str());
                 }
             }
@@ -90,7 +101,8 @@ namespace AoS::Events
         if (Config::Get().Debug().enabled) {
             if (const auto input = RE::BSInputDeviceManager::GetSingleton()) {
                 input->AddEventSink(DebugHotkeySink::Get());
-                logger::info("Debug hotkey ativa (DIK 0x{:X}).", Config::Get().Debug().hotkey);
+                logger::info("Debug hotkeys ativas (alternar: DIK 0x{:X}, autoteste: DIK 0x{:X}).",
+                             Config::Get().Debug().hotkey, Config::Get().Debug().selfTestHotkey);
             }
         }
     }

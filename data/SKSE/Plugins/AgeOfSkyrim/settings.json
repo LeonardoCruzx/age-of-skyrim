@@ -2,6 +2,7 @@
   "debug": {
     "enabled": true,
     "hotkey": 68,
+    "selfTestHotkey": 87,
     "territory": "test_tower"
   }
 }

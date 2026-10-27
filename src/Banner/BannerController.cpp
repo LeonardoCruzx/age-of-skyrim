@@ -1,5 +1,7 @@
 #include "Banner/BannerController.h"
 
+#include "Core/Timer.h"
+
 namespace AoS
 {
     BannerController& BannerController::Get() noexcept
@@ -33,28 +35,14 @@ namespace AoS
 
         // Passo 1: desabilita tudo que NÃO é do dono (nunca há duas bandeiras ao mesmo tempo).
         for (const auto& set : territory->banners) {
-            if (set.style == owner) {
-                continue;
-            }
-            for (const auto& ref : set.refs) {
-                if (const auto r = ref.Resolve()) {
-                    SetEnabled(r, false);
-                } else {
-                    complete = false;
-                }
+            if (set.style != owner) {
+                complete &= ForEachBanner(set, [](RE::TESObjectREFR* r) { SetEnabled(r, false); });
             }
         }
         // Passo 2: habilita as do dono (se neutro, nenhum conjunto casa e nada é habilitado).
         for (const auto& set : territory->banners) {
-            if (set.style != owner) {
-                continue;
-            }
-            for (const auto& ref : set.refs) {
-                if (const auto r = ref.Resolve()) {
-                    SetEnabled(r, true);
-                } else {
-                    complete = false;
-                }
+            if (set.style == owner) {
+                complete &= ForEachBanner(set, [](RE::TESObjectREFR* r) { SetEnabled(r, true); });
             }
         }
 
@@ -69,6 +57,7 @@ namespace AoS
 
     void BannerController::ApplyAll()
     {
+        ScopedTimer t{ "BannerController::ApplyAll" };
         for (const auto& t : Config::Get().Territories()) {
             ApplyTerritory(t.id);
         }
