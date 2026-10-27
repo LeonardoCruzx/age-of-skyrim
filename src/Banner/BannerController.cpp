@@ -26,8 +26,8 @@ namespace AoS
     void BannerController::ApplyTerritory(Id a_territory)
     {
         const auto* territory = Config::Get().Find(a_territory);
-        if (!territory) {
-            return;
+        if (!territory || territory->banners.empty()) {
+            return;  // territórios descobertos ainda não têm bandeiras: custo zero no ApplyAll
         }
 
         const Id owner    = State::Get().Owner(a_territory);

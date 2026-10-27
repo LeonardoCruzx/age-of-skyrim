@@ -5,6 +5,13 @@
   //   stormcloak -> lingote de ferro (IngotIron)
   //   custom_red -> sweetroll
   // Bandeiras reais pré-colocadas num plugin usam o formato curto: "MeuMod.esp|0x000800".
+  //
+  // Territórios do jogo são descobertos sozinhos (settings.json -> discovery). Para ajustar um deles,
+  // declare aqui um território com "location" apontando para o BGSLocation; o que você não informar
+  // (nome, tipo, província, posição) vem do jogo:
+  //   { "id": "meu_forte", "location": "Skyrim.esm|0x0ABCDE", "type": "tower", "defaultOwner": "imperial",
+  //     "banners": { ... } }
+  // A lista completa do que foi descoberto (com os IDs) sai em SKSE/AgeOfSkyrim_territories.json (debug ligado).
   "styles": ["imperial", "stormcloak", "custom_red"],
   "territories": [
     {

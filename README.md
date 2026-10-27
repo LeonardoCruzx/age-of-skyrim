@@ -74,6 +74,7 @@ confere a persistência. Roteiro passo a passo em [TESTES.md](TESTES.md).
 | `src/Core/State.*` | Dono de cada território + persistência no cosave (registro `TERR` v1) |
 | `src/Core/I18n.*` | Textos para o jogador (en / pt-br), fallback para inglês, notificações na tela |
 | `src/Core/Timer.h` | Tempo das operações no log (`[tempo] ...`) |
+| `src/World/Discovery.*` | Territórios descobertos dos `BGSLocation` (tipo, província, posição, vizinhos) |
 | `src/World/Placement.*` | Objetos criados em runtime + refs no cosave (registro `PLAC` v1) |
 | `src/Debug/SelfTest.*` | Autoteste F11 e checagem de persistência (registro `TEST` v1) |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |

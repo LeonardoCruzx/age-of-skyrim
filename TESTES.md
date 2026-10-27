@@ -28,3 +28,17 @@ Não precisa de ESP: o mod cria 3 objetos de teste na sua frente (moeda de ouro,
 
 **Se algo der diferente** (mensagem de FALHOU, nenhuma mensagem, objeto errado, crash): só me envie o log
 e diga em qual passo parou.
+
+---
+
+## M4 — Territórios descobertos do jogo (≈ 3 min)
+
+Nada para fazer dentro do jogo: o mod lê os locais ao abrir.
+
+1. Instale o zip mais novo (Instalação, acima) e abra o jogo pelo SKSE.
+2. Espere o **menu principal** aparecer (não precisa carregar save).
+3. Feche o jogo.
+4. Me envie **dois arquivos** da pasta `Documentos\My Games\Skyrim Special Edition\SKSE\`:
+   `AgeOfSkyrim.log` e `AgeOfSkyrim_territories.json`.
+
+(Opcional: se tiver mods que adicionam fortes/vilas, diga quais — eles devem aparecer na lista.)
