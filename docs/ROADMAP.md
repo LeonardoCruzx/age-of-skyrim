@@ -189,3 +189,5 @@ Regras para todas as missões:
 
 ## Execução
 Uma missão por vez: implementação → CI verde → docs/ADRs → commit + push → (🎮) roteiro de teste do usuário → próxima.
+
+**Atualização ([ADR 0021](adr/0021-implementar-tudo-teste-unico-no-fim.md)):** as missões restantes são implementadas sem esperar os testes no jogo; um roteiro único e consolidado em `TESTES.md` no fim cobre tudo.
