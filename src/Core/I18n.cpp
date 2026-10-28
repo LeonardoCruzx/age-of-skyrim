@@ -102,10 +102,40 @@ namespace AoS::I18n
 
     std::string ToHud(const std::string& a_utf8) { return cp1252_ ? ToCp1252(a_utf8) : a_utf8; }
 
+    std::optional<std::string_view> Find(std::string_view a_key)
+    {
+        const std::string key(a_key);
+        if (const auto it = strings_.find(key); it != strings_.end()) {
+            return it->second;
+        }
+        if (const auto it = fallback_.find(key); it != fallback_.end()) {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+
+    std::string ForGame(const std::string& a_utf8)
+    {
+        return cp1252_ ? ToCp1252(a_utf8) : a_utf8;
+    }
+
+    std::string FromGame(const std::string& a_text)
+    {
+        if (!cp1252_ || a_text.empty()) {
+            return a_text;
+        }
+        const auto len = REX::W32::MultiByteToWideChar(1252, 0, a_text.data(), static_cast<int>(a_text.size()),
+                                                       nullptr, 0);
+        std::wstring wide(static_cast<std::size_t>(len), L'\0');
+        REX::W32::MultiByteToWideChar(1252, 0, a_text.data(), static_cast<int>(a_text.size()), wide.data(), len);
+        const auto utf8 = SKSE::stl::utf16_to_utf8(wide);
+        return utf8 ? *utf8 : a_text;
+    }
+
     void Notify(const std::string& a_utf8)
     {
         logger::info("[tela] {}", a_utf8);
-        const auto text = ToHud(a_utf8);
+        const auto text = ForGame(a_utf8);
         RE::DebugNotification(text.c_str());
     }
 }

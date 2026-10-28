@@ -35,6 +35,10 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0028 | [Rotas de comércio: renda por distância/tipo e corte por território inimigo](0028-rotas-de-comercio.md) | Técnica | Aceita |
 | 0030 | [Dogfish / Conquest of Skyrim como referência de design (sem copiar conteúdo)](0030-referencias-externas-dogfish.md) | Decisão do usuário | Aceita |
 | 0031 | [Fase 4: governo e doutrina, população, exército, batalhas em tempo real, títulos](0031-exercito-governo-populacao-titulos.md) | Decisão do usuário | Aceita |
+| 0032 | [API pública para outros mods: interface C++ versionada, eventos e natives Papyrus](0032-api-publica-para-outros-mods.md) | Técnica | Aceita |
+| 0033 | [MCM do SkyUI como casca fina, com textos vindos do DLL](0033-mcm-skyui-casca-fina.md) | Técnica | Aceita |
+| 0034 | [AgeOfSkyrim.esp gerado por script (sem Creation Kit)](0034-esp-gerado-sem-creation-kit.md) | Técnica | Aceita |
+| 0035 | [Scripts Papyrus compilados no CI com Caprica e stubs próprios](0035-papyrus-compilado-no-ci-caprica.md) | Técnica | Aceita |
 | 0036 | [Governo: doutrinas, cargos e governadores como dados + bônus numéricos](0036-governo-doutrina-cargos.md) | Técnica | Aceita |
 | 0037 | [População numérica por território, crescimento logístico e cosave compacto](0037-populacao-numerica.md) | Técnica | Aceita |
 | 0038 | [Títulos por marcos, avaliados só em eventos, que nunca rebaixam](0038-titulos-progressao.md) | Técnica | Aceita |

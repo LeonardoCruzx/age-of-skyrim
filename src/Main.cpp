@@ -1,3 +1,5 @@
+#include "Api/Events.h"
+#include "Api/ModApi.h"
 #include "Banner/BannerController.h"
 #include "Core/Factions.h"
 #include "Debug/SelfTest.h"
@@ -8,6 +10,7 @@
 #include "Realm/Population.h"
 #include "Realm/Realm.h"
 #include "Realm/Titles.h"
+#include "Papyrus/Api.h"
 #include "Stock/Stock.h"
 #include "World/Claims.h"
 #include "World/Conquest.h"
@@ -114,6 +117,7 @@ namespace
         AoS::Routes::Get().Clear();
         // ---- fim M12/M13 ----
         AoS::Realm::Clear();
+        AoS::Api::Events::ClearSession();
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -135,6 +139,34 @@ namespace
             // A troca de doutrina segue grátis até existir pagamento por categoria do baú (ADR 0039).
             AoS::Realm::Population::Get().SetFoodProvider(
                 [](AoS::Id a_faction) { return !AoS::Economy::Get().InDeficit(a_faction); });
+
+            // API (M9) <- módulos que ela ainda não conhecia quando foi escrita: sede, economia, rotas, governo.
+            AoS::Api::SetSeatProvider([](AoS::Id a_faction) -> std::optional<AgeOfSkyrimAPI::SeatInfo> {
+                if (!AoS::Seat::Get().HasSeat() ||
+                    AoS::State::Get().Owner(AoS::Seat::Get().SeatTerritory()) != a_faction) {
+                    return std::nullopt;  // a sede é de outra facção (ou não existe)
+                }
+                AgeOfSkyrimAPI::SeatInfo info{};
+                info.territory      = AoS::Seat::Get().SeatTerritory();
+                info.chestFormID    = AoS::Seat::Get().ChestId();
+                info.warTableFormID = AoS::Seat::Get().WarTableId();
+                return info;
+            });
+            AoS::Api::SetTreasuryProvider([](AoS::Id a_faction) -> std::int64_t {
+                return static_cast<std::int64_t>(AoS::Economy::Get().Balance(a_faction, AoS::MakeId("gold")));
+            });
+            AoS::Api::SetTradeRouteProvider([](AoS::Id a_faction) -> std::uint32_t {
+                std::uint32_t n = 0;
+                for (const auto& r : AoS::Routes::Get().List()) {
+                    if (AoS::State::Get().Owner(r.a) == a_faction || AoS::State::Get().Owner(r.b) == a_faction) {
+                        ++n;
+                    }
+                }
+                return n;
+            });
+            AoS::Api::SetGovernmentProvider(
+                [](AoS::Id a_faction) -> AoS::Id { return AoS::Realm::Government::Get().DoctrineOf(a_faction); });
+
             AoS::Events::Register();
             break;
 
@@ -149,6 +181,7 @@ namespace
                 AoS::BannerController::Get().ApplyAll();
                 AoS::SelfTest::OnPostLoad();  // só age se o save tem registro do autoteste
                 AoS::Seat::Get().OnPostLoad();  // M6: observa e reconta o baú da sede
+                AoS::Api::Events::StateReady();  // outros mods: estado pronto para consulta
             });
             break;
 
@@ -165,6 +198,8 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
     logger::info("Age of Skyrim iniciando.");
 
     SKSE::GetMessagingInterface()->RegisterListener(OnMessage);
+    AoS::Api::RegisterMessaging();  // outros plugins pedem a interface (include/AgeOfSkyrimAPI.h)
+    AoS::Papyrus::Register();       // natives do AgeOfSkyrim.psc (MCM e mods só-script)
 
     const auto ser = SKSE::GetSerializationInterface();
     ser->SetUniqueID(kCosaveUniqueId);

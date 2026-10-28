@@ -4,6 +4,7 @@
 #include "Core/I18n.h"
 #include "Core/State.h"
 #include "Core/Timer.h"
+#include "Api/Events.h"
 #include "Sim/Economy.h"
 #include "UI/Prompt.h"
 #include "World/Discovery.h"
@@ -540,7 +541,11 @@ namespace AoS
         } else {
             I18n::NotifyTr("seat.moved", t->name, moved);
         }
-        // TODO(M9): disparar OnSeatFounded para a API.
+        if (oldTerritory == kNeutral) {
+            Api::Events::SeatFounded(faction->id, a_territory);
+        } else {
+            Api::Events::SeatMoved(faction->id, a_territory, oldTerritory);
+        }
         return true;
     }
 

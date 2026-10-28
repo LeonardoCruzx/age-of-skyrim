@@ -1,5 +1,6 @@
 #include "Realm/Government.h"
 
+#include "Api/Events.h"
 #include "Core/Factions.h"
 #include "Realm/Realm.h"
 #include "Realm/Titles.h"
@@ -129,6 +130,7 @@ namespace AoS::Realm
         g.lastChange           = first ? -1.0 : clock_;  // a fundação não inicia espera
         logger::info("Governo: '{}' adota a doutrina '{}' ({}).", Factions::Get().NameOf(a_faction), doctrine->key,
                      first ? "fundação" : "troca");
+        Api::Events::GovernmentChanged(a_faction);
         return Result::kOk;
     }
 

@@ -15,6 +15,15 @@ namespace AoS::I18n
 
     [[nodiscard]] std::string_view Raw(std::string_view a_key);
 
+    // Como Raw, mas sem aviso no log: nullopt se a chave não existe em nenhum idioma (textos opcionais,
+    // ex.: nome de um estilo de outro mod).
+    [[nodiscard]] std::optional<std::string_view> Find(std::string_view a_key);
+
+    // Texto pronto para a UI do jogo (HUD, MCM via Papyrus): aplica a codificação configurada.
+    [[nodiscard]] std::string ForGame(const std::string& a_utf8);
+    // O caminho inverso: texto digitado no jogo (ex.: nome da facção no MCM) -> UTF-8.
+    [[nodiscard]] std::string FromGame(const std::string& a_text);
+
     template <class... Args>
     [[nodiscard]] std::string Tr(std::string_view a_key, const Args&... a_args)
     {

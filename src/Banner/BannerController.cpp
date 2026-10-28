@@ -1,5 +1,6 @@
 #include "Banner/BannerController.h"
 
+#include "Api/Events.h"
 #include "Core/Timer.h"
 #include "Realm/Realm.h"
 
@@ -92,6 +93,9 @@ namespace AoS
         const auto previous = State::Get().Owner(a_territory);
         const bool changed  = State::Get().SetOwner(a_territory, a_owner);
         logger::info("Território '{}' -> {}", t->key, Factions::Get().NameOf(a_owner));
+        if (changed) {
+            Api::Events::TerritoryChanged(a_territory, a_owner, previous);  // outros mods (C++ e Papyrus)
+        }
 
         // M18/M19/M22: população (guerra), governadores e títulos reagem só a troca real de dono.
         if (changed) {

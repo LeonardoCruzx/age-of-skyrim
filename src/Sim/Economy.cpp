@@ -1,5 +1,6 @@
 #include "Sim/Economy.h"
 
+#include "Api/Events.h"
 #include "Core/Factions.h"
 #include "Core/I18n.h"
 #include "Core/State.h"
@@ -548,6 +549,15 @@ namespace AoS
 
         // 4. Entrega no depósito (facções do jogador).
         DeliverPending(report);
+
+        // API (M9): saldo de ouro das facções do jogador que produziram ou pagaram manutenção neste tick.
+        if (const auto goldIdx = IndexOf(MakeId("gold"))) {
+            for (const auto id : players) {
+                if (const auto it = ledgers_.find(id); it != ledgers_.end() && *goldIdx < it->second.balance.size()) {
+                    Api::Events::TreasuryChanged(id, static_cast<std::int64_t>(it->second.balance[*goldIdx]));
+                }
+            }
+        }
 
         for (std::size_t i = 0; i < playerProduced.size(); ++i) {
             if (playerProduced[i] > 0.0) {

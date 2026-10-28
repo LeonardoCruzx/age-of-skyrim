@@ -12,6 +12,9 @@ env:
   VCPKG_COMMIT_ID: 9e593bb18ea69cc5095e012465dcd675a822ed0d
   # Cache binário do vcpkg em disco (backend "files"), persistido com actions/cache.
   VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg-bincache
+  # Compilador Papyrus open source (MIT), fora do Creation Kit (ADR 0035). Versão e hash fixos.
+  CAPRICA_URL: https://github.com/Orvid/Caprica/releases/download/v0.3.0/Caprica.v0.3.0.7z
+  CAPRICA_SHA256: 0037E54CF3A1021E976278D9A637E8AE541AAF9EBEB8D274B6C2CFE32F4EE559
 
 jobs:
   build:
@@ -23,8 +26,49 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Conferir traduções (en / pt-br)
+      - name: Conferir traduções (en / pt-br + chaves usadas no Papyrus)
         run: python tools/check_translations.py
+
+      - name: Testes Python (ESP gerado)
+        run: python -m unittest discover -s tests -v
+
+      # Antes do build C++ (que é lento): erro de script aparece em segundos.
+      # Stubs próprios em tools/papyrus/stubs (só declarações; scripts vanilla/SkyUI não são redistribuídos).
+      - name: Compilar scripts Papyrus (Caprica)
+        shell: pwsh
+        run: |
+          $dir = "build/caprica"
+          New-Item -ItemType Directory -Force -Path $dir, build/pex | Out-Null
+          Invoke-WebRequest -Uri $env:CAPRICA_URL -OutFile "$dir/caprica.7z"
+          $hash = (Get-FileHash "$dir/caprica.7z" -Algorithm SHA256).Hash
+          if ($hash -ne $env:CAPRICA_SHA256) {
+            Write-Output "::error title=Caprica::hash inesperado do download: $hash"
+            exit 1
+          }
+          7z x "$dir/caprica.7z" "-o$dir/bin" -y | Out-Null
+          $exe = Get-ChildItem -Path "$dir/bin" -Recurse -Filter Caprica.exe | Select-Object -First 1
+          if (-not $exe) {
+            Write-Output "::error title=Caprica::Caprica.exe não encontrado no pacote"
+            Get-ChildItem -Recurse "$dir/bin" | ForEach-Object { Write-Output $_.FullName }
+            exit 1
+          }
+          # Caprica tira o "namespace" do caminho relativo ao diretório atual: no Skyrim não pode haver nenhum,
+          # então roda de dentro da pasta dos fontes e recebe só os nomes dos arquivos.
+          $root = (Get-Location).Path
+          $scripts = Get-ChildItem data/Scripts/Source -Filter *.psc | ForEach-Object { $_.Name }
+          Push-Location data/Scripts/Source
+          $out = & $exe.FullName --game skyrim --flags "$root/tools/papyrus/AgeOfSkyrim_Flags.flg" `
+                   --import "$root/tools/papyrus/stubs" --output "$root/build/pex" @scripts 2>&1
+          $code = $LASTEXITCODE
+          Pop-Location
+          $out | ForEach-Object { Write-Output "$_" }
+          $pex = @(Get-ChildItem build/pex -Filter *.pex)
+          if ($code -ne 0 -or $pex.Count -ne $scripts.Count) {
+            $msg = ($out | Select-Object -Last 40) -join '%0A'
+            Write-Output "::error title=Papyrus (Caprica) codigo $code - $($pex.Count) de $($scripts.Count) pex::$msg"
+            exit 1
+          }
+          $pex | ForEach-Object { Write-Output "OK: $($_.Name) ($($_.Length) bytes)" }
 
       - name: Criar pasta do cache binário
         run: New-Item -ItemType Directory -Force -Path $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
@@ -50,8 +94,17 @@ jobs:
       - name: Configure
         run: cmake --preset windows-msvc
 
+      # Erros do compilador viram anotações (visíveis sem login, na aba Summary).
       - name: Build
-        run: cmake --build --preset release
+        shell: pwsh
+        run: |
+          cmake --build --preset release 2>&1 | Tee-Object -FilePath build/build.log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            Select-String -Path build/build.log -Pattern 'error C\d+|error LNK\d+|fatal error' |
+              Select-Object -First 30 | ForEach-Object { Write-Output "::error title=MSVC::$($_.Line.Trim())" }
+            exit $code
+          }
 
       # Expõe o fim dos logs do vcpkg/CMake como anotações (visíveis sem login, na aba Summary).
       - name: Diagnóstico de falha
@@ -74,6 +127,13 @@ jobs:
           Copy-Item -Recurse -Force data/* $stage
           Copy-Item build/Release/AgeOfSkyrim.dll "$stage/SKSE/Plugins/"
           Copy-Item build/Release/AgeOfSkyrim.pdb "$stage/SKSE/Plugins/" -ErrorAction SilentlyContinue
+          # Papyrus compilado, plugin do MCM (ESL) e traduções do SkyUI — todos gerados aqui, nada binário no git.
+          Copy-Item build/pex/*.pex "$stage/Scripts/"
+          python tools/build_esp.py "$stage/AgeOfSkyrim.esp"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          python tools/gen_skyui_translations.py "$stage/Interface/Translations"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-ChildItem -Recurse $stage | ForEach-Object { Write-Output $_.FullName.Substring((Resolve-Path $stage).Path.Length) }
 
       - name: Publicar artefato
         uses: actions/upload-artifact@v4

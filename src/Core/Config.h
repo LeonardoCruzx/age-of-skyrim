@@ -152,6 +152,13 @@ namespace AoS
     };
     // ---- fim M5/M6 ------------------------------------------------------------------------------
 
+    // settings.json -> "api": integração com outros mods (ADR 0032).
+    struct ApiSettings
+    {
+        bool papyrusEvents{ true };      // ModEvents "AoS_*" para scripts Papyrus
+        bool allowOwnerChanges{ true };  // outros mods (C++/Papyrus) podem trocar o dono de territórios
+    };
+
     class Config
     {
     public:
@@ -192,6 +199,7 @@ namespace AoS
         [[nodiscard]] const RealmSettings&          Realm() const noexcept { return realm_; }
         // Posição do território em Territories() (O(1)); nullopt se desconhecido.
         [[nodiscard]] std::optional<std::size_t>    IndexOf(Id a_territory) const;
+        [[nodiscard]] const ApiSettings&            Api() const noexcept { return api_; }
 
     private:
         void LoadSettings(const fs::path& a_file);
@@ -211,6 +219,7 @@ namespace AoS
         ConquestSettings                        conquest_;
         SeatSettings                            seat_;
         RealmSettings                           realm_;
+        ApiSettings                             api_;
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;
 
         // M8: territórios dinâmicos (deque: push_back não invalida ponteiros).

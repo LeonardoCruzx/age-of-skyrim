@@ -1,5 +1,6 @@
 #include "Realm/Realm.h"
 
+#include "Api/Events.h"
 #include "Banner/BannerController.h"
 #include "Core/Factions.h"
 #include "Core/State.h"
@@ -56,16 +57,20 @@ namespace AoS::Realm
             }
         }
 
-        // Reavalia governadores e (facção do jogador) título. O(territórios).
+        // Reavalia governadores e título de qualquer facção; anúncio na tela só para a do jogador. O(territórios).
         void Reevaluate(Id a_faction, bool a_player)
         {
             const auto stats = ComputeStats(a_faction);
             const auto lost  = Government::Get().ValidateGovernors(a_faction, stats.majorityProvinces);
+            const auto promo = Titles::Get().Evaluate(a_faction, stats);
+            if (promo.title && !promo.first) {
+                Api::Events::TitleGranted(a_faction, promo.title->id);  // M9: também para facções de IA (M16)
+            }
             if (!a_player) {
                 return;
             }
             AnnounceGovernorsLost(lost);
-            if (const auto promo = Titles::Get().Evaluate(a_faction, stats); promo.title && !promo.first) {
+            if (promo.title && !promo.first) {
                 AnnounceTitle(a_faction, promo.title);
             }
         }

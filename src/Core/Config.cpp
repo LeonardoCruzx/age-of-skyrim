@@ -163,6 +163,10 @@ namespace AoS
             realm_.doctrineCooldownHours = std::max(0.0f, r->value("doctrineCooldownHours", realm_.doctrineCooldownHours));
             realm_.announceTitles        = r->value("announceTitles", realm_.announceTitles);
         }
+        if (const auto a = json->find("api"); a != json->end() && a->is_object()) {
+            api_.papyrusEvents     = a->value("papyrusEvents", api_.papyrusEvents);
+            api_.allowOwnerChanges = a->value("allowOwnerChanges", api_.allowOwnerChanges);
+        }
         if (const auto d = json->find("discovery"); d != json->end() && d->is_object()) {
             discovery_.enabled   = d->value("enabled", true);
             discovery_.neighbors = d->value("neighbors", std::size_t{ 4 });

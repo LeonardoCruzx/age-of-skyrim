@@ -1,5 +1,6 @@
 #include "Sim/Routes.h"
 
+#include "Api/Events.h"
 #include "Banner/BannerController.h"
 #include "Core/Factions.h"
 #include "Core/I18n.h"
@@ -147,19 +148,34 @@ namespace AoS
 
         logger::info("Rotas: criar {} <-> {}: {}.", cfg.NameOf(a_territoryA), cfg.NameOf(a_territoryB),
                      ResultKey(result));
+        if (result == Result::kOk) {
+            Api::Events::TradeRouteChanged(State::Get().Owner(ta->id), ta->id, tb->id, /*a_created=*/true);
+        }
         return result;
     }
 
     bool Routes::Remove(Id a_route)
     {
-        std::scoped_lock l{ lock_ };
-        const auto       before = routes_.size();
-        std::erase_if(routes_, [&](const Route& r) { return r.id == a_route; });
-        if (routes_.size() != before) {
-            logger::info("Rotas: rota 0x{:08X} removida.", a_route);
-            return true;
+        std::optional<Route> removed;
+        {
+            std::scoped_lock l{ lock_ };
+            for (const auto& r : routes_) {
+                if (r.id == a_route) {
+                    removed = r;
+                    break;
+                }
+            }
+            if (removed) {
+                std::erase_if(routes_, [&](const Route& r) { return r.id == a_route; });
+            }
         }
-        return false;
+        if (!removed) {
+            return false;
+        }
+        logger::info("Rotas: rota 0x{:08X} removida.", a_route);
+        Api::Events::TradeRouteChanged(State::Get().Owner(removed->a), removed->a, removed->b,
+                                       /*a_created=*/false);
+        return true;
     }
 
     std::vector<Routes::Route> Routes::List() const

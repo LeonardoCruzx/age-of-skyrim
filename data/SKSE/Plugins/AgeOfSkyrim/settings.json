@@ -49,6 +49,12 @@
     "doctrineCooldownHours": 168,
     "announceTitles": true
   },
+  // Integração com outros mods (API C++ e Papyrus, ADR 0032): papyrusEvents = ModEvents "AoS_*" para scripts;
+  // allowOwnerChanges = outros mods podem trocar o dono de territórios.
+  "api": {
+    "papyrusEvents": true,
+    "allowOwnerChanges": true
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,
