@@ -107,6 +107,13 @@ Conquistar uma candidata pergunta se você quer fundar (ou mudar) a sede ali; ba
 Cosave `SEAT` v1. Ver [ADR 0023](docs/adr/0023-sede-implementacao.md) e [0025](docs/adr/0025-objetos-base-da-sede.md).
 Claims (F3) viram territórios do tipo `claim` da sua facção ([ADR 0024](docs/adr/0024-claims-como-territorios.md)).
 
+### Mesa de guerra / mapa tático (`settings.json` → `warMap`)
+Ativar a mesa de guerra da sede abre o mapa tático: com o [PrismaUI](https://www.prismaui.dev/) instalado, uma view
+HTML com o mapa (territórios por tipo e dono, províncias, vizinhança, rotas, estoque da sede, alvos); sem ele, menus
+vanilla com as mesmas ações. Settings: `enabled`, `usePrismaUI`, `view`, `pauseGame`, `pageSize`, `nearbyRadius`,
+`maxTargets`; debug `warMapHotkey` (NumPad9). Outros módulos acrescentam dados por `WarMap::AddProvider`.
+Schema do snapshot em [docs/warmap-schema.md](docs/warmap-schema.md). Ver ADRs [0051](docs/adr/0051-prismaui-opcional-interface-minima.md)–[0054](docs/adr/0054-alvos-de-ataque-no-cosave.md).
+
 ## Estrutura
 
 | Arquivo | Responsabilidade |
@@ -125,10 +132,14 @@ Claims (F3) viram territórios do tipo `claim` da sua facção ([ADR 0024](docs/
 | `src/World/Conquest.*` | Conquista por local limpo (`LocationCleared`), facção padrão, exclusões, ganchos, debug F4 |
 | `src/World/Seat.*` | Sede: candidatas (`Seats/*.json`), pergunta, baú + mesa em runtime, mudança, registro `SEAT` v1 |
 | `src/UI/Prompt.*` | MessageBox vanilla com botões e callback (sem ESP/Papyrus) |
+| `src/UI/WarMap.*` | Mapa tático (M11): snapshot JSON, camadas por provedor (`AddProvider`), ações (rota/alvo), registro `WMAP` v1 |
+| `src/UI/WarMapPrisma.cpp`, `PrismaApi.h` | View do PrismaUI (opcional, detectado em runtime) — interface mínima própria |
+| `src/UI/WarMapMenus.cpp` | Fallback sem PrismaUI: menus vanilla paginados com as mesmas ações |
+| `data/PrismaUI/views/AgeOfSkyrim/` | View HTML/JS/CSS do mapa (SVG procedural); `index.html?sample` abre com dados de exemplo |
 | `src/Sim/Economy.*` | Economia (M12): tick por hora por evento, produção por tipo/facção (`Economy.json`), depósito (`SetDepot`), consumo/déficit, registro `ECON` v1, debug F6 |
 | `src/Sim/Routes.*` | Rotas de comércio (M13): renda por distância/tipo, corte por inimigo, `CanTrade`, registro `ROUT` v1, debug F7 |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
-| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11) |
+| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad9) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
 
 ## Pendências conhecidas da Fase 1

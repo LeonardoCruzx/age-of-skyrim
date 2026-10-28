@@ -1,0 +1,146 @@
+{
+  "$comment": "M11: snapshot que o DLL (WarMap::BuildSnapshot) envia para a view do mapa tático. Subconjunto de JSON Schema (type, required, properties, additionalProperties, items, enum, pattern, minimum) validado por tests/test_warmap_schema.py. Descrição em docs/warmap-schema.md.",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[0-9A-F]{8}$" },
+    "idOrNull": { "type": ["string", "null"], "pattern": "^[0-9A-F]{8}$" },
+    "number": { "type": "number" },
+    "numberOrNull": { "type": ["number", "null"] }
+  },
+  "type": "object",
+  "required": ["schema", "lang", "i18n", "factions", "playerFaction", "territories", "provinces", "worldspaces",
+               "worldspace", "routes", "seat", "player", "layers", "limits", "buildMs"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "type": "integer", "enum": [1] },
+    "lang": { "type": "string" },
+    "i18n": { "type": "object", "additionalProperties": { "type": "string" } },
+    "factions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "color", "player"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string" },
+          "color": { "type": "string", "pattern": "^#[0-9A-F]{6}$" },
+          "player": { "type": "boolean" }
+        }
+      }
+    },
+    "playerFaction": { "$ref": "#/$defs/idOrNull" },
+    "territories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "key", "name", "type", "province", "owner", "x", "y", "ws", "neighbors", "seat",
+                     "target", "layers"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "key": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["fort", "tower", "camp", "village", "city", "claim", "unknown"] },
+          "province": { "$ref": "#/$defs/idOrNull" },
+          "owner": { "$ref": "#/$defs/idOrNull" },
+          "x": { "$ref": "#/$defs/numberOrNull" },
+          "y": { "$ref": "#/$defs/numberOrNull" },
+          "ws": { "$ref": "#/$defs/idOrNull" },
+          "neighbors": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+          "seat": { "type": "boolean" },
+          "target": { "type": "boolean" },
+          "layers": { "type": "object" }
+        }
+      }
+    },
+    "provinces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": { "id": { "$ref": "#/$defs/id" }, "name": { "type": "string" } }
+      }
+    },
+    "worldspaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "minX", "minY", "maxX", "maxY", "count"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string" },
+          "minX": { "$ref": "#/$defs/number" },
+          "minY": { "$ref": "#/$defs/number" },
+          "maxX": { "$ref": "#/$defs/number" },
+          "maxY": { "$ref": "#/$defs/number" },
+          "count": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "worldspace": { "$ref": "#/$defs/idOrNull" },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "a", "b", "owner", "active", "blocked", "blocker", "distance", "goldPerHour"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "a": { "$ref": "#/$defs/id" },
+          "b": { "$ref": "#/$defs/id" },
+          "owner": { "$ref": "#/$defs/idOrNull" },
+          "active": { "type": "boolean" },
+          "blocked": { "type": "boolean" },
+          "blocker": { "$ref": "#/$defs/idOrNull" },
+          "distance": { "type": "number", "minimum": 0 },
+          "goldPerHour": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "seat": {
+      "type": ["object", "null"],
+      "required": ["territory", "stock", "unclassified"],
+      "additionalProperties": false,
+      "properties": {
+        "territory": { "$ref": "#/$defs/id" },
+        "stock": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["key", "name", "count"],
+            "additionalProperties": false,
+            "properties": { "key": { "type": "string" }, "name": { "type": "string" }, "count": { "type": "integer" } }
+          }
+        },
+        "unclassified": { "type": "integer" }
+      }
+    },
+    "player": {
+      "type": ["object", "null"],
+      "required": ["x", "y", "ws"],
+      "additionalProperties": false,
+      "properties": { "x": { "$ref": "#/$defs/number" }, "y": { "$ref": "#/$defs/number" }, "ws": { "$ref": "#/$defs/id" } }
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["key", "label"],
+        "additionalProperties": false,
+        "properties": { "key": { "type": "string" }, "label": { "type": "string" } }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "required": ["maxRoutes", "maxTargets"],
+      "additionalProperties": false,
+      "properties": {
+        "maxRoutes": { "type": "integer", "minimum": 0 },
+        "maxTargets": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "buildMs": { "type": "number", "minimum": 0 }
+  }
+}

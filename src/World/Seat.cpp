@@ -6,6 +6,7 @@
 #include "Core/Timer.h"
 #include "Sim/Economy.h"
 #include "UI/Prompt.h"
+#include "UI/WarMap.h"  // M11
 #include "World/Discovery.h"
 #include "World/Placement.h"
 
@@ -585,8 +586,8 @@ namespace AoS
     void Seat::OnWarTableActivated()
     {
         const auto* t = Config::Get().Find(SeatTerritory());
-        logger::info("Sede: mesa de guerra ativada ('{}'). TODO(M11): abrir o mapa tático.", t ? t->key : "?");
-        I18n::NotifyTr("seat.warTable", t ? t->name : "?");
+        logger::info("Sede: mesa de guerra ativada ('{}'); abrindo o mapa tático.", t ? t->key : "?");
+        WarMap::Get().Open();  // M11 (sem PrismaUI: menus vanilla; warMap.enabled = false: só notifica)
     }
 
     void Seat::ReportStock()

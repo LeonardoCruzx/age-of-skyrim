@@ -140,6 +140,7 @@ namespace AoS
             debug_.economyHours  = dbg->value("economyHours", 24u);
             // ---- fim M12/M13 ----
             debug_.conquestHotkey = dbg->value("conquestHotkey", 0x3E);
+            debug_.warMapHotkey   = dbg->value("warMapHotkey", 0x49);  // M11
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
@@ -178,6 +179,17 @@ namespace AoS
             }
         }
         LoadConquestAndSeat(*json);  // M5/M6
+        // ---- M11: mesa de guerra ----
+        if (const auto w = json->find("warMap"); w != json->end() && w->is_object()) {
+            warMap_.enabled      = w->value("enabled", warMap_.enabled);
+            warMap_.usePrismaUI  = w->value("usePrismaUI", warMap_.usePrismaUI);
+            warMap_.view         = w->value("view", warMap_.view);
+            warMap_.pauseGame    = w->value("pauseGame", warMap_.pauseGame);
+            warMap_.pageSize     = std::clamp(w->value("pageSize", warMap_.pageSize), 1u, 7u);
+            warMap_.nearbyRadius = w->value("nearbyRadius", warMap_.nearbyRadius);
+            warMap_.maxTargets   = w->value("maxTargets", warMap_.maxTargets);
+        }
+        // ---- fim M11 ----
     }
 
     // ---- M5/M6: blocos "conquest" e "seat" ------------------------------------------------------

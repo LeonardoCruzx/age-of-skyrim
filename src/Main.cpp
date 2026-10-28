@@ -5,6 +5,7 @@
 #include "Sim/Economy.h"  // M12
 #include "Sim/Routes.h"   // M13
 #include "Stock/Stock.h"
+#include "UI/WarMap.h"  // M11
 #include "World/Claims.h"
 #include "World/Conquest.h"
 #include "World/Placement.h"
@@ -44,6 +45,7 @@ namespace
         AoS::Routes::Get().Save(a_intfc);
         // ---- fim M12/M13 ----
         AoS::Seat::Get().Save(a_intfc);  // M6
+        AoS::WarMap::Get().Save(a_intfc);  // M11: alvos (depois dos territórios dinâmicos)
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -78,6 +80,9 @@ namespace
             case AoS::Seat::kRecord:  // M6
                 AoS::Seat::Get().LoadRecord(a_intfc, version);
                 break;
+            case AoS::WarMap::kRecord:  // M11
+                AoS::WarMap::Get().LoadRecord(a_intfc, version);
+                break;
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -89,6 +94,7 @@ namespace
     {
         AoS::Claims::Get().Clear();  // antes do State: remove os territórios dinâmicos (M8)
         AoS::Seat::Get().Clear();    // M6
+        AoS::WarMap::Get().Clear();  // M11
         AoS::Factions::Get().ClearPlayerFactions();
         AoS::State::Get().ResetToDefaults();
         AoS::Placement::Get().Clear();
@@ -113,6 +119,7 @@ namespace
             AoS::Economy::Get().Load();  // M12/M13: depois do Stock (categorias); configura as rotas
             AoS::Conquest::Get().Register();  // M5
             AoS::Seat::Get().Load();          // M6: depois de Config/Factions/Stock
+            AoS::WarMap::Get().Load();        // M11: detecta o PrismaUI (já carregado pelo SKSE)
             AoS::Events::Register();
             break;
 

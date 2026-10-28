@@ -15,6 +15,10 @@ namespace AoS::I18n
 
     [[nodiscard]] std::string_view Raw(std::string_view a_key);
 
+    // M11: todos os textos (já no idioma escolhido, com fallback en) cujas chaves começam com a_prefix.
+    // Para UIs externas (view do PrismaUI) que formatam os textos no próprio JS.
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> WithPrefix(std::string_view a_prefix);
+
     template <class... Args>
     [[nodiscard]] std::string Tr(std::string_view a_key, const Args&... a_args)
     {

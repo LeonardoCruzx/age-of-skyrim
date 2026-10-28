@@ -24,6 +24,10 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   cosave `ECON` v1, debug F6.
 - **M13 — Rotas de comércio:** rotas entre territórios da mesma facção com renda por distância/tipo e corte por
   território inimigo, cosave `ROUT` v1, debug F7.
+- **M11 — Mesa de guerra + mapa tático:** a mesa da sede abre o mapa (view PrismaUI opcional em SVG procedural:
+  tipos, donos, províncias, vizinhança, rotas ativas/cortadas, painel com estoque e camadas; criar/remover rota e
+  marcar alvo) ou menus vanilla sem PrismaUI; camadas por provedor para outros módulos, alvos no cosave `WMAP` v1,
+  dados de exemplo e teste do schema, debug NumPad9.
 - **M23 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
   compatibilidade com mods de guerra civil (formato definido, leitura no DLL pendente), relatório de performance
   do log (`tools/perf_report.py`).

@@ -27,6 +27,7 @@ KNOWN = {
     "SelfTest::Run": "debug",
     "Claims::TryClaimHere": "event",
     "Stock::CountByCategory": "event",
+    "WarMap::BuildSnapshot": "tick",  # M11: meta de 5 ms com ~300 territórios (ADR 0052)
 }
 TARGETS = {"event": EVENT_MS, "tick": TICK_MS, "load": None, "debug": None}
 

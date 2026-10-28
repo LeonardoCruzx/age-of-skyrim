@@ -43,6 +43,19 @@
     "chestOffset": [-100, 150, 0],
     "warTableOffset": [120, 220, 0]
   },
+  // ---- M11: mesa de guerra / mapa tático (ADR 0051-0054) ----
+  // usePrismaUI: usa a view HTML se o PrismaUI estiver instalado (senão, ou com false, menus vanilla).
+  // view: relativo a Data/PrismaUI/views/. pageSize: territórios por página nos menus vanilla (1-7).
+  // nearbyRadius: raio da lista "Territórios próximos" (unidades do jogo; 0 = todos). maxTargets: alvos marcados.
+  "warMap": {
+    "enabled": true,
+    "usePrismaUI": true,
+    "view": "AgeOfSkyrim/index.html",
+    "pauseGame": true,
+    "pageSize": 6,
+    "nearbyRadius": 60000,
+    "maxTargets": 10
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,
@@ -55,6 +68,8 @@
     "routeHotkey": 65,
     "economyHours": 24,
     "conquestHotkey": 62,
+    // M11: NumPad9 abre o mapa tático sem precisar da mesa de guerra.
+    "warMapHotkey": 73,
     "territory": "test_tower"
   }
 }

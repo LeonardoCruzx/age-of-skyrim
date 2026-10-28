@@ -35,6 +35,10 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0028 | [Rotas de comércio: renda por distância/tipo e corte por território inimigo](0028-rotas-de-comercio.md) | Técnica | Aceita |
 | 0030 | [Dogfish / Conquest of Skyrim como referência de design (sem copiar conteúdo)](0030-referencias-externas-dogfish.md) | Decisão do usuário | Aceita |
 | 0031 | [Fase 4: governo e doutrina, população, exército, batalhas em tempo real, títulos](0031-exercito-governo-populacao-titulos.md) | Decisão do usuário | Aceita |
+| 0051 | [PrismaUI opcional: interface mínima própria, view lazy e ponte JSON](0051-prismaui-opcional-interface-minima.md) | Técnica | Aceita |
+| 0052 | [Mapa tático: um snapshot JSON por envio, só ao abrir e quando muda, e camadas por provedor](0052-snapshot-json-do-mapa-e-camadas.md) | Técnica | Aceita |
+| 0053 | [Mapa tático sem PrismaUI: cadeia de MessageBox vanilla](0053-mapa-fallback-menus-vanilla.md) | Técnica | Aceita |
+| 0054 | [Alvos de ataque marcados no mapa ficam no cosave (`WMAP` v1)](0054-alvos-de-ataque-no-cosave.md) | Técnica | Aceita |
 | 0040 | [Release em tag `v*` reaproveitando o artefato do build do mesmo commit](0040-pipeline-de-release.md) | Técnica | Aceita |
 | 0041 | [Instalador FOMOD: núcleo obrigatório + patches opcionais, idioma automático](0041-fomod-layout.md) | Técnica | Aceita |
 | 0042 | [Patches de compatibilidade como dados (`Compat/*.json`) e lista de mods de guerra civil](0042-patches-de-compatibilidade.md) | Técnica | Aceita (loader pendente) |
