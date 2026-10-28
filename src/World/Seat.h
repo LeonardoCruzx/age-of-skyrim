@@ -50,7 +50,7 @@ namespace AoS
         bool Found(Id a_territory);
         // Pergunta ao jogador se quer fundar/mudar a sede (fallback sem MessageBox: funda direto se não tem sede).
         void Offer(const Territory& a_territory);
-        // M11: abrir o mapa tático. Por enquanto só notifica e loga.
+        // M11: abre o mapa tático (WarMap: PrismaUI ou menus vanilla).
         void OnWarTableActivated();
         // Debug (F8): estoque da sede na tela + log.
         void ReportStock();

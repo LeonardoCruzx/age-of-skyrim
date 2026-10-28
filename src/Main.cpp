@@ -12,6 +12,7 @@
 #include "Realm/Titles.h"
 #include "Papyrus/Api.h"
 #include "Stock/Stock.h"
+#include "UI/WarMap.h"  // M11
 #include "World/Claims.h"
 #include "World/Conquest.h"
 #include "World/Placement.h"
@@ -54,6 +55,7 @@ namespace
         AoS::Realm::Government::Get().Save(a_intfc);  // depois do FACT: facções validadas ao carregar
         AoS::Realm::Population::Get().Save(a_intfc);
         AoS::Realm::Titles::Get().Save(a_intfc);
+        AoS::WarMap::Get().Save(a_intfc);  // M11: alvos (depois dos territórios dinâmicos)
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -96,6 +98,8 @@ namespace
                 break;
             case AoS::Realm::Titles::kRecord:
                 AoS::Realm::Titles::Get().LoadRecord(a_intfc, version);
+            case AoS::WarMap::kRecord:  // M11
+                AoS::WarMap::Get().LoadRecord(a_intfc, version);
                 break;
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
@@ -108,6 +112,7 @@ namespace
     {
         AoS::Claims::Get().Clear();  // antes do State: remove os territórios dinâmicos (M8)
         AoS::Seat::Get().Clear();    // M6
+        AoS::WarMap::Get().Clear();  // M11
         AoS::Factions::Get().ClearPlayerFactions();
         AoS::State::Get().ResetToDefaults();
         AoS::Placement::Get().Clear();
@@ -167,6 +172,7 @@ namespace
             AoS::Api::SetGovernmentProvider(
                 [](AoS::Id a_faction) -> AoS::Id { return AoS::Realm::Government::Get().DoctrineOf(a_faction); });
 
+            AoS::WarMap::Get().Load();        // M11: detecta o PrismaUI (já carregado pelo SKSE)
             AoS::Events::Register();
             break;
 

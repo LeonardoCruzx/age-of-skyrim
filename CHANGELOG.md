@@ -17,13 +17,32 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   `LocType*`, com tipo, província, posição e vizinhos; `settings.json → discovery` (tipos, exclusões, vizinhos).
 - **M7 — Estoque (núcleo):** categorias em `Resources.json` (por form, keyword e tipo), recontagem ao fechar baú
   observado, debug F8.
-- **M8 — Free Claim (núcleo):** estandarte fincado por raycast e alinhado ao terreno, limites em
-  `settings.json → claim`, cosave `CLAM` v1, debug F9.
+- **M8 — Free Claim:** estandarte fincado por raycast e alinhado ao terreno, limites em `settings.json → claim`;
+  cosave `CLAM` v2 (claim vira território dinâmico da facção, migra saves v1), debug F3.
+- **M5 — Conquista por local limpo:** `TESLocationClearedEvent`/cadeia de locais → território; facção padrão
+  criada na 1ª conquista; exclusões em `settings.json → conquest` (mods de guerra civil); debug F4.
+- **M6 — Sede da facção:** candidatas em `Seats/*.json` (regra automática por província + lista + exclusões),
+  pergunta ao conquistar, baú de estoque e mesa de guerra criados em runtime (`Placement`), mudança de sede
+  transfere o baú; cosave `SEAT` v1; estoque da sede ligado ao F7/F8.
+- **M9 — API pública:** interface C++ versionada (`include/AgeOfSkyrimAPI.h`, mensagem SKSE 'AOSI' + export
+  `AoS_GetInterface`), eventos para C++ e Papyrus (`AoS_*`), natives em `AgeOfSkyrim.psc` compilado no CI (Caprica).
+- **M10 — MCM:** menu do SkyUI (opcional) gerado como casca fina sobre os natives — facção, territórios, sede e
+  estoque, debug; `AgeOfSkyrim.esp` (ESL) gerado por script, sem Creation Kit.
+- **M18 — Governo e doutrina:** doutrinas/cargos/governadores em `Doctrines/*.json`, custo e espera na troca;
+  cosave `GOVT` v1; debug NumPad1–4.
+- **M19 — População:** população numérica por território (crescimento/fome), fonte de recrutas e multiplicador
+  de produção; cosave `POPL` v1 compacto.
+- **M22 — Títulos:** títulos por marcos (territórios, províncias, cidades, população), desbloqueios numéricos,
+  anúncio na tela; cosave `TITL` v1.
 - **M12 — Economia:** tick por hora de jogo disparado por eventos baratos (sono/espera/menus/célula), produção
   por tipo de território em `Economy.json`, depósito no baú da sede (pendente até existir sede), consumo e déficit,
   cosave `ECON` v1, debug F6.
 - **M13 — Rotas de comércio:** rotas entre territórios da mesma facção com renda por distância/tipo e corte por
   território inimigo, cosave `ROUT` v1, debug F7.
+- **M11 — Mesa de guerra + mapa tático:** a mesa da sede abre o mapa (view PrismaUI opcional em SVG procedural:
+  tipos, donos, províncias, vizinhança, rotas ativas/cortadas, painel com estoque e camadas; criar/remover rota e
+  marcar alvo) ou menus vanilla sem PrismaUI; camadas por provedor para outros módulos, alvos no cosave `WMAP` v1,
+  dados de exemplo e teste do schema, debug NumPad9.
 - **M23 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
   compatibilidade com mods de guerra civil (formato definido, leitura no DLL pendente), relatório de performance
   do log (`tools/perf_report.py`).

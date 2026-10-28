@@ -6,6 +6,7 @@
 #include "Sim/Economy.h"  // M12/M13
 #include "Sim/Routes.h"   // M12/M13
 #include "Stock/Stock.h"
+#include "UI/WarMap.h"  // M11
 #include "World/Claims.h"
 #include "World/Conquest.h"
 #include "World/Seat.h"
@@ -73,6 +74,15 @@ namespace AoS::Events
                         continue;
                     }
                     // ---- fim M12/M13 ----
+                    // ---- M11: abre o mapa tático sem a mesa ----
+                    if (key == dbg.warMapHotkey) {
+                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
+                            continue;
+                        }
+                        SKSE::GetTaskInterface()->AddTask([] { WarMap::Get().Open(); });
+                        continue;
+                    }
+                    // ---- fim M11 ----
                     if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
                         key != dbg.claimHotkey && key != dbg.conquestHotkey) {
                         continue;
@@ -137,6 +147,7 @@ namespace AoS::Events
                              d.hotkey, d.selfTestHotkey, d.stockHotkey, d.claimHotkey, d.conquestHotkey);
                 logger::info("Debug hotkeys M12/M13 (economia 0x{:X} = {} h, rota 0x{:X}).", d.economyHotkey,
                              d.economyHours, d.routeHotkey);
+                logger::info("Debug hotkey M11 (mapa tático 0x{:X}).", d.warMapHotkey);
             }
         }
     }

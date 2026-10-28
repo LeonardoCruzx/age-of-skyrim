@@ -100,6 +100,7 @@ namespace AoS
         std::uint32_t economyHours{ 24 };     // horas forçadas pelo economyHotkey
         // ---- fim M12/M13 ----
         int  conquestHotkey{ 0x3E };  // DIK_F4: simula a conquista do local atual (M5)
+        int  warMapHotkey{ 0x49 };    // DIK_NUMPAD9: abre a mesa de guerra de qualquer lugar (M11)
         Id   territory{ kNeutral };
 
         // M18/M19/M22 (src/Realm): resumo do reino, simular horas, ciclar doutrina, conquistar locais próximos.
@@ -158,6 +159,19 @@ namespace AoS
         bool papyrusEvents{ true };      // ModEvents "AoS_*" para scripts Papyrus
         bool allowOwnerChanges{ true };  // outros mods (C++/Papyrus) podem trocar o dono de territórios
     };
+    // ---- M11: mesa de guerra / mapa tático (ADR 0051-0054) ----
+    // settings.json -> "warMap".
+    struct WarMapSettings
+    {
+        bool          enabled{ true };
+        bool          usePrismaUI{ true };                    // false: sempre os menus vanilla
+        std::string   view{ "AgeOfSkyrim/index.html" };       // relativo a Data/PrismaUI/views/
+        bool          pauseGame{ true };
+        std::uint32_t pageSize{ 6 };                          // menus vanilla: territórios por página
+        float         nearbyRadius{ 60000.0f };               // menus vanilla: "próximos" (0 = sem limite)
+        std::uint32_t maxTargets{ 10 };                       // alvos de ataque marcados
+    };
+    // ---- fim M11 ----
 
     class Config
     {
@@ -177,6 +191,7 @@ namespace AoS
         [[nodiscard]] const DiscoverySettings&      Discovery() const noexcept { return discovery_; }
         [[nodiscard]] const ConquestSettings&       Conquest() const noexcept { return conquest_; }  // M5
         [[nodiscard]] const SeatSettings&           Seat() const noexcept { return seat_; }          // M6
+        [[nodiscard]] const WarMapSettings&         WarMap() const noexcept { return warMap_; }      // M11
 
         // ---- M8: territórios dinâmicos (claims), por save, criados em runtime (ADR 0024) ----
         // Territories() continua só com os do JSON/descoberta; quem quer ver todos usa ForEachTerritory.
@@ -220,6 +235,7 @@ namespace AoS
         SeatSettings                            seat_;
         RealmSettings                           realm_;
         ApiSettings                             api_;
+        WarMapSettings                          warMap_;  // M11
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;
 
         // M8: territórios dinâmicos (deque: push_back não invalida ponteiros).

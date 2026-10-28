@@ -100,6 +100,19 @@ namespace AoS::I18n
         return a_key;
     }
 
+    std::vector<std::pair<std::string, std::string>> WithPrefix(std::string_view a_prefix)
+    {
+        std::vector<std::pair<std::string, std::string>> out;
+        for (const auto& [key, value] : fallback_) {
+            if (key.starts_with(a_prefix)) {
+                const auto it = strings_.find(key);
+                out.emplace_back(key, it != strings_.end() ? it->second : value);
+            }
+        }
+        std::ranges::sort(out);
+        return out;
+    }
+
     std::string ToHud(const std::string& a_utf8) { return cp1252_ ? ToCp1252(a_utf8) : a_utf8; }
 
     std::optional<std::string_view> Find(std::string_view a_key)

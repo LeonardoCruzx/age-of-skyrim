@@ -102,7 +102,7 @@ Regras para todas as missões:
 - ✅ Sink de `ContainerMenu`: reconta ao fechar só containers observados (custo zero sem observados).
 - ✅ Debug F8: inventário do jogador por categoria na tela + log (EditorID de cada keyword no log).
 - ✅ M6: `Stock::Observe(baú da sede)` + recontagem ao fundar/carregar; `Seat::StockTotals()`; F8 mostra o estoque da sede.
-- ⬜ M9: evento `OnStockChanged`; M11: totais no mapa.
+- ✅ M11: totais no mapa. ⬜ M9: evento `OnStockChanged`.
 
 ### M8. 🔄 🎮 Free Claim (estandarte em local genérico) — núcleo pronto (na main)
 - ✅ Debug F3 (era F9, que é o quickload do jogo): raycast vertical (`bhkWorld::PickObject`) à frente do jogador → ponto + normal do terreno;
@@ -145,7 +145,7 @@ Plano original:
   "Sede & Estoque" (totais por categoria), "Debug".
 - Quest do MCM adicionada ao ESP (passo a passo do CK).
 
-### M11. ⬜ 🎮 Mesa de guerra + mapa tático (PrismaUI)
+### M11. ✅ 🎮 Mesa de guerra + mapa tático (PrismaUI) — implementada, aguardando teste no jogo — [ADR 0051](adr/0051-prismaui-opcional-interface-minima.md)–[0054](adr/0054-alvos-de-ataque-no-cosave.md)
 - Ativar a mesa de guerra da sede (evento de ativação filtrado pelo ref da sede) abre a view PrismaUI.
 - Mapa de Skyrim com: territórios por tipo e cor da facção dona, províncias, vizinhança, estoque da sede,
   painel de cada local (tipo, dono, guarnição, renda, rotas que passam por ele).
@@ -153,6 +153,17 @@ Plano original:
 - PrismaUI é dependência opcional, detectada em runtime: sem ela, a mesa abre um menu de listas vanilla
   (MessageBox / ListMenu) com as mesmas ações essenciais.
 - Dados enviados para a view só ao abrir e quando mudam (sem polling JS ↔ C++).
+- Feito: `src/UI/WarMap*` — `Seat::OnWarTableActivated` abre o mapa; PrismaUI detectado em runtime por
+  `GetModuleHandle`/`RequestPluginAPI` (interface mínima própria em `UI/PrismaApi.h`), view criada na 1ª abertura.
+- Feito: view `data/PrismaUI/views/AgeOfSkyrim/` (SVG procedural: ícone por tipo, cor do dono, províncias por fecho
+  convexo, vizinhança, rotas ativas/cortadas, painel do território com estoque, rotas e camadas; criar/remover rota,
+  marcar alvo; zoom/arrasto; Esc fecha). Textos `warmap.*` en/pt-br enviados no snapshot.
+- Feito: snapshot JSON (`WarMap::BuildSnapshot`, ScopedTimer) com schema em `docs/warmap-schema.json`, teste
+  `tests/test_warmap_schema.py`, dados de exemplo `tools/warmap_sample.py` + `index.html?sample` fora do jogo.
+- Feito: camadas extras por provedor (`WarMap::AddProvider("garrison", ...)`) e `NotifyChanged()` para M14/M16/M9.
+- Feito: alvos de ataque no cosave `WMAP` v1 (`WarMap::Targets()` para a M16); fallback com MessageBox vanilla
+  (listas paginadas próximos/meus/alvos/rotas, painel, criar rota com 2 escolhidos). Debug NumPad9 abre o mapa.
+- ⬜ M14: camada de guarnição; M12: renda por território no painel; M16: ameaças.
 
 ### M12. ✅ Economia — implementada, aguardando teste no jogo — [ADR 0026](adr/0026-tick-por-hora-orientado-a-evento.md), [ADR 0027](adr/0027-economia-producao-deposito-consumo.md)
 - Tick por hora de jogo (lote, < 5 ms): territórios geram recursos por tipo (vila → comida, mina → metais, cidade → ouro),

@@ -23,6 +23,9 @@ namespace AoS::I18n
     [[nodiscard]] std::string ForGame(const std::string& a_utf8);
     // O caminho inverso: texto digitado no jogo (ex.: nome da facção no MCM) -> UTF-8.
     [[nodiscard]] std::string FromGame(const std::string& a_text);
+    // M11: todos os textos (já no idioma escolhido, com fallback en) cujas chaves começam com a_prefix.
+    // Para UIs externas (view do PrismaUI) que formatam os textos no próprio JS.
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> WithPrefix(std::string_view a_prefix);
 
     template <class... Args>
     [[nodiscard]] std::string Tr(std::string_view a_key, const Args&... a_args)

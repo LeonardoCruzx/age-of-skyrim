@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Age of Skyrim - War table</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- M11: mapa tático (ADR 0051-0054). Dados chegam do DLL por window.aosWarMapData(json);
+       ações vão por window.aosWarMapAction(json). Fora do jogo: abra sample.html. -->
+  <div id="app">
+    <header id="top">
+      <h1 id="title" data-i18n="warmap.ui.title">War table</h1>
+      <span id="sample-badge" hidden data-i18n="warmap.ui.sample">Sample data</span>
+      <div class="controls">
+        <input id="search" type="search" data-i18n-placeholder="warmap.ui.search" autocomplete="off">
+        <label><span data-i18n="warmap.ui.world">World</span> <select id="world"></select></label>
+        <label><input type="checkbox" id="t-provinces" checked> <span data-i18n="warmap.ui.showProvinces">Holds</span></label>
+        <label><input type="checkbox" id="t-neighbors" checked> <span data-i18n="warmap.ui.showNeighbors">Neighbors</span></label>
+        <label><input type="checkbox" id="t-routes" checked> <span data-i18n="warmap.ui.showRoutes">Routes</span></label>
+        <button id="close" data-i18n="warmap.ui.close">Close (Esc)</button>
+      </div>
+    </header>
+    <main>
+      <div id="map-wrap">
+        <svg id="map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="ground" cx="50%" cy="45%" r="75%">
+              <stop offset="0%" stop-color="#e9dcbc"/>
+              <stop offset="100%" stop-color="#c9b48a"/>
+            </radialGradient>
+          </defs>
+          <g id="viewport">
+            <rect id="bg" x="-5000" y="-5000" width="11000" height="11000" fill="url(#ground)"/>
+            <g id="l-provinces"></g>
+            <g id="l-neighbors"></g>
+            <g id="l-routes"></g>
+            <g id="l-territories"></g>
+            <g id="l-player"></g>
+          </g>
+        </svg>
+        <div id="pick-hint" hidden></div>
+        <div id="toast" hidden></div>
+      </div>
+      <aside id="side">
+        <section id="panel"></section>
+        <section id="seat"></section>
+        <section id="legend"></section>
+      </aside>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
