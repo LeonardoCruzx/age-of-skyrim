@@ -32,8 +32,9 @@ namespace AoS
         }
 
         // Número pseudoaleatório em [0, 1) a partir de uma semente (splitmix64), igual ao usado pela IA (M16):
-        // reproduzível no log, sem estado próprio.
-        [[nodiscard]] double Unit(std::uint64_t a_seed)
+        // reproduzível no log, sem estado próprio. Nome diferente de Army::Unit (struct aninhada) de propósito:
+        // dentro de métodos da classe Army, um "Unit" sem qualificação resolveria para a struct, não esta função.
+        [[nodiscard]] double RandomUnit(std::uint64_t a_seed)
         {
             std::uint64_t z = a_seed + 0x9E3779B97F4A7C15ull;
             z               = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
@@ -480,8 +481,8 @@ namespace AoS
         }
         const auto& cfg  = Config::Get().Battle();
         const auto  now  = static_cast<std::uint64_t>(HoursNow());
-        const auto  rollA = strengthA * (1.0 + cfg.randomness * (2.0 * Unit(a_armyA ^ (now << 1)) - 1.0));
-        const auto  rollB = strengthB * (1.0 + cfg.randomness * (2.0 * Unit(a_armyB ^ (now << 1) ^ 1) - 1.0));
+        const auto  rollA = strengthA * (1.0 + cfg.randomness * (2.0 * RandomUnit(a_armyA ^ (now << 1)) - 1.0));
+        const auto  rollB = strengthB * (1.0 + cfg.randomness * (2.0 * RandomUnit(a_armyB ^ (now << 1) ^ 1) - 1.0));
         const auto  loserId  = rollA >= rollB ? a_armyB : a_armyA;
         const auto  winnerId = rollA >= rollB ? a_armyA : a_armyB;
         const auto  loserStrength  = rollA >= rollB ? rollB : rollA;
