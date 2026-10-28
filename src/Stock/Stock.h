@@ -35,6 +35,12 @@ namespace AoS
         // Uma passada pelo inventário; classificação memorizada por objeto base (O(1) após a 1ª vez).
         [[nodiscard]] Totals CountByCategory(RE::TESObjectREFR* a_container);
 
+        // ---- M15: custo de obras em itens reais ----
+        [[nodiscard]] std::optional<std::size_t> CategoryIndex(std::string_view a_key) const;  // "materials" -> índice
+        // Remove até a_amount itens da categoria do container (qualquer item classificado nela). Retorna quantos saíram.
+        std::int64_t Take(RE::TESObjectREFR* a_container, std::size_t a_category, std::int64_t a_amount);
+        // ---- fim M15 ----
+
         // Containers "observados" (baú da sede, M6): recontados ao fechar o ContainerMenu deles.
         // Sem nenhum observado, o sink sai na primeira linha (custo zero).
         void Observe(RE::FormID a_container);

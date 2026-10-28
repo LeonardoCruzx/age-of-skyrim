@@ -68,6 +68,17 @@
     "nearbyRadius": 60000,
     "maxTargets": 10
   },
+  // ---- M14: guarnição (ADR 0043) ----
+  // Soldados só viram atores perto do jogador: marcador do território numa célula carregada e a até spawnRadius
+  // unidades (70 ≈ 1 m). maxActors = teto GLOBAL de soldados vivos; spawnPerFrame = criados por frame.
+  // enabled: false = só números (nenhum ator). Números, tropas e manutenção em Garrison.json.
+  "garrison": {
+    "enabled": true,
+    "maxActors": 12,
+    "spawnPerFrame": 2,
+    "spawnRadius": 8192,
+    "spreadRadius": 256
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,
@@ -88,9 +99,13 @@
     "realmConquerHotkey": 75,
     "realmDebugHours": 24,
     "realmConquerCount": 5,
-  },
     // M11: NumPad9 abre o mapa tático sem precisar da mesa de guerra.
     "warMapHotkey": 73,
+    // M14/M15: NumPad5 mostra a guarnição do território atual e força o spawn perto do jogador;
+    // NumPad6 inicia a próxima melhoria do território atual (ou da sede). upgradeIgnoreCost: true = obra grátis.
+    "garrisonHotkey": 76,
+    "upgradeHotkey": 77,
+    "upgradeIgnoreCost": false,
     "territory": "test_tower"
   }
 }

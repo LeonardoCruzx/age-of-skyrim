@@ -1,0 +1,48 @@
+{
+  // Guarnição (M14, ADR 0043/0044). Outros mods podem adicionar Garrison/*.json (lidos depois, em ordem
+  // alfabética; campos repetidos substituem). Teto de atores/raio de spawn ficam em settings.json -> "garrison".
+  //
+  // Soldados quando um território ganha dono novo (e de territórios de IA sem registro) e teto por tipo.
+  // Tipos: unknown, fort, tower, camp, village, city, claim. A melhoria "barracks" (Upgrades.json) soma ao teto.
+  "initial": { "unknown": 2, "fort": 4, "tower": 2, "camp": 2, "village": 3, "city": 6, "claim": 2 },
+  "max":     { "unknown": 4, "fort": 8, "tower": 4, "camp": 4, "village": 6, "city": 12, "claim": 3 },
+
+  // Força numérica (M16) = soldados × strengthPerSoldier × (1 + defesa%/100), × 0.75 durante obras.
+  "strengthPerSoldier": 1.0,
+  // Soldados repostos por hora (até o teto) quando a manutenção está paga.
+  "reinforcePerHour": 0.25,
+  // Deserção por hora quando a facção está em déficit há mais de deficitGraceHours horas seguidas.
+  "desertPerHour": 0.25,
+  "deficitGraceHours": 6,
+  // Manutenção por soldado por hora (recursos de Economy.json), paga do saldo e depois do baú da sede.
+  "upkeep": { "bread": 0.02, "gold": 0.1 },
+  // false: só as facções do jogador pagam (a IA ganha manutenção na M16).
+  "aiUpkeep": false,
+
+  // Tropas por facção ou estilo de bandeira ("default" = qualquer outra, inclusive a do jogador).
+  //  actor:  candidatos em ordem — "Plugin.esp|0xID" (NPC_ ou leveled list LVLN) ou EditorID (EditorID de NPC só
+  //          resolve com po3 Tweaks instalado). O primeiro que existir vence; o log mostra o que foi tentado.
+  //  autoArmorHint: sem candidato válido, o DLL escolhe um NPC genérico (não único) do Skyrim.esm cujo outfit tem
+  //          armadura com esse texto no caminho do modelo (FaceGen vanilla pronto).
+  //  outfit: candidatos de outfit (OTFT) aplicado pelo DLL; vazio = o outfit padrão do NPC, reaplicado e conferido.
+  //  factions / removeFactions: facções (FACT) adicionadas/removidas SÓ dos atores criados. Soldados do jogador
+  //          entram sempre na PlayerFaction (aliados do jogador).
+  // Os EditorIDs abaixo são palpites não verificados no jogo; o autoArmorHint é o caminho garantido.
+  "troops": {
+    "imperial": {
+      "actor": ["EncCWSoldierImperial", "CWSoldierImperial"],
+      "autoArmorHint": "imperial"
+    },
+    "stormcloak": {
+      "actor": ["EncCWSoldierSons", "CWSoldierSons"],
+      "autoArmorHint": "stormcloak"
+    },
+    "default": {
+      "actor": [],
+      "autoArmorHint": "imperial",
+      "outfit": [],
+      "factions": [],
+      "removeFactions": []
+    }
+  }
+}

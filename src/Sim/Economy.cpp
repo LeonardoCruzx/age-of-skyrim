@@ -347,6 +347,41 @@ namespace AoS
         std::erase_if(upkeep_, [&](const auto& p) { return p.first == a_key; });
     }
 
+    // ---- M14/M15: ganchos do tick ----
+
+    void Economy::AddTickListener(std::string_view a_key, TickListener a_listener)
+    {
+        std::scoped_lock l{ lock_ };
+        std::erase_if(tickListeners_, [&](const auto& p) { return p.first == a_key; });
+        tickListeners_.emplace_back(std::string(a_key), std::move(a_listener));
+    }
+
+    void Economy::SetTerritoryMultiplier(TerritoryMultiplier a_provider)
+    {
+        std::scoped_lock l{ lock_ };
+        territoryMult_ = std::move(a_provider);
+    }
+
+    void Economy::NotifyTick(std::uint32_t a_hours)
+    {
+        if (a_hours == 0) {
+            return;
+        }
+        std::vector<TickListener> listeners;
+        {
+            std::scoped_lock l{ lock_ };
+            for (const auto& [key, fn] : tickListeners_) {
+                listeners.push_back(fn);
+            }
+        }
+        for (const auto& fn : listeners) {
+            if (fn) {
+                fn(a_hours);
+            }
+        }
+    }
+    // ---- fim M14/M15 ----
+
     bool Economy::InDeficit(Id a_faction) const
     {
         std::scoped_lock l{ lock_ };
@@ -408,28 +443,33 @@ namespace AoS
         if (now < 0.0) {
             return 0;
         }
-        std::scoped_lock l{ lock_ };
-        const auto       last = lastHour_.load();
-        if (last == kUnset || now < last) {
-            // Jogo novo / save sem registro ECON / relógio voltou: começa a contar daqui, sem produção retroativa.
-            lastHour_ = now;
-            return 0;
+        std::uint32_t processed = 0;
+        {
+            std::scoped_lock l{ lock_ };
+            const auto       last = lastHour_.load();
+            if (last == kUnset || now < last) {
+                // Jogo novo / save sem registro ECON / relógio voltou: começa a contar daqui, sem produção retroativa.
+                lastHour_ = now;
+                return 0;
+            }
+            const auto elapsed = static_cast<std::uint32_t>(std::min(std::floor(now - last), 1.0e6));
+            if (elapsed == 0) {
+                return 0;
+            }
+            lastHour_ = last + elapsed;  // mantém a fração da hora corrente
+            auto hours = elapsed;
+            if (hours > maxCatchUpHours_) {
+                logger::warn("Economia: {} h desde o último tick; processando só {} h (maxCatchUpHours).", hours,
+                             maxCatchUpHours_);
+                hours = maxCatchUpHours_;
+            }
+            if (hours > 0) {
+                Process(hours);
+                processed = hours;
+            }
         }
-        const auto elapsed = static_cast<std::uint32_t>(std::min(std::floor(now - last), 1.0e6));
-        if (elapsed == 0) {
-            return 0;
-        }
-        lastHour_ = last + elapsed;  // mantém a fração da hora corrente
-        auto hours = elapsed;
-        if (hours > maxCatchUpHours_) {
-            logger::warn("Economia: {} h desde o último tick; processando só {} h (maxCatchUpHours).", hours,
-                         maxCatchUpHours_);
-            hours = maxCatchUpHours_;
-        }
-        if (hours > 0) {
-            Process(hours);
-        }
-        return hours;
+        NotifyTick(processed);  // M14/M15: obras e guarnição, fora do lock
+        return processed;
     }
 
     // Produção é linear nas horas: um lote de N horas custa o mesmo que 1 hora (O(territórios × regras)).
@@ -459,9 +499,12 @@ namespace AoS
                 continue;
             }
             const bool player = players.contains(owner);
-            // M18/M19: doutrina, cargos, título, governador e mão de obra do território.
-            const auto mult = Multiplier(owner, player) * a_hours *
-                              Realm::Modifiers::GetFor(owner, t.id, Realm::Modifier::Production);
+            // M18/M19: doutrina, cargos, título, governador e mão de obra do território; M15: melhoria de renda.
+            auto mult = Multiplier(owner, player) * a_hours *
+                        Realm::Modifiers::GetFor(owner, t.id, Realm::Modifier::Production);
+            if (territoryMult_) {
+                mult *= std::max(0.0, territoryMult_(t.id));
+            }
             auto&      ledger = LedgerOf(owner);
             for (const auto& [idx, perHour] : rules) {
                 const auto amount = perHour * mult;
@@ -579,6 +622,7 @@ namespace AoS
             r = last_;
         }
         Realm::OnHoursPassed(static_cast<float>(r.hours));  // o reino acompanha as horas forçadas
+        NotifyTick(r.hours);  // M14/M15: as horas forçadas também avançam obras e guarnição
         I18n::NotifyTr("economy.summary", r.hours, r.producing, std::format("{:.2f}", r.ms));
         for (const auto& [id, amount] : r.playerProduced) {
             const auto  res  = FindResource(id);

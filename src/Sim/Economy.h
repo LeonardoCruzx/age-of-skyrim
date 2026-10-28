@@ -74,6 +74,17 @@ namespace AoS
         [[nodiscard]] double        Deficit(Id a_faction, Id a_resource) const;  // falta no último tick
         [[nodiscard]] std::uint32_t DeficitHours(Id a_faction) const;           // horas seguidas em déficit
 
+        // ---- M14/M15: ganchos do tick ----
+        // Chamado depois de cada tick (thread principal, FORA do lock da economia: pode consultar a Economy) com as
+        // horas processadas. Obras (M15) e reposição/deserção da guarnição (M14) penduram aqui (ADR 0026/0046).
+        using TickListener = std::function<void(std::uint32_t a_hours)>;
+        void AddTickListener(std::string_view a_key, TickListener a_listener);
+        // Multiplicador de produção por território (M15: melhoria de renda). Chamado DENTRO do tick, com o lock da
+        // economia travado: não chamar a Economy de dentro. Sem provider = 1.0.
+        using TerritoryMultiplier = std::function<double(Id a_territory)>;
+        void SetTerritoryMultiplier(TerritoryMultiplier a_provider);
+        // ---- fim M14/M15 ----
+
         // Saldo numérico: IA = estoque acumulado; jogador = pendente ainda não entregue no depósito.
         [[nodiscard]] double Balance(Id a_faction, Id a_resource) const;
 
@@ -106,6 +117,7 @@ namespace AoS
 
         void   LoadFile(const fs::path& a_file, nlohmann::json& a_routes);
         void   Process(std::uint32_t a_hours);  // lock_ já travado
+        void   NotifyTick(std::uint32_t a_hours);  // M14/M15: lock_ SOLTO
         void   DeliverPending(Report& a_report);  // lock_ já travado
         Ledger& LedgerOf(Id a_faction);           // lock_ já travado
         [[nodiscard]] std::optional<std::size_t> IndexOf(Id a_resource) const;
@@ -128,6 +140,8 @@ namespace AoS
         std::unordered_map<Id, Ledger>      ledgers_;
 
         std::vector<std::pair<std::string, UpkeepProvider>> upkeep_;
+        std::vector<std::pair<std::string, TickListener>>   tickListeners_;  // M14/M15
+        TerritoryMultiplier                                 territoryMult_;  // M15
         Report                                              last_;
     };
 }

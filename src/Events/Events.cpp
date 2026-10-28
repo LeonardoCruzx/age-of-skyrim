@@ -5,6 +5,8 @@
 #include "Debug/SelfTest.h"
 #include "Sim/Economy.h"  // M12/M13
 #include "Sim/Routes.h"   // M12/M13
+#include "Sim/Garrison.h"  // M14
+#include "Sim/Upgrades.h"  // M15
 #include "Stock/Stock.h"
 #include "UI/WarMap.h"  // M11
 #include "World/Claims.h"
@@ -83,6 +85,19 @@ namespace AoS::Events
                         continue;
                     }
                     // ---- fim M11 ----
+                    // ---- M14/M15: guarnição e melhorias ----
+                    if (key == dbg.garrisonHotkey || key == dbg.upgradeHotkey) {
+                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
+                            continue;
+                        }
+                        if (key == dbg.garrisonHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Garrison::Get().DebugHere(); });
+                        } else {
+                            SKSE::GetTaskInterface()->AddTask([] { Upgrades::Get().DebugHere(); });
+                        }
+                        continue;
+                    }
+                    // ---- fim M14/M15 ----
                     if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
                         key != dbg.claimHotkey && key != dbg.conquestHotkey) {
                         continue;
@@ -148,6 +163,8 @@ namespace AoS::Events
                 logger::info("Debug hotkeys M12/M13 (economia 0x{:X} = {} h, rota 0x{:X}).", d.economyHotkey,
                              d.economyHours, d.routeHotkey);
                 logger::info("Debug hotkey M11 (mapa tático 0x{:X}).", d.warMapHotkey);
+                logger::info("Debug hotkeys M14/M15 (guarnição 0x{:X}, melhoria 0x{:X}, ignorar custo: {}).",
+                             d.garrisonHotkey, d.upgradeHotkey, d.upgradeIgnoreCost);
             }
         }
     }

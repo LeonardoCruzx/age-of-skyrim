@@ -27,3 +27,10 @@ não existem (guarnição M14, ameaças M16…). Regra do projeto: nada de polli
 - Provedores rodam na thread principal, uma vez por território por envio: precisam ser O(1).
 - Saves com muitos mods de locais (milhares de territórios) aumentam o snapshot linearmente; se preciso, filtro
   por worldspace no futuro.
+
+## Atualização (merge com M14/M15)
+Duas camadas registradas em `kDataLoaded`, depois de `Garrison::Load`/`Upgrades::Load`:
+- `garrison`: `soldiers`/`max`/`present` de `Garrison::Get()`.
+- `upgrades`: `defense`/`income`/`inConstruction` de `Upgrades::Get().Stat(...)`.
+
+Chaves de tradução `warmap.layer.garrison`/`warmap.layer.upgrades` (en/pt-br).

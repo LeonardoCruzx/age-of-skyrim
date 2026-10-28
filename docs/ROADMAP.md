@@ -188,12 +188,22 @@ Plano original:
 - Debug F7 (`debug.routeHotkey`): rota entre os 2 territórios mais próximos do jogador com o mesmo dono.
 - Falta (outras missões): traçar no mapa (M11), menu no MCM (M10), diplomacia em `CanTrade` (M17).
 
-### M14. ⬜ 🎮 Guarnição
+### M14. ✅ 🎮 Guarnição — implementada, aguardando teste no jogo — [ADR 0043](adr/0043-guarnicao-numerica-materializada.md), [0044](adr/0044-tropas-bases-vanilla-outfit-faccoes.md)
 - Ao conquistar, spawn de N guardas da facção (leveled list por estilo, definida no ESP) no marcador do território.
 - Guardas registrados no cosave (`GARR` v1); limpeza ao perder o território. Teto global de NPCs configurável.
 - Manutenção paga com o estoque da sede (M12).
+- Feito: `src/Sim/Garrison.*`. Guarnição **numérica** por território (`initial`/`max` por tipo em `Garrison.json`,
+  teto + melhorias M15), cosave `GARR` v1; troca de dono (listener de conquista + reconciliação) zera para a
+  guarnição inicial do novo dono.
+- Feito: atores só perto do jogador (âncora = `worldLocMarker` ou bandeira em célula carregada, `spawnRadius`),
+  lotes de `spawnPerFrame` por frame, teto global `maxActors`; despawn (`Disable`+`SetDelete`) ao descarregar a
+  célula; mortes reduzem o número; atores de saves antigos apagados no pós-load.
+- Feito: tropas por facção/estilo (`troops`: candidatos FormID/EditorID + escolha automática por armadura do
+  `Skyrim.esm`), outfit aplicado e conferido pelo DLL, `PlayerFaction` para soldados do jogador.
+- Feito: manutenção por soldado (`RegisterUpkeep`), reposição por hora e deserção após `deficitGraceHours` de déficit.
+- API: `Garrison::Size/Max/Strength/Present`, `Set/Add`. Debug NumPad5 (`debug.garrisonHotkey`).
 
-### M15. ⬜ 🎮 Melhorias de fortes, torres e outros territórios — [ADR 0020](adr/0020-melhorias-de-territorios.md)
+### M15. ✅ 🎮 Melhorias de fortes, torres e outros territórios — implementada, aguardando teste no jogo — [ADR 0020](adr/0020-melhorias-de-territorios.md), [0045](adr/0045-melhorias-implementacao.md)
 - `Upgrades.json` (extensível por outros mods): melhorias por tipo de local, cada uma com níveis I → II → III.
   Ex.: muralhas (defesa), quartel (guardas/reposição), torre de vigia (alerta e visão no mapa),
   armazém (capacidade do estoque), mercado (renda/rotas), forja (metais → equipamento da guarnição).
@@ -204,6 +214,14 @@ Plano original:
 - Status numéricos no DLL (defesa, capacidade, renda, visão, guarnição máx.) lidos por M11/M12/M13/M14/M16;
   cosave `UPGR` v1 (nível por melhoria, obra em andamento + término).
 - Iniciar/acompanhar obras pela mesa de guerra (M11) e pelo MCM (M10). Textos en/pt-br.
+- Feito: `src/Sim/Upgrades.*` + `Upgrades.json` (muralhas, quartel, torre de vigia, armazém, mercado, forja; I–III),
+  custo por categoria do estoque pago do baú da sede, obra em horas no tick da economia (`AddTickListener`,
+  [ADR 0046](adr/0046-ganchos-do-tick-da-economia.md)), status em cache (`Upgrades::Stat`), renda via
+  `Economy::SetTerritoryMultiplier`, guarnição máx./defesa lidas pela M14, cosave `UPGR` v1.
+- Feito: visual por nível ancorado no marcador/bandeira (`visuals`), exemplo na `test_tower`.
+- API: `Upgrades::Stat/Level/InConstruction/CurrentConstruction/NextAvailable/Start`. Debug NumPad6
+  (`debug.upgradeHotkey`, `debug.upgradeIgnoreCost`).
+- Falta (outras missões): obras pela mesa de guerra (M11) e MCM (M10); capacidade do estoque e visão aplicadas.
 
 ## Fase 3 — Mundo vivo
 

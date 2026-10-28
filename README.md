@@ -94,6 +94,21 @@ DIK 64) força `economyHours` horas de economia e mostra o resumo; **F7** (`rout
 teste. Ver ADRs [0026](docs/adr/0026-tick-por-hora-orientado-a-evento.md),
 [0027](docs/adr/0027-economia-producao-deposito-consumo.md) e [0028](docs/adr/0028-rotas-de-comercio.md).
 
+### Guarnição (`Garrison.json` + `settings.json` → `garrison`)
+Cada território com dono tem uma guarnição **numérica** (`initial`/`max` por tipo, reposição/deserção por hora,
+manutenção `upkeep` por soldado). Os soldados só viram atores perto do jogador: `enabled`, `maxActors` (teto global),
+`spawnPerFrame`, `spawnRadius`, `spreadRadius`. Tropas por facção/estilo em `troops` (FormID/EditorID ou escolha
+automática por armadura). Outros mods: `Garrison/*.json`. Debug: **NumPad5** (`garrisonHotkey`, DIK 76) mostra a
+guarnição do território atual e chama os soldados para perto de você. Ver ADRs
+[0043](docs/adr/0043-guarnicao-numerica-materializada.md) e [0044](docs/adr/0044-tropas-bases-vanilla-outfit-faccoes.md).
+
+### Melhorias (`Upgrades.json`)
+Muralhas, quartel, torre de vigia, armazém, mercado e forja, níveis I–III, com custo em itens do baú da sede (por
+categoria do estoque) e tempo de obra em horas de jogo; status `defense`, `capacity`, `income`, `vision`,
+`garrisonMax`; objetos visuais por nível em `visuals`. Outros mods: `Upgrades/*.json`. Debug: **NumPad6**
+(`upgradeHotkey`, DIK 77) inicia a próxima melhoria do território atual (ou da sede); `upgradeIgnoreCost: true`
+dispensa o custo. Ver [ADR 0045](docs/adr/0045-melhorias-implementacao.md).
+
 ### Free Claim (`settings.json` → `claim`)
 `banner` (objeto base, padrão provisório Iron Sword), `minDistance` (unidades; 70 ≈ 1 m), `maxClaims`,
 `maxSlopeDegrees`, `forwardDistance`. Claims ficam no cosave (registro `CLAM`). Ver [ADR 0018](docs/adr/0018-free-claim-raycast.md).
@@ -208,8 +223,10 @@ Schema do snapshot em [docs/warmap-schema.md](docs/warmap-schema.md). Ver ADRs [
 | `src/Realm/Government.*` | Doutrina, cargos, governadores, relógio do reino (registro `GOVT` v1) |
 | `src/Realm/Population.*` | População por território, crescimento/fome/guerra/alistamento (registro `POPL` v1) |
 | `src/Realm/Titles.*` | Títulos por marcos e desbloqueios (registro `TITL` v1) |
+| `src/Sim/Garrison.*` | Guarnição (M14): números por território, spawn em lotes perto do jogador com teto global, outfit pelo DLL, manutenção/deserção, registro `GARR` v1, debug NumPad5 |
+| `src/Sim/Upgrades.*` | Melhorias (M15): `Upgrades.json`, custo no baú da sede, obra no tick, status por território, visual por nível, registro `UPGR` v1, debug NumPad6 |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
-| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad9; NumPad0 reservado p/ API) |
+| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad5/6/9; NumPad0 reservado p/ API) |
 | `include/AgeOfSkyrimAPI.h` | API pública C++ versionada (interface, eventos, pedido por mensagem SKSE) |
 | `src/Api/ModApi.*` | Implementação da interface, mensagem 'AOSI', export `AoS_GetInterface`, ganchos para M6/M12/M13/M18 |
 | `src/Api/Events.*` | Registro central de eventos: callbacks C++ + ModEvents `AoS_*`, sempre na thread principal |
@@ -218,7 +235,6 @@ Schema do snapshot em [docs/warmap-schema.md](docs/warmap-schema.md). Ver ADRs [
 | `tools/papyrus/` | Stubs de compilação próprios + flags (Caprica no CI); não vão no pacote |
 | `tools/build_esp.py` | Gera o `AgeOfSkyrim.esp` (ESL, quest do MCM) — testado em `tests/test_build_esp.py` |
 | `tools/gen_skyui_translations.py` | `Interface/Translations/AgeOfSkyrim_*.txt` a partir dos JSON de tradução |
-; NumPad9 mapa) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
 
 ## Pendências conhecidas da Fase 1

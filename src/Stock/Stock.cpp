@@ -189,6 +189,41 @@ namespace AoS
         return totals;
     }
 
+    // ---- M15: custo de obras ----
+    std::optional<std::size_t> Stock::CategoryIndex(std::string_view a_key) const
+    {
+        for (std::size_t i = 0; i < categories_.size(); ++i) {
+            if (_strnicmp(categories_[i].key.c_str(), a_key.data(), a_key.size()) == 0 &&
+                categories_[i].key.size() == a_key.size()) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    }
+
+    std::int64_t Stock::Take(RE::TESObjectREFR* a_container, std::size_t a_category, std::int64_t a_amount)
+    {
+        if (!a_container || a_amount <= 0 || a_category >= categories_.size()) {
+            return 0;
+        }
+        std::int64_t taken = 0;
+        for (const auto& [object, count] : a_container->GetInventoryCounts()) {
+            if (taken >= a_amount) {
+                break;
+            }
+            if (!object || count <= 0 || Classify(object) != static_cast<std::int16_t>(a_category)) {
+                continue;
+            }
+            const auto n = static_cast<std::int32_t>(std::min<std::int64_t>(count, a_amount - taken));
+            a_container->RemoveItem(object, n, RE::ITEM_REMOVE_REASON::kRemove, nullptr, nullptr);
+            taken += n;
+        }
+        logger::info("Stock: {} item(ns) de '{}' removido(s) de 0x{:08X}.", taken, categories_[a_category].key,
+                     a_container->GetFormID());
+        return taken;
+    }
+    // ---- fim M15 ----
+
     void Stock::Observe(RE::FormID a_container) { observed_.insert(a_container); }
 
     void Stock::Unobserve(RE::FormID a_container)

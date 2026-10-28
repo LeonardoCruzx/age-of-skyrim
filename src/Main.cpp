@@ -5,6 +5,8 @@
 #include "Debug/SelfTest.h"
 #include "Events/Events.h"
 #include "Sim/Economy.h"  // M12
+#include "Sim/Garrison.h"  // M14
+#include "Sim/Upgrades.h"  // M15
 #include "Sim/Routes.h"   // M13
 #include "Realm/Government.h"
 #include "Realm/Population.h"
@@ -56,6 +58,10 @@ namespace
         AoS::Realm::Population::Get().Save(a_intfc);
         AoS::Realm::Titles::Get().Save(a_intfc);
         AoS::WarMap::Get().Save(a_intfc);  // M11: alvos (depois dos territórios dinâmicos)
+        // ---- M14/M15 ----
+        AoS::Upgrades::Get().Save(a_intfc);
+        AoS::Garrison::Get().Save(a_intfc);
+        // ---- fim M14/M15 ----
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -101,6 +107,14 @@ namespace
             case AoS::WarMap::kRecord:  // M11
                 AoS::WarMap::Get().LoadRecord(a_intfc, version);
                 break;
+            // ---- M14/M15 ----
+            case AoS::Upgrades::kRecord:
+                AoS::Upgrades::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Garrison::kRecord:
+                AoS::Garrison::Get().LoadRecord(a_intfc, version);
+                break;
+            // ---- fim M14/M15 ----
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -123,6 +137,10 @@ namespace
         // ---- fim M12/M13 ----
         AoS::Realm::Clear();
         AoS::Api::Events::ClearSession();
+        // ---- M14/M15 ----
+        AoS::Upgrades::Get().Clear();
+        AoS::Garrison::Get().Clear();
+        // ---- fim M14/M15 ----
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -173,6 +191,23 @@ namespace
                 [](AoS::Id a_faction) -> AoS::Id { return AoS::Realm::Government::Get().DoctrineOf(a_faction); });
 
             AoS::WarMap::Get().Load();        // M11: detecta o PrismaUI (já carregado pelo SKSE)
+            AoS::Upgrades::Get().Load();      // M15: depois de Stock/Economy
+            AoS::Garrison::Get().Load();      // M14: depois de Economy/Upgrades/Conquest
+
+            // Mapa tático (M11) <- guarnição (M14) e melhorias (M15): camadas opcionais por território.
+            AoS::WarMap::Get().AddProvider("garrison", "warmap.layer.garrison", [](const AoS::Territory& t) {
+                return nlohmann::json{ { "soldiers", AoS::Garrison::Get().Size(t.id) },
+                                       { "max", AoS::Garrison::Get().Max(t.id) },
+                                       { "present", AoS::Garrison::Get().Present(t.id) } };
+            });
+            AoS::WarMap::Get().AddProvider("upgrades", "warmap.layer.upgrades", [](const AoS::Territory& t) {
+                return nlohmann::json{
+                    { "defense", AoS::Upgrades::Get().Stat(t.id, AoS::Stat::kDefense) },
+                    { "income", AoS::Upgrades::Get().Stat(t.id, AoS::Stat::kIncome) },
+                    { "inConstruction", AoS::Upgrades::Get().InConstruction(t.id) },
+                };
+            });
+
             AoS::Events::Register();
             break;
 
@@ -188,6 +223,8 @@ namespace
                 AoS::SelfTest::OnPostLoad();  // só age se o save tem registro do autoteste
                 AoS::Seat::Get().OnPostLoad();  // M6: observa e reconta o baú da sede
                 AoS::Api::Events::StateReady();  // outros mods: estado pronto para consulta
+                AoS::Upgrades::Get().OnPostLoad();  // M15: confere os objetos visuais
+                AoS::Garrison::Get().OnPostLoad();  // M14: apaga atores do save anterior e recria perto do jogador
             });
             break;
 
