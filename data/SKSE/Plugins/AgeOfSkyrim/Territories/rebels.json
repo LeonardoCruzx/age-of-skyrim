@@ -1,0 +1,7 @@
+{
+  // M26 (ADR 0063): só declara o estilo "rebels" (sem bandeira própria por enquanto — território rebelado fica
+  // sem bandeira visível até algum mod/patch adicionar banners para este estilo, ver BannerSet em Config.h).
+  // Necessário para a facção "rebels" (Factions/rebels.json) ser aceita: Factions::LoadFile exige um estilo
+  // declarado em algum Territories/*.json.
+  "styles": ["rebels"]
+}

@@ -128,6 +128,38 @@
     "allianceNeedsCommonEnemy": true,
     "warOnConquest": true
   },
+  // ---- M25: lei e prisioneiros de guerra (ADR 0060/0061) ----
+  // touchCrimeFaction: interruptor mestre (default false = nunca toca a facção de crime vanilla do Hold, para
+  // compatibilidade com mods de Guerra Civil/lei, ADR 0005); resetBounty só tem efeito com ele ligado.
+  // captureFraction: fração dos soldados derrotados num combate (M16) que vira prisioneiro do vencedor, até
+  // a capacidade (baseCapacityPerTerritory por território + melhoria "prison" do Upgrades.json).
+  // ransomCostPerPrisoner: ouro por prisioneiro resgatado (itens reais do baú da sede; numérico para a IA).
+  "law": {
+    "touchCrimeFaction": false,
+    "resetBounty": true,
+    "captureFraction": 0.5,
+    "baseCapacityPerTerritory": 3,
+    "ransomCostPerPrisoner": 50,
+    "debugCaptureCount": 3
+  },
+  // ---- M26: ordem pública e rebeliões (ADR 0062/0063) ----
+  // Estabilidade (0-100) por território: baseline × doutrina/governador (Realm::Modifiers), menos penalidade de
+  // guarnição insuficiente para a população (popToStrength) e de déficit de comida OU ouro (deficitPenalty).
+  // Abaixo de rebellionThreshold por graceHours horas seguidas, chancePerHour por hora de rebelião: vira a
+  // facção "rebels" (Factions/rebels.json) se rebelFaction, senão neutro. unrestDecayPerHour: quanto o abalo de
+  // uma execução (Law::Execute) cai por hora.
+  "stability": {
+    "enabled": true,
+    "baseline": 60,
+    "popToStrength": 0.05,
+    "garrisonPenalty": 25,
+    "deficitPenalty": 15,
+    "rebellionThreshold": 35,
+    "graceHours": 48,
+    "chancePerHour": 0.02,
+    "rebelFaction": true,
+    "unrestDecayPerHour": 0.5
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,
@@ -159,6 +191,13 @@
     // com o dono do território atual (paz -> guerra -> trégua -> aliança).
     "aiHotkey": 71,
     "diplomacyHotkey": 72,
+    // M25/M26: F1 simula debugCaptureCount capturas no território atual; F2 resgata (ouro) o 1º prisioneiro
+    // da sua facção; F12 executa o 1º prisioneiro; NumPad0 mostra a estabilidade do território atual e força
+    // uma checagem de rebelião imediata.
+    "lawCaptureHotkey": 59,
+    "lawRansomHotkey": 60,
+    "lawExecuteHotkey": 88,
+    "stabilityHotkey": 82,
     "territory": "test_tower"
   }
 }

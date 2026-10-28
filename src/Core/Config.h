@@ -110,6 +110,12 @@ namespace AoS
         int aiHotkey{ 0x47 };          // DIK_NUMPAD7: força o tick estratégico e mostra os ataques ativos
         int diplomacyHotkey{ 0x48 };   // DIK_NUMPAD8: alterna a relação do jogador com o dono do território atual
         // ---- fim M16/M17 ----
+        // ---- M25/M26: lei/prisioneiros e ordem pública/rebeliões ----
+        int lawCaptureHotkey{ 0x3B };   // DIK_F1: simula lawDebugCaptureCount capturas no território atual
+        int lawRansomHotkey{ 0x3C };    // DIK_F2: resgata (ouro) o 1º prisioneiro da facção do jogador
+        int lawExecuteHotkey{ 0x58 };   // DIK_F12: executa o 1º prisioneiro da facção do jogador
+        int stabilityHotkey{ 0x52 };    // DIK_NUMPAD0: estabilidade do território atual + checagem de rebelião
+        // ---- fim M25/M26 ----
         Id   territory{ kNeutral };
 
         // M18/M19/M22 (src/Realm): resumo do reino, simular horas, ciclar doutrina, conquistar locais próximos.
@@ -239,6 +245,44 @@ namespace AoS
     };
     // ---- fim M16/M17 ------------------------------------------------------------------------------
 
+    // ---- M25: lei e prisioneiros de guerra (ADR 0060/0061) ----------------------------------------
+    // settings.json -> "law". Facção de crime vanilla do Hold (bounty): touchCrimeFaction é o interruptor
+    // mestre (default false = nunca toca, compatibilidade com mods de Guerra Civil/lei, ADR 0005); só com
+    // ele ligado é que resetBounty tem efeito. Prisioneiros: captureFraction dos soldados derrotados num
+    // combate (M16) vira prisioneiro do vencedor (Law::CaptureFromCombat), até a capacidade da facção
+    // (baseCapacityPerTerritory por território + melhoria "prison" do Upgrades, Stat::kPrisonCapacity).
+    struct LawSettings
+    {
+        bool          touchCrimeFaction{ false };       // default: nunca toca (compat)
+        bool          resetBounty{ true };               // ação ao trocar de dono, se touchCrimeFaction
+        double        captureFraction{ 0.5 };             // fração dos derrotados que vira prisioneiro
+        std::uint32_t baseCapacityPerTerritory{ 3 };      // teto antes de melhorias
+        double        ransomCostPerPrisoner{ 50.0 };      // ouro por prisioneiro resgatado
+        std::uint32_t debugCaptureCount{ 3 };             // prisioneiros gerados pela hotkey de captura simulada
+    };
+    // ---- fim M25 ------------------------------------------------------------------------------------
+
+    // ---- M26: ordem pública e rebeliões (ADR 0062/0063) -------------------------------------------
+    // settings.json -> "stability". Estabilidade (0-100) por território: baseline × Modifiers::GetFor(Stability)
+    // (doutrina/governador) menos penalidades de guarnição insuficiente (Garrison::Strength vs população ×
+    // popToStrength) e de déficit (Economy::InDeficit, comida OU ouro). Abaixo de rebellionThreshold por
+    // graceHours seguidas, chancePerHour por hora de virar rebelião (SetTerritoryOwner para a facção "rebels"
+    // ou kNeutral, conforme rebelFaction).
+    struct StabilitySettings
+    {
+        bool          enabled{ true };
+        double        baseline{ 60.0 };
+        double        popToStrength{ 0.05 };    // força de guarnição esperada por habitante
+        double        garrisonPenalty{ 25.0 };  // pontos perdidos no máximo por guarnição insuficiente
+        double        deficitPenalty{ 15.0 };   // pontos perdidos por déficit (comida OU ouro, cada)
+        double        rebellionThreshold{ 35.0 };
+        std::uint32_t graceHours{ 48 };          // horas seguidas abaixo do limiar antes de poder rebelar
+        double        chancePerHour{ 0.02 };     // chance por hora, depois da graça
+        bool          rebelFaction{ true };      // true: facção "rebels"; false: kNeutral
+        double        unrestDecayPerHour{ 0.5 }; // decaimento do abalo de execuções (Law::Execute)
+    };
+    // ---- fim M26 ------------------------------------------------------------------------------------
+
     class Config
     {
     public:
@@ -261,6 +305,8 @@ namespace AoS
         [[nodiscard]] const GarrisonSettings&       Garrison() const noexcept { return garrison_; }  // M14
         [[nodiscard]] const AiSettings&             Ai() const noexcept { return ai_; }              // M16
         [[nodiscard]] const DiplomacySettings&      Diplomacy() const noexcept { return diplomacy_; } // M17
+        [[nodiscard]] const LawSettings&            Law() const noexcept { return law_; }             // M25
+        [[nodiscard]] const StabilitySettings&      Stability() const noexcept { return stability_; } // M26
 
         // M16: dono padrão vindo dos "start" das facções (Factions/*.json). Só vale se o JSON do território não
         // definiu defaultOwner. Chamar em kDataLoaded, antes de State::ResetToDefaults.
@@ -294,6 +340,7 @@ namespace AoS
         void LoadTerritoryFile(const fs::path& a_file);
         void LoadConquestAndSeat(const nlohmann::json& a_json);  // M5/M6
         void LoadAiAndDiplomacy(const nlohmann::json& a_json);   // M16/M17
+        void LoadLawAndStability(const nlohmann::json& a_json);  // M25/M26
         void LoadCompat();                                       // M16: Compat/*.json (ADR 0042)
         void RegisterName(Id a_id, const std::string& a_key);
         void MergeDiscovered();   // M4: territórios do jogo + vínculo dos JSON com "location"
@@ -314,6 +361,8 @@ namespace AoS
         GarrisonSettings                        garrison_;  // M14
         AiSettings                              ai_;          // M16
         DiplomacySettings                       diplomacy_;   // M17
+        LawSettings                             law_;         // M25
+        StabilitySettings                       stability_;   // M26
         bool                                    userSkipCwConquest_{ false };  // definido no settings.json?
         bool                                    userSkipCwAi_{ false };
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;

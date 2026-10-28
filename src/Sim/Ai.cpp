@@ -7,6 +7,8 @@
 #include "Core/Timer.h"
 #include "Sim/Diplomacy.h"
 #include "Sim/Economy.h"
+#include "Sim/Garrison.h"  // M25: guarnição derrotada -> prisioneiros (Law::CaptureFromCombat)
+#include "Sim/Law.h"
 #include "Sim/Routes.h"
 #include "World/Conquest.h"
 #include "World/Discovery.h"
@@ -430,9 +432,14 @@ namespace AoS
             }
             return;
         }
+        // M25: a guarnição que o alvo tinha antes de cair vira a base dos prisioneiros do vencedor
+        // (Law::CaptureFromCombat, que já aplica a fração/teto configurados). Lido ANTES de SetTerritoryOwner:
+        // depois da troca, Garrison::Size já reflete o novo dono (guarnição inicial dele), não a derrota.
+        const auto defeatedGarrison = Garrison::Get().Size(t->id);
         if (!SetTerritoryOwner(t->id, a_attack.attacker)) {
             return;
         }
+        Law::Get().CaptureFromCombat(a_attack.attacker, a_attack.defender, defeatedGarrison);
         if (a_summary) {
             ++a_summary->captured;
         }

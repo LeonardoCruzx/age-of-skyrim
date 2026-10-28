@@ -13,6 +13,9 @@ namespace AoS
     //  kIncome:      % de bônus na produção do território (Economy, multiplicador por território).
     //  kVision:      alcance de alerta/visão no mapa tático (unidades do jogo; informativo para M11).
     //  kGarrisonMax: soldados a mais no teto da guarnição (Garrison::Max).
+    //  kPrisonCapacity: teto extra de prisioneiros do território (Law::Capacity, M25). Aditivo, no fim do enum
+    //  (sem renumerar os existentes): os níveis não são serializados por índice bruto, só por par (melhoria, nível)
+    //  no registro UPGR (ver Upgrades::Save), então crescer este enum não quebra saves antigos.
     enum class Stat : std::uint8_t
     {
         kDefense,
@@ -20,6 +23,7 @@ namespace AoS
         kIncome,
         kVision,
         kGarrisonMax,
+        kPrisonCapacity,  // M25: aditivo, no fim
         kCount,
     };
     inline constexpr std::size_t kStatCount = static_cast<std::size_t>(Stat::kCount);

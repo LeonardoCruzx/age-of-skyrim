@@ -155,6 +155,12 @@ namespace AoS
             // ---- fim M14/M15 ----
             debug_.aiHotkey        = dbg->value("aiHotkey", debug_.aiHotkey);                // M16
             debug_.diplomacyHotkey = dbg->value("diplomacyHotkey", debug_.diplomacyHotkey);  // M17
+            // ---- M25/M26: lei/prisioneiros e ordem pública/rebeliões ----
+            debug_.lawCaptureHotkey = dbg->value("lawCaptureHotkey", debug_.lawCaptureHotkey);
+            debug_.lawRansomHotkey  = dbg->value("lawRansomHotkey", debug_.lawRansomHotkey);
+            debug_.lawExecuteHotkey = dbg->value("lawExecuteHotkey", debug_.lawExecuteHotkey);
+            debug_.stabilityHotkey  = dbg->value("stabilityHotkey", debug_.stabilityHotkey);
+            // ---- fim M25/M26 ----
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
@@ -222,6 +228,7 @@ namespace AoS
         }
         // ---- fim M14 ----
         LoadAiAndDiplomacy(*json);   // M16/M17
+        LoadLawAndStability(*json);  // M25/M26
     }
 
     // ---- M5/M6: blocos "conquest" e "seat" ------------------------------------------------------
@@ -352,6 +359,33 @@ namespace AoS
             diplomacy_.warOnConquest            = d->value("warOnConquest", diplomacy_.warOnConquest);
         }
     }
+
+    // ---- M25/M26: blocos "law" e "stability" ------------------------------------------------------
+    void Config::LoadLawAndStability(const nlohmann::json& a_json)
+    {
+        if (const auto l = a_json.find("law"); l != a_json.end() && l->is_object()) {
+            law_.touchCrimeFaction        = l->value("touchCrimeFaction", law_.touchCrimeFaction);
+            law_.resetBounty              = l->value("resetBounty", law_.resetBounty);
+            law_.captureFraction          = std::clamp(l->value("captureFraction", law_.captureFraction), 0.0, 1.0);
+            law_.baseCapacityPerTerritory = l->value("baseCapacityPerTerritory", law_.baseCapacityPerTerritory);
+            law_.ransomCostPerPrisoner    = std::max(0.0, l->value("ransomCostPerPrisoner", law_.ransomCostPerPrisoner));
+            law_.debugCaptureCount        = std::max(1u, l->value("debugCaptureCount", law_.debugCaptureCount));
+        }
+        if (const auto s = a_json.find("stability"); s != a_json.end() && s->is_object()) {
+            stability_.enabled            = s->value("enabled", stability_.enabled);
+            stability_.baseline           = std::clamp(s->value("baseline", stability_.baseline), 0.0, 100.0);
+            stability_.popToStrength      = std::max(0.0, s->value("popToStrength", stability_.popToStrength));
+            stability_.garrisonPenalty    = std::max(0.0, s->value("garrisonPenalty", stability_.garrisonPenalty));
+            stability_.deficitPenalty     = std::max(0.0, s->value("deficitPenalty", stability_.deficitPenalty));
+            stability_.rebellionThreshold = std::clamp(s->value("rebellionThreshold", stability_.rebellionThreshold),
+                                                        0.0, 100.0);
+            stability_.graceHours         = s->value("graceHours", stability_.graceHours);
+            stability_.chancePerHour      = std::clamp(s->value("chancePerHour", stability_.chancePerHour), 0.0, 1.0);
+            stability_.rebelFaction       = s->value("rebelFaction", stability_.rebelFaction);
+            stability_.unrestDecayPerHour = std::max(0.0, s->value("unrestDecayPerHour", stability_.unrestDecayPerHour));
+        }
+    }
+    // ---- fim M25/M26 --------------------------------------------------------------------------------
 
     // Compat/*.json (ADR 0042, formato em patches/README.md): exclusões condicionais trazidas por patches.
     // Ativo se QUALQUER plugin de "whenLoaded" estiver carregado (vazio = sempre). Listas somam às do

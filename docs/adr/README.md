@@ -59,3 +59,7 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0048 | [Contra-ataque: território do jogador perdido e sede ocupada](0048-contra-ataque-e-sede-ocupada.md) | Técnica | Aceita |
 | 0049 | [Diplomacia: guerra, paz, aliança e trégua entre facções (`DIPL`)](0049-diplomacia-relacoes-entre-faccoes.md) | Técnica | Aceita |
 | 0050 | [Loader de `Compat/*.json` e exclusões da IA](0050-loader-compat-e-exclusoes-da-ia.md) | Técnica | Aceita |
+| 0060 | [Lei e prisioneiros de guerra: contagem por facção (`LAWS`), sem atores](0060-lei-prisioneiros-de-guerra.md) | Técnica | Aceita |
+| 0061 | [Facção de crime vanilla do Hold (bounty) e prisão como melhoria de território](0061-facao-de-crime-e-prisao-como-melhoria.md) | Técnica | Aceita |
+| 0062 | [`Realm::Modifier::Stability`: fórmula de estabilidade por território](0062-modificador-de-estabilidade.md) | Técnica | Aceita |
+| 0063 | [Rebeliões: facção `rebels` fixa, aviso no mapa, estado transitório sem cosave](0063-rebelioes-faccao-rebels-sem-cosave.md) | Técnica | Aceita |

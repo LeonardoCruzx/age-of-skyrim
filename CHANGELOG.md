@@ -59,6 +59,13 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
 - **M28 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
   compatibilidade com mods de guerra civil (lido pelo DLL desde a M16), relatório de performance
   do log (`tools/perf_report.py`).
+- **M25 — Lei e prisioneiros de guerra:** `Law::Prisoners`/`Capacity` por facção (sem ator, cosave `LAWS` v1),
+  ganho por combates da IA (`Ai::Resolve` chama `CaptureFromCombat`) ou por debug (F1); resgate (ouro, F2) e
+  execução (F12); prisão como melhoria (`Upgrades.json → "prison"`, `Stat::kPrisonCapacity`); facção de crime
+  vanilla do Hold (bounty) zerada ao trocar de dono, desligado por padrão (`law.touchCrimeFaction`).
+- **M26 — Ordem pública e rebeliões:** `Realm::Modifier::Stability` (doutrina/governador/guarnição vs.
+  população/déficit), rebelião por território instável por tempo demais (facção `rebels` ou neutro), aviso na
+  tela e camada nova no mapa tático, debug NumPad0.
 
 ### Observações
 - Ainda não testado no jogo (roteiro único no fim, [ADR 0021](docs/adr/0021-implementar-tudo-teste-unico-no-fim.md)).

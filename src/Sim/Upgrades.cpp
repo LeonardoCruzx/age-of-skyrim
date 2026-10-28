@@ -19,8 +19,9 @@ namespace AoS
         constexpr float kDegToRad = 3.14159265f / 180.0f;
         constexpr std::size_t kMaxLevels = 10;
 
-        constexpr std::array<std::string_view, kStatCount> kStatNames{ "defense", "capacity", "income", "vision",
-                                                                       "garrisonMax" };
+        constexpr std::array<std::string_view, kStatCount> kStatNames{ "defense",  "capacity", "income",
+                                                                       "vision",   "garrisonMax",
+                                                                       "prisonCapacity" };  // M25, no fim
 
         std::optional<nlohmann::json> ReadJson(const fs::path& a_file)
         {
