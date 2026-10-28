@@ -284,22 +284,37 @@ como requisito: lógica no DLL, teto de atores, sem navmesh nem NPC vanilla com 
 - Mão de obra multiplica a produção (M12); população é a fonte de recrutas (M20) e de impostos (doutrina M18).
 - Sem atores: só números. Cosave `POPL` v1; visível no mapa tático (M11) e no MCM (M10).
 
-### M20. ⬜ 🎮 Exército e recrutamento
-- Recrutar soldados nos territórios (consome população, ouro e equipamento do estoque; tempo de treino).
-  Tipos de tropa data-driven (`Troops.json`: leveled list/NPC vanilla base com FaceGen pronto, outfit por estilo
-  da facção aplicado pelo DLL, custo, força).
-- Exércitos = unidades **abstratas** (contagens por tipo, força, moral, posição em território) no cosave `ARMY` v1;
-  movem-se entre vizinhos no mapa tático. Só viram atores perto do jogador (M21).
-- Oficiais/comandantes de exército; manutenção paga pela economia; falta de comida/ouro → deserção.
-- O jogador pode levar um grupo pequeno como escolta (teto configurável).
+### M20. ✅ 🎮 Exército e recrutamento — núcleo implementado, aguardando teste no jogo — [ADR 0064](adr/0064-exercito-abstrato-recrutamento.md)
+- ✅ `src/Sim/Troops.*` (`Troops.json`): tabela de tropas de CAMPO, mesmo formato/estratégia de escolha automática
+  de `ActorBase` que `Garrison.json` (FaceGen vanilla pronto, outfit pelo DLL), + força, custo (ouro/equipamento),
+  tempo de treino e manutenção por tipo.
+- ✅ `src/Sim/Army.*`: `Army::Recruit(facção, território, tropa, n)` consome ouro (`Economy::Spend`), equipamento
+  do baú da sede (`Stock::Take`, facções do jogador) e população (`Realm::Population::Draft`); fila de treino
+  (horas de jogo, `Economy::AddTickListener`). Exércitos são ENTIDADES ABSTRATAS (contagem por tipo, força,
+  oficiais, território/destino) no cosave `ARMY` v1; marcham entre vizinhos (`Territory.neighbors`) com a mesma
+  fórmula de horas por distância da IA (M16). Nenhum ator é criado pela M20 (só na M21, perto do jogador).
+- ✅ Oficiais: bônus de força simples (sem NPC por ora, documentado no ADR). Manutenção via
+  `Economy::RegisterUpkeep("army")`; déficit prolongado → deserção gradual (como a guarnição, M14). Escolta:
+  `Army::SetEscort` com teto global configurável (`army.maxEscort`); seguimento físico do jogador é **TODO**.
+- ✅ Confronto entre exércitos hostis no mesmo território: gancho registrável `Army::SetClashHandler` (M21) com
+  fallback de resolução numérica própria. Debug NumPad0 (recrutar no território atual) / NumPad. (listar exércitos).
+- ⬜ UI de comando (mapa tático/MCM) para mover exércitos e recrutar sem hotkey — fora desta missão.
 
-### M21. ⬜ 🎮 Batalhas em tempo real
-- Quando um exército encontra outro (ou ataca um território) com o jogador por perto, a batalha é
-  **materializada**: atores criados em lotes por frame nos marcadores do local, **teto global de atores**
-  (configurável; o restante entra como reforço quando alguém morre), facções de combate por facção do mod.
-- Formações simples (linha, cunha, defesa) por posição de spawn e pacotes nossos; reforços em ondas.
-- Resultado da batalha atualiza as contagens do exército abstrato; longe do jogador, a resolução é numérica
-  (a mesma da M16). Limpeza dos atores ao fim ou ao sair da área. Desempenho medido no log (meta: sem picos > 5 ms/frame).
+### M21. ✅ 🎮 Batalhas em tempo real — núcleo implementado, aguardando teste no jogo — [ADR 0065](adr/0065-batalhas-tempo-real-faccoes-proprias.md)
+- ✅ `src/Sim/Battle.*`: materializa um `Ai::Attack` (M16, via `Ai::SetNearPlayerHandler`) ou um confronto de
+  `Army` (M20, via `Army::SetClashHandler`) perto do jogador. **Teto GLOBAL de atores PRÓPRIO**
+  (`battle.maxActors`, separado do teto da guarnição), criação em lotes por frame (mesmo padrão de
+  `Garrison::ProcessQueue`/`SpawnOne`), reforços entram conforme atores morrem até esgotar a força abstrata.
+- ✅ Atores com `ActorBase`/outfit de `Troops.json` (FaceGen pronto, outfit pelo DLL), facções de combate
+  PRÓPRIAS criadas em runtime (`TESFaction::SetEnemy`, nunca as vanilla), posições em 2-3 formações simples por
+  lado nos marcadores do território (sem navmesh novo).
+- ✅ Fora do alcance do jogador (ou `battle.realTime: false`): sem gancho registrado, a resolução cai na
+  numérica que já existia (`Ai::Resolve`/`Army::ResolveNumerically`) — nada duplicado. Abandono (jogador sai da
+  área) conclui pela força restante. Batalha não sobrevive ao save (cosave `BATL` v1 só para limpar órfãos).
+  Ponto de integração opcional `Battle::SetCaptureHandler` para a M25 (prisioneiros).
+- ✅ Desempenho: `ScopedTimer`/log por lote, alerta se passar de `battle.maxFrameMs` (~2 ms). Debug NumPad+
+  (DIK `Add`, 0x4E): batalha de teste perto do jogador (facção do jogador x uma facção de IA).
+- ⬜ Formações curadas por território, cercos e armas de cerco — fora do roadmap (ADR 0055).
 
 ### M22. ✅ Títulos e progressão — núcleo implementado, aguardando teste no jogo ([ADR 0038](adr/0038-titulos-progressao.md))
 - ✅ `Titles/*.json` (Chefe de Bando → Senhor → Jarl → Rei/Rainha Supremo(a)) com marcos (territórios, províncias

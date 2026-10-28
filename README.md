@@ -238,6 +238,24 @@ continua normalmente. Avaliado dentro do mesmo `Realm::Reevaluate` que já reava
 estratégico), nunca por polling. Cosave `DOMN` v1. Consulta: `Realm::HasDominated`, native Papyrus
 `AgeOfSkyrim.HasDominated`, página "Reino" do MCM.
 
+### Exército (`Troops.json` + `settings.json` → `army`) e batalhas em tempo real (`→ battle`)
+Recrute soldados num território seu (`Army::Recruit`): consome ouro, equipamento do baú da sede e população
+(`Realm::Population::Draft`); depois de `trainHours` eles entram no exército ABSTRATO do território (contagem
+por tipo, oficiais, escolta). Tropas de campo em `Troops.json` (mesmo formato de `Garrison.json`: `actor`,
+`autoArmorHint`, `outfit`, + `strength`, `goldCost`, `equipCategory`/`equipAmount`, `trainHours`, `upkeep`).
+Marcha só entre vizinhos (`army.hoursPer10000Units`, `min/maxTravelHours`); manutenção e deserção por déficit
+como a guarnição (`army.desertPerHour`, `deficitGraceHours`, `aiUpkeep`); `army.maxOfficers`/`officerBonusEach`
+(bônus simples, sem NPC); `army.maxEscort` (teto global de soldados em escolta; seguimento físico é TODO).
+Quando um ataque da IA chega ao seu território, ou dois exércitos hostis se encontram, com você por perto, a
+batalha é MATERIALIZADA (`battle.realTime`): atores em lotes por frame (`battle.spawnPerFrame`), teto GLOBAL
+próprio `battle.maxActors` (separado da guarnição), reforços conforme morrem, 2-3 posições por lado
+(`battle.sideDistance`/`formationSpacing`), facções de combate criadas em runtime (nunca vanilla). Longe de você
+(ou `realTime: false`): resolução numérica (reaproveita `Ai::Resolve`/`Army`). Debug: **NumPad/**
+(`armyRecruitHotkey`, DIK 181; NumPad0 segue reservado para a API) recruta no território atual; **NumPad\***
+(`armyListHotkey`, DIK 55; NumPad. já é `stabilityHotkey`, M26) lista os seus exércitos; **NumPad+**
+(`battleTestHotkey`, DIK 78) força uma batalha de teste perto de você. ADRs
+[0064](docs/adr/0064-exercito-abstrato-recrutamento.md) e [0065](docs/adr/0065-batalhas-tempo-real-faccoes-proprias.md).
+
 ## Estrutura
 
 | Arquivo | Responsabilidade |
@@ -270,8 +288,6 @@ estratégico), nunca por polling. Cosave `DOMN` v1. Consulta: `Realm::HasDominat
 | `src/Realm/Titles.*` | Títulos por marcos e desbloqueios (registro `TITL` v1) |
 | `src/Sim/Garrison.*` | Guarnição (M14): números por território, spawn em lotes perto do jogador com teto global, outfit pelo DLL, manutenção/deserção, registro `GARR` v1, debug NumPad5 |
 | `src/Sim/Upgrades.*` | Melhorias (M15): `Upgrades.json`, custo no baú da sede, obra no tick, status por território, visual por nível, registro `UPGR` v1, debug NumPad6 |
-| `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
-| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad5/6/9; NumPad0 reservado p/ API) |
 | `include/AgeOfSkyrimAPI.h` | API pública C++ versionada (interface, eventos, pedido por mensagem SKSE) |
 | `src/Api/ModApi.*` | Implementação da interface, mensagem 'AOSI', export `AoS_GetInterface`, ganchos para M6/M12/M13/M18 |
 | `src/Api/Events.*` | Registro central de eventos: callbacks C++ + ModEvents `AoS_*`, sempre na thread principal |
@@ -284,10 +300,13 @@ estratégico), nunca por polling. Cosave `DOMN` v1. Consulta: `Realm::HasDominat
 | `src/Sim/Diplomacy.*` | Diplomacia (M17): guerra/paz/aliança/trégua por par, padrões em `Factions/*.json`, registro `DIPL` v1, debug NumPad8 |
 | `src/Realm/Jarl.*` | Governo local (M24): capital por população, NPC não-único perto do marcador, ativação com status, registro `JARL` v1, debug NumPad- |
 | `src/Realm/Domination.*` | Domínio de Skyrim (M27): marco permanente por fração de províncias, registro `DOMN` v1 |
-| `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
-| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad7/8) |
 | `src/Sim/Law.*` | Lei e prisioneiros (M25): `Prisoners`/`Capacity`/`CaptureFromCombat`/`Ransom`/`Execute`, facção de crime do Hold, registro `LAWS` v1, debug F1/F2/F12 |
 | `src/Sim/Stability.*` | Ordem pública e rebeliões (M26): estabilidade por território, `Modifier::Stability`, rebeliões (`SetTerritoryOwner`), camada no mapa, sem cosave (ADR 0063), debug NumPad. (decimal) |
+| `src/Sim/Troops.*` | Tropas de campo (M20/M21): `Troops.json`, mesma escolha de `ActorBase`/outfit que a guarnição, dados de custo/treino/manutenção |
+| `src/Sim/Army.*` | Exército abstrato (M20): recrutamento, treino, marcha, oficiais, escolta, deserção, registro `ARMY` v1, debug NumPad//NumPad* |
+| `src/Sim/Battle.*` | Batalhas em tempo real (M21): materialização perto do jogador, teto global próprio, lotes por frame, facções de combate próprias, registro `BATL` v1 (só limpeza), debug NumPad+ |
+| `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
+| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F1/F2/F3/F4/F6–F8/F10–F12, NumPad0–9/./-/+/*) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
 
 ## Pendências conhecidas da Fase 1

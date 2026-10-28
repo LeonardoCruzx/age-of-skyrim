@@ -131,6 +131,18 @@ namespace AoS
         int   realmConquerHotkey{ 0x4B };   // DIK_NUMPAD4: dá à facção do jogador os N locais mais próximos
         float realmDebugHours{ 24.0f };
         int   realmConquerCount{ 5 };
+
+        // ---- M20/M21: exército, recrutamento e batalhas ----
+        // Teclas fora da faixa NumPad1-9 já usada (M11/M14-M18), sem colidir: NumPad0, NumPad. (Decimal) e
+        // NumPad+ (Add). Confirmadas em REX/W32/DINPUT.h (extern/CommonLibSSE-NG).
+        int           armyRecruitHotkey{ 0xB5 };  // DIK_DIVIDE (NumPad/): recruta no território atual
+                                                   // (NumPad0 segue reservado para a API; corrigido na mescla)
+        int           armyListHotkey{ 0x37 };     // DIK_MULTIPLY (NumPad *): mostra os exércitos da sua facção
+                                                   // (NumPad . é stabilityHotkey, M26; corrigido na mescla)
+        int           battleTestHotkey{ 0x4E };   // DIK_ADD (NumPad +): força uma batalha de teste perto do jogador
+        std::uint32_t armyRecruitCount{ 10 };      // soldados recrutados pela hotkey de teste
+        std::uint32_t battleTestSize{ 6 };         // soldados por lado na batalha de teste
+        // ---- fim M20/M21 ----
     };
 
     // settings.json -> "realm": governo/doutrina (M18), população (M19), títulos (M22), domínio (M27).
@@ -302,6 +314,38 @@ namespace AoS
         double        unrestDecayPerHour{ 0.5 }; // decaimento do abalo de execuções (Law::Execute)
     };
     // ---- fim M26 ------------------------------------------------------------------------------------
+    // ---- M20: exército e recrutamento (ADR 0064) ----------------------------------------------------
+    // settings.json -> "army": exércitos são ENTIDADES ABSTRATAS (Army.cpp); tropas e custo em Troops.json.
+    struct ArmySettings
+    {
+        bool          enabled{ true };
+        double        desertPerHour{ 0.1 };        // deserção/h quando a facção está em déficit (como Garrison)
+        std::uint32_t deficitGraceHours{ 6 };
+        bool          aiUpkeep{ false };           // false: só facções do jogador pagam manutenção do exército
+        double        hoursPer10kUnits{ 2.0 };     // marcha entre territórios vizinhos (como a IA, M16)
+        std::uint32_t minTravelHours{ 1 };
+        std::uint32_t maxTravelHours{ 48 };
+        std::uint32_t maxOfficers{ 3 };
+        double        officerBonusEach{ 0.1 };     // +10% de força por oficial (dado simples, sem NPC por ora)
+        std::uint32_t maxEscort{ 6 };               // teto GLOBAL de soldados em exércitos de escolta do jogador
+    };
+    // ---- fim M20 --------------------------------------------------------------------------------------
+
+    // ---- M21: batalhas em tempo real (ADR 0065) ------------------------------------------------------
+    // settings.json -> "battle": materialização perto do jogador de ataques da IA (M16) ou confrontos de
+    // exércitos (M20). Teto GLOBAL de atores PRÓPRIO (não soma com garrison.maxActors).
+    struct BattleSettings
+    {
+        bool          realTime{ true };       // false: sempre resolução numérica (Ai::ResolveAttack / Army)
+        std::uint32_t maxActors{ 10 };        // teto GLOBAL de atores de batalha vivos no mundo
+        std::uint32_t spawnPerFrame{ 2 };
+        float         radius{ 4096.0f };      // até esta distância do jogador materializa / permanece materializado
+        float         sideDistance{ 700.0f };   // distância de cada lado até o marcador (formação)
+        float         formationSpacing{ 180.0f };  // espaço lateral entre as 2-3 posições de cada lado
+        double        randomness{ 0.15 };     // ± no desfecho se o jogador sai da área antes do fim
+        double        maxFrameMs{ 2.0 };      // log de alerta se um lote de spawn passar disto
+    };
+    // ---- fim M21 --------------------------------------------------------------------------------------
 
     class Config
     {
@@ -328,6 +372,8 @@ namespace AoS
         [[nodiscard]] const JarlSettings&           Jarl() const noexcept { return jarl_; }           // M24
         [[nodiscard]] const LawSettings&            Law() const noexcept { return law_; }             // M25
         [[nodiscard]] const StabilitySettings&      Stability() const noexcept { return stability_; } // M26
+        [[nodiscard]] const ArmySettings&           Army() const noexcept { return army_; }          // M20
+        [[nodiscard]] const BattleSettings&         Battle() const noexcept { return battle_; }      // M21
 
         // M16: dono padrão vindo dos "start" das facções (Factions/*.json). Só vale se o JSON do território não
         // definiu defaultOwner. Chamar em kDataLoaded, antes de State::ResetToDefaults.
@@ -362,6 +408,7 @@ namespace AoS
         void LoadConquestAndSeat(const nlohmann::json& a_json);  // M5/M6
         void LoadAiAndDiplomacy(const nlohmann::json& a_json);   // M16/M17
         void LoadLawAndStability(const nlohmann::json& a_json);  // M25/M26
+        void LoadArmyAndBattle(const nlohmann::json& a_json);    // M20/M21
         void LoadCompat();                                       // M16: Compat/*.json (ADR 0042)
         void RegisterName(Id a_id, const std::string& a_key);
         void MergeDiscovered();   // M4: territórios do jogo + vínculo dos JSON com "location"
@@ -385,6 +432,8 @@ namespace AoS
         JarlSettings                            jarl_;        // M24
         LawSettings                             law_;         // M25
         StabilitySettings                       stability_;   // M26
+        ArmySettings                            army_;        // M20
+        BattleSettings                          battle_;      // M21
         bool                                    userSkipCwConquest_{ false };  // definido no settings.json?
         bool                                    userSkipCwAi_{ false };
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;

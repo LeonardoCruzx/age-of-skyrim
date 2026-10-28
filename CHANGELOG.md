@@ -56,6 +56,15 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
 - **M17 — Diplomacia:** guerra/paz/aliança/trégua entre facções com padrões em `Factions/*.json` (cosave `DIPL` v1),
   propostas de paz/aliança com aceitação por poder, guerra ao tomar território, rotas aceitam paz/aliança,
   `AreHostile` para guardas, debug NumPad8.
+- **M20 — Exército e recrutamento:** tropas de campo em `Troops.json` (mesma escolha de `ActorBase`/outfit da
+  guarnição), `Army::Recruit` consumindo ouro/equipamento do baú/população com fila de treino, exércitos
+  ABSTRATOS por território (cosave `ARMY` v1), marcha entre vizinhos, oficiais (bônus simples), escolta com teto
+  global, manutenção e deserção por déficit, gancho de confronto para a M21, debug NumPad0/NumPad.
+- **M21 — Batalhas em tempo real:** materialização de ataques da IA ou confrontos de exércitos perto do jogador,
+  teto GLOBAL de atores próprio (`battle.maxActors`), spawn em lotes por frame com reforços em ondas, facções de
+  combate criadas em runtime (nunca vanilla), formações simples nos marcadores do território, resolução numérica
+  reaproveitada fora do alcance do jogador, cosave `BATL` v1 (só limpeza de órfãos), gancho de captura opcional
+  para a M25, debug NumPad+.
 - **M28 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
   compatibilidade com mods de guerra civil (lido pelo DLL desde a M16), relatório de performance
   do log (`tools/perf_report.py`).

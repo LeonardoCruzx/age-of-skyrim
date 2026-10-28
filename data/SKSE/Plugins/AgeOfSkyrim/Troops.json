@@ -1,0 +1,47 @@
+{
+  // Tropas de CAMPO (M20 recrutamento / M21 batalhas), separadas da guarnição (Garrison.json, M14).
+  // Outros mods podem adicionar Troops/*.json (lidos depois, em ordem alfabética; chaves repetidas substituem).
+  //
+  // Por facção/estilo de bandeira ("default" = qualquer outra, inclusive a do jogador).
+  //  actor:  candidatos em ordem — "Plugin.esp|0xID" (NPC_ ou leveled list LVLN) ou EditorID (precisa de
+  //          po3 Tweaks). O primeiro que existir vence; sem nenhum, o DLL escolhe um NPC genérico do
+  //          Skyrim.esm pelo autoArmorHint (FaceGen vanilla pronto). outfit: aplicado pelo DLL ao criar o ator.
+  //  strength: força por soldado (resolução numérica, igual ao conceito de Garrison "strengthPerSoldier").
+  //  goldCost / equipCategory+equipAmount: custo por soldado recrutado (ouro do saldo + itens da categoria do
+  //          estoque, Resources.json). Facções de IA não pagam equipamento (M20, aiEquipCost em settings.json).
+  //  trainHours: horas de jogo até o recruta entrar no exército. upkeep: por soldado por hora (Economy.json).
+  // Os EditorIDs abaixo são palpites não verificados no jogo; o autoArmorHint é o caminho garantido.
+  "troops": {
+    "imperial": {
+      "actor": ["EncCWSoldierImperial", "CWSoldierImperial"],
+      "autoArmorHint": "imperial",
+      "strength": 1.0,
+      "goldCost": 15,
+      "equipCategory": "equipment",
+      "equipAmount": 1,
+      "trainHours": 12,
+      "upkeep": { "bread": 0.03, "gold": 0.05 }
+    },
+    "stormcloak": {
+      "actor": ["EncCWSoldierSons", "CWSoldierSons"],
+      "autoArmorHint": "stormcloak",
+      "strength": 1.0,
+      "goldCost": 15,
+      "equipCategory": "equipment",
+      "equipAmount": 1,
+      "trainHours": 12,
+      "upkeep": { "bread": 0.03, "gold": 0.05 }
+    },
+    "default": {
+      "actor": [],
+      "autoArmorHint": "imperial",
+      "outfit": [],
+      "strength": 1.0,
+      "goldCost": 15,
+      "equipCategory": "equipment",
+      "equipAmount": 1,
+      "trainHours": 12,
+      "upkeep": { "bread": 0.03, "gold": 0.05 }
+    }
+  }
+}

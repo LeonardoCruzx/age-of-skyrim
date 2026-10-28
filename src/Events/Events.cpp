@@ -11,6 +11,8 @@
 #include "Sim/Diplomacy.h" // M17
 #include "Sim/Law.h"       // M25
 #include "Sim/Stability.h" // M26
+#include "Sim/Army.h"      // M20
+#include "Sim/Battle.h"    // M21
 #include "Stock/Stock.h"
 #include "UI/WarMap.h"  // M11
 #include "World/Claims.h"
@@ -133,6 +135,21 @@ namespace AoS::Events
                         continue;
                     }
                     // ---- fim M25/M26 ----
+                    // ---- M20/M21: exército e batalhas ----
+                    if (key == dbg.armyRecruitHotkey || key == dbg.armyListHotkey || key == dbg.battleTestHotkey) {
+                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
+                            continue;
+                        }
+                        if (key == dbg.armyRecruitHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Army::Get().DebugRecruitHere(); });
+                        } else if (key == dbg.armyListHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Army::Get().DebugListArmies(); });
+                        } else {
+                            SKSE::GetTaskInterface()->AddTask([] { Battle::Get().DebugTestBattle(); });
+                        }
+                        continue;
+                    }
+                    // ---- fim M20/M21 ----
                     if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
                         key != dbg.claimHotkey && key != dbg.conquestHotkey) {
                         continue;
@@ -205,6 +222,9 @@ namespace AoS::Events
                 logger::info("Debug hotkeys M25/M26 (captura 0x{:X}, resgate 0x{:X}, execução 0x{:X}, "
                              "estabilidade 0x{:X}).",
                              d.lawCaptureHotkey, d.lawRansomHotkey, d.lawExecuteHotkey, d.stabilityHotkey);
+                logger::info("Debug hotkeys M20/M21 (recrutar 0x{:X}, listar exércitos 0x{:X}, batalha de teste "
+                             "0x{:X}).",
+                             d.armyRecruitHotkey, d.armyListHotkey, d.battleTestHotkey);
             }
         }
     }
