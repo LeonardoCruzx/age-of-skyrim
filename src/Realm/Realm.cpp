@@ -6,7 +6,9 @@
 #include "Core/State.h"
 #include "Core/I18n.h"
 #include "Core/Timer.h"
+#include "Realm/Domination.h"
 #include "Realm/Government.h"
+#include "Realm/Jarl.h"
 #include "Realm/Population.h"
 #include "Realm/Titles.h"
 
@@ -62,7 +64,9 @@ namespace AoS::Realm
         {
             const auto stats = ComputeStats(a_faction);
             const auto lost  = Government::Get().ValidateGovernors(a_faction, stats.majorityProvinces);
-            const auto promo = Titles::Get().Evaluate(a_faction, stats);
+            Jarl::Get().OnGovernorsLost(lost);  // M24: a presença não sobrevive à perda da maioria
+            const auto promo      = Titles::Get().Evaluate(a_faction, stats);
+            const auto dominated  = Domination::Get().Evaluate(a_faction, stats);  // M27 (ADR 0057)
             if (promo.title && !promo.first) {
                 Api::Events::TitleGranted(a_faction, promo.title->id);  // M9: também para facções de IA (M16)
             }
@@ -72,6 +76,10 @@ namespace AoS::Realm
             AnnounceGovernorsLost(lost);
             if (promo.title && !promo.first) {
                 AnnounceTitle(a_faction, promo.title);
+            }
+            if (dominated) {
+                SKSE::GetTaskInterface()->AddTask(
+                    [a_faction] { I18n::NotifyTr("realm.domination", Factions::Get().NameOf(a_faction)); });
             }
         }
 
@@ -152,6 +160,7 @@ namespace AoS::Realm
     {
         Data::Get().Load();
         Population::Get().Reset();
+        Jarl::Get().Load();  // M24: depois de Conquest::Register (Main.cpp chama Realm::Load só depois)
 
         static bool registered = false;
         if (Config::Get().Debug().enabled && !registered) {
@@ -171,9 +180,13 @@ namespace AoS::Realm
         Government::Get().Clear();
         Titles::Get().Clear();
         Population::Get().Reset();
+        Domination::Get().Clear();  // M27
+        Jarl::Get().Clear();        // M24
     }
 
     double Clock() { return Government::Get().Clock(); }
+
+    bool HasDominated(Id a_faction) { return Domination::Get().Of(a_faction); }  // M27
 
     FactionStats ComputeStats(Id a_faction)
     {

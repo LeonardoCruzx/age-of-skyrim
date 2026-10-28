@@ -59,6 +59,15 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
 - **M28 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
   compatibilidade com mods de guerra civil (lido pelo DLL desde a M16), relatório de performance
   do log (`tools/perf_report.py`).
+- **M24 — Governo local:** ao conquistar a capital de uma província (cidade de maior população, senão o
+  território de maior população), oferece um governador seu com presença física — NPC não-único do `Skyrim.esm`
+  (escolha automática ou `settings.json → jarl`), perto do marcador da cidade, **sem tocar o jarl vanilla**
+  (ADR 0005/0056); reaproveita `Government::AssignGovernor` (M18) para a maioria/bônus. Ativar o NPC mostra o
+  status da província (MessageBox só-texto, sem dublagem). Cosave próprio `JARL` v1. Debug NumPad-.
+- **M27 — Domínio de Skyrim:** marco permanente "Dominador(a) de Skyrim" ao controlar a maioria de
+  `realm.dominationThreshold` (padrão 1.0 = todas) das províncias existentes; avaliado dentro do mesmo
+  `Realm::Reevaluate` que já reavalia títulos, sem polling; vitória suave — sem travar nada. Cosave `DOMN` v1,
+  exposto por `Realm::HasDominated`, native Papyrus e a página "Reino" do MCM.
 
 ### Observações
 - Ainda não testado no jogo (roteiro único no fim, [ADR 0021](docs/adr/0021-implementar-tudo-teste-unico-no-fim.md)).

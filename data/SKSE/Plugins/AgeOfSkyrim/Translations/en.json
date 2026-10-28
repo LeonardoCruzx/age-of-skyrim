@@ -299,5 +299,27 @@
   "diplomacy.truceEnded":   "AoS: the truce with {} ended; you are now at peace",
   "diplomacy.noPlayerFaction": "AoS: you have no faction yet",
   "diplomacy.debugNoOwner": "AoS diplomacy: no territory of another faction here",
-  "diplomacy.debugRelation": "AoS diplomacy: relation with {} is now: {}"
+  "diplomacy.debugRelation": "AoS diplomacy: relation with {} is now: {}",
+
+  "realm.domination": "AoS: {} has dominated Skyrim!",
+
+  "jarl.already":        "AoS: {} already has a governor in place",
+  "jarl.notOwned":       "AoS: {} must belong to your faction",
+  "jarl.askReplace":     "{} is the capital of {}.\nReplace the local lord with a governor of your own?",
+  "jarl.yes":            "Yes",
+  "jarl.no":             "No",
+  "jarl.noMajority":     "AoS: you need the majority of {} to appoint a governor",
+  "jarl.noSlot":         "AoS: your title allows no more governors",
+  "jarl.failed":         "AoS: could not appoint a governor. Send the log.",
+  "jarl.noActor":        "AoS: governor appointed for {}, but no NPC is available for the presence (see the log)",
+  "jarl.cellNotLoaded":  "AoS: governor appointed for {}; the presence will appear next time you are there",
+  "jarl.placed":         "AoS: {} now has a governor of yours in {}",
+  "jarl.removed":        "AoS: the governor of {} is gone",
+  "jarl.status":         "{}\nPopulation: {}\nStability: {}",
+  "jarl.status.noStability": "not tracked yet",
+  "jarl.ok":             "OK",
+  "jarl.debug.noTerritory": "AoS governor: no territory here (set debug.territory)",
+
+  "mcm.realm.dominationHeader": "Domination",
+  "mcm.realm.domination":       "Dominator of Skyrim"
 }

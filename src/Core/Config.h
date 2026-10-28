@@ -110,6 +110,11 @@ namespace AoS
         int aiHotkey{ 0x47 };          // DIK_NUMPAD7: força o tick estratégico e mostra os ataques ativos
         int diplomacyHotkey{ 0x48 };   // DIK_NUMPAD8: alterna a relação do jogador com o dono do território atual
         // ---- fim M16/M17 ----
+        // ---- M24: governo local (jarl) ----
+        // DIK_NUMPADMINUS (NumPad0 fica reservado para a API, ver src/Events/Events.*): força a oferta de
+        // governador na capital da província atual.
+        int jarlHotkey{ 0x4A };
+        // ---- fim M24 ----
         Id   territory{ kNeutral };
 
         // M18/M19/M22 (src/Realm): resumo do reino, simular horas, ciclar doutrina, conquistar locais próximos.
@@ -121,12 +126,26 @@ namespace AoS
         int   realmConquerCount{ 5 };
     };
 
-    // settings.json -> "realm": governo/doutrina (M18), população (M19), títulos (M22).
+    // settings.json -> "realm": governo/doutrina (M18), população (M19), títulos (M22), domínio (M27).
     struct RealmSettings
     {
         float doctrineCooldownHours{ 168.0f };  // horas de jogo entre trocas de doutrina (a 1ª escolha é livre)
         bool  announceTitles{ true };           // anúncio na tela ao subir de título
+        // M27 (ADR 0057): fração de províncias com maioria para o marco "Dominador(a) de Skyrim" (1.0 = todas).
+        float dominationThreshold{ 1.0f };
     };
+
+    // ---- M24: governo local / presença na capital da província (ADR 0056) ------------------------
+    // settings.json -> "jarl": NPC de presença colocado perto do marcador da capital ao virar governador (M18).
+    struct JarlSettings
+    {
+        bool                   askBeforeAssign{ true };  // false: coloca direto ao conquistar a capital
+        std::optional<FormRef> actor;   // nullopt = escolha automática (NPC não-único do Skyrim.esm, ver Jarl.cpp)
+        std::optional<FormRef> outfit;  // nullopt = outfit padrão do NPC escolhido
+        std::string            autoHint{ "noble" };  // dica no modelo do outfit padrão para a escolha automática
+        RE::NiPoint3            offset{ 0.0f, 150.0f, 0.0f };  // direita/frente/cima, relativo ao marcador da capital
+    };
+    // ---- fim M24 ------------------------------------------------------------------------------------
 
     // ---- M14: guarnição (ADR 0043/0044) -----------------------------------------------------------
     // settings.json -> "garrison": materialização dos soldados perto do jogador. Números e tropas em Garrison.json.
@@ -261,6 +280,7 @@ namespace AoS
         [[nodiscard]] const GarrisonSettings&       Garrison() const noexcept { return garrison_; }  // M14
         [[nodiscard]] const AiSettings&             Ai() const noexcept { return ai_; }              // M16
         [[nodiscard]] const DiplomacySettings&      Diplomacy() const noexcept { return diplomacy_; } // M17
+        [[nodiscard]] const JarlSettings&           Jarl() const noexcept { return jarl_; }           // M24
 
         // M16: dono padrão vindo dos "start" das facções (Factions/*.json). Só vale se o JSON do território não
         // definiu defaultOwner. Chamar em kDataLoaded, antes de State::ResetToDefaults.
@@ -314,6 +334,7 @@ namespace AoS
         GarrisonSettings                        garrison_;  // M14
         AiSettings                              ai_;          // M16
         DiplomacySettings                       diplomacy_;   // M17
+        JarlSettings                            jarl_;        // M24
         bool                                    userSkipCwConquest_{ false };  // definido no settings.json?
         bool                                    userSkipCwAi_{ false };
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;

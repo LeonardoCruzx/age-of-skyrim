@@ -71,6 +71,7 @@ ObjectReference Function GetSeatChest(String asFaction) Global Native
 Int Function GetTreasury(String asFaction) Global Native
 Int Function GetTradeRouteCount(String asFaction) Global Native
 Int Function GetGovernmentId(String asFaction) Global Native
+Bool Function HasDominated(String asFaction) Global Native  ; M27: "Dominador(a) de Skyrim" (marco permanente)
 
 ; ---- Free Claim e debug ------------------------------------------------------------------------
 Int Function GetClaimCount() Global Native

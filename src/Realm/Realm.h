@@ -39,6 +39,11 @@ namespace AoS::Realm
     };
     [[nodiscard]] FactionStats ComputeStats(Id a_faction);
 
+    // M27 (ADR 0057): marco permanente "Dominador(a) de Skyrim" — maioria em dominationThreshold (padrão 1.0,
+    // ou seja, todas) das províncias existentes. Avaliado dentro de Reevaluate (troca de dono + tick); exposto
+    // ao MCM/outros mods como consulta O(1).
+    [[nodiscard]] bool HasDominated(Id a_faction);
+
     // ---- Debug (settings.json -> debug.realm*). Chamar na thread principal. ----
     void ShowSummary();          // doutrina, população total, título, cargos e modificadores na tela + log
     void DebugSimulateHours();   // OnHoursPassed(debug.realmDebugHours) + resumo
