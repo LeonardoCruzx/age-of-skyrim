@@ -192,12 +192,12 @@
     "aiHotkey": 71,
     "diplomacyHotkey": 72,
     // M25/M26: F1 simula debugCaptureCount capturas no território atual; F2 resgata (ouro) o 1º prisioneiro
-    // da sua facção; F12 executa o 1º prisioneiro; NumPad0 mostra a estabilidade do território atual e força
-    // uma checagem de rebelião imediata.
+    // da sua facção; F12 executa o 1º prisioneiro; NumPad. (decimal) mostra a estabilidade do território atual
+    // e força uma checagem de rebelião imediata (NumPad0 evitado de propósito, ver README).
     "lawCaptureHotkey": 59,
     "lawRansomHotkey": 60,
     "lawExecuteHotkey": 88,
-    "stabilityHotkey": 82,
+    "stabilityHotkey": 83,
     "territory": "test_tower"
   }
 }

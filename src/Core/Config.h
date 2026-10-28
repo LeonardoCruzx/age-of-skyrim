@@ -114,7 +114,8 @@ namespace AoS
         int lawCaptureHotkey{ 0x3B };   // DIK_F1: simula lawDebugCaptureCount capturas no território atual
         int lawRansomHotkey{ 0x3C };    // DIK_F2: resgata (ouro) o 1º prisioneiro da facção do jogador
         int lawExecuteHotkey{ 0x58 };   // DIK_F12: executa o 1º prisioneiro da facção do jogador
-        int stabilityHotkey{ 0x52 };    // DIK_NUMPAD0: estabilidade do território atual + checagem de rebelião
+        int stabilityHotkey{ 0x53 };    // DIK_DECIMAL (NumPad .): estabilidade do território atual + checagem de
+                                         // rebelião (NumPad0 evitado: reservado para debug de API noutro lugar)
         // ---- fim M25/M26 ----
         Id   territory{ kNeutral };
 

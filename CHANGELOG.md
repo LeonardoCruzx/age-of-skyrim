@@ -65,7 +65,7 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   vanilla do Hold (bounty) zerada ao trocar de dono, desligado por padrão (`law.touchCrimeFaction`).
 - **M26 — Ordem pública e rebeliões:** `Realm::Modifier::Stability` (doutrina/governador/guarnição vs.
   população/déficit), rebelião por território instável por tempo demais (facção `rebels` ou neutro), aviso na
-  tela e camada nova no mapa tático, debug NumPad0.
+  tela e camada nova no mapa tático, debug NumPad. (decimal).
 
 ### Observações
 - Ainda não testado no jogo (roteiro único no fim, [ADR 0021](docs/adr/0021-implementar-tudo-teste-unico-no-fim.md)).

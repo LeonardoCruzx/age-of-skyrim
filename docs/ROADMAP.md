@@ -348,7 +348,7 @@ capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
   acontece. Camada nova no mapa tático (`WarMap::AddProvider("stability", ...)`).
 - ✅ Guarnição (`Garrison::Strength`, já reflete melhorias como muralhas) e governador/doutrina reduzem a chance;
   mitigação: resolver o déficit ou trocar a doutrina/governador.
-- ✅ Debug: NumPad0 mostra a estabilidade do território atual e força uma checagem de rebelião imediata.
+- ✅ Debug: NumPad. (decimal) mostra a estabilidade do território atual e força uma checagem de rebelião imediata.
 - Estado transitório (horas seguidas instável) só em memória, sem registro de cosave — decisão documentada no
   ADR 0063 (custo/benefício).
 
