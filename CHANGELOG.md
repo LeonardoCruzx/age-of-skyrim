@@ -49,7 +49,7 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
 - **M15 — Melhorias de territórios:** `Upgrades.json` (muralhas, quartel, torre de vigia, armazém, mercado,
   forja; I–III) com custo em itens do baú da sede e tempo de obra, status por território (defesa, renda,
   guarnição máx., capacidade, visão), objetos visuais por nível, cosave `UPGR` v1, debug NumPad6.
-- **M23 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
+- **M28 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
   compatibilidade com mods de guerra civil (formato definido, leitura no DLL pendente), relatório de performance
   do log (`tools/perf_report.py`).
 

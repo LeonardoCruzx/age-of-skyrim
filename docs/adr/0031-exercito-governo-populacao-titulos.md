@@ -12,7 +12,7 @@ batalhas em tempo real, governo, doutrina, população e títulos.
 ## Decisão
 Nova **Fase 4 — Reino e exército**, depois da diplomacia e antes do release:
 M18 governo e doutrina · M19 população · M20 exército e recrutamento · M21 batalhas em tempo real ·
-M22 títulos e progressão. O release (compatibilidade + FOMOD) passa de M18 para **M23**. M16 (IA) e M17
+M22 títulos e progressão. O release (compatibilidade + FOMOD) passa de M18 para **M28**. M16 (IA) e M17
 (diplomacia) mantêm os números, porque já são citadas no código e nos ADRs; elas ganham exércitos e batalhas
 na Fase 4.
 

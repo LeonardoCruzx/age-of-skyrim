@@ -2,10 +2,10 @@
 
 - **Status:** Aceita
 - **Data:** 2026-10-28
-- **Origem:** Técnica (M23)
+- **Origem:** Técnica (M28)
 
 ## Contexto
-A M23 pede que o CI publique um release a cada tag `v*`. O DLL só compila no runner Windows (ADR 0006), num
+A M28 pede que o CI publique um release a cada tag `v*`. O DLL só compila no runner Windows (ADR 0006), num
 build de 5–15 min, e o `build.yml` já gera o zip do mod como artefato `AgeOfSkyrim-<sha>`. O `build.yml` é
 mexido por outras missões em paralelo (compilação de Papyrus, geração de ESP), então o release não deve exigir
 mudanças nele. Opções avaliadas:

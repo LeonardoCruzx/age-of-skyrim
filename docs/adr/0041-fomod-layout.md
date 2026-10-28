@@ -2,10 +2,10 @@
 
 - **Status:** Aceita
 - **Data:** 2026-10-28
-- **Origem:** Técnica (M23)
+- **Origem:** Técnica (M28)
 
 ## Contexto
-A M23 pede um instalador FOMOD com patches selecionáveis. Os jogadores usam MO2 ou Vortex, que leem
+A M28 pede um instalador FOMOD com patches selecionáveis. Os jogadores usam MO2 ou Vortex, que leem
 `fomod/info.xml` + `fomod/ModuleConfig.xml`. O mod já é traduzido em en/pt-br com escolha automática pelo idioma
 do jogo (`settings.json → "language": "auto"`, ADR 0014).
 

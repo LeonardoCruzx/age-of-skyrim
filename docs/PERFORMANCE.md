@@ -50,7 +50,7 @@ Claims::TryClaimHere               event      1     0.640     0.640     0.640   
 Discovery::Scan                    load       1    14.812    14.812    14.812    14.812      -  info
 ```
 
-## Perfil num save grande (M23)
+## Perfil num save grande (M28)
 
 Antes de cada release, com o máximo de conteúdo ativo (todos os territórios descobertos, guarnições, exércitos,
 IA, rotas e batalhas, conforme as missões existirem):

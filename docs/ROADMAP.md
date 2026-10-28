@@ -290,7 +290,40 @@ como requisito: lógica no DLL, teto de atores, sem navmesh nem NPC vanilla com 
 - Cada título destrava coisas (mais cargos, doutrinas, teto de exército) e é anunciado na tela.
 - Cosave junto do `FACT` (subir versão com migração) ou `TITL` v1.
 
-### M23. 🔄 Patches de compatibilidade + release — infra pronta ([ADR 0040](adr/0040-pipeline-de-release.md), [0041](adr/0041-fomod-layout.md), [0042](adr/0042-patches-de-compatibilidade.md))
+## Fase 5 — Lei, estabilidade e domínio ([ADR 0055](adr/0055-dominio-suave-lei-ordem-jarls.md))
+
+Escolhidas pelo usuário entre as funcionalidades do Conquest of Skyrim ainda fora do roadmap
+([comparativo](COMPARATIVO-CONQUEST-OF-SKYRIM.md), seção 4). Sem diálogo com voz (ADR 0055) e sem cerco de
+capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
+
+### M24. ⬜ 🎮 Troca de jarl / governo local
+- Ao conquistar a capital de uma província (cidade com `worldLocMarker` de jarl, se identificável, ou a cidade
+  mais populosa da província), oferece substituir o jarl vanilla por um governador seu (reaproveita/estende o
+  conceito de governador de província da M18, agora com presença na capital, não só bônus numérico).
+- Sem tocar aliases/pacotes do jarl vanilla (ADR 0005): o jarl original é desabilitado (não deletado) enquanto
+  a província for sua; seu NPC (próprio, FaceGen pronto, outfit pelo DLL) ocupa o posto, com diálogo só texto.
+- Perder a capital devolve o jarl vanilla. Cosave junto do `GOVT` (M18) ou registro próprio.
+
+### M25. ⬜ 🎮 Lei e prisioneiros de guerra
+- Facção de crime por território/província (bounty): ao trocar de dono, zera ou transfere a recompensa vanilla
+  (configurável; opção de nunca tocar a facção de crime, para compatibilidade).
+- Prisioneiros: parte dos inimigos derrotados em combates resolvidos pela M16 (fora da tela) vira prisioneiro
+  numérico por facção, sem ator; resgate (ouro), execução (moral) ou prisão (teto configurável) a qualquer hora.
+- Prisões próprias como melhoria de território (gancho na M15: `Upgrades.json` ganha uma entrada `prison`).
+
+### M26. ⬜ Ordem pública e rebeliões
+- Modificador novo `Realm::Modifier::Stability` (doutrina, governador, guarnição presente, déficit de comida/ouro).
+- Território com estabilidade baixa por tempo demais (tick da economia) tem chance de rebelião: vira neutro ou de
+  uma facção de rebeldes local, com aviso antecipado na tela e no mapa tático (M11, camada nova).
+- Guarnição e melhorias (muralhas) reduzem a chance; mitigação: ouro/comida extra, trocar o governador.
+
+### M27. ⬜ Domínio de Skyrim (vitória suave)
+- Ao controlar todas (ou a fração configurável de) as províncias do mapa, a facção do jogador recebe o título
+  "Dominador(a) de Skyrim" (extensão de `Titles.json`, M22) e uma notificação única — sem encerrar o mod nem
+  travar nenhum sistema; tudo (IA, rebeliões, comércio, diplomacia) continua rodando normalmente depois.
+- Marco visível no MCM/mapa tático; não é um requisito para nenhuma outra missão.
+
+### M28. 🔄 Patches de compatibilidade + release — infra pronta ([ADR 0040](adr/0040-pipeline-de-release.md), [0041](adr/0041-fomod-layout.md), [0042](adr/0042-patches-de-compatibilidade.md))
 - ✅ `.github/workflows/release.yml`: em tag `v*`, reaproveita o artefato do Build do mesmo commit
   (`tools/wait_build_run.py` espera ou dispara o build), monta o zip FOMOD e publica o GitHub Release com a
   seção do `CHANGELOG.md`. Passo a passo em [RELEASE.md](RELEASE.md).

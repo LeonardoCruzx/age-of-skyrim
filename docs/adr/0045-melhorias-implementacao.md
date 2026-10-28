@@ -40,5 +40,5 @@ por nível. Faltava definir dados, pagamento, status, persistência e de onde v�
   sede); `debug.upgradeIgnoreCost` = obra grátis para teste.
 
 ## Consequências
-- Balanceamento todo em JSON; objetos curados por local podem vir de patches (M23) sem recompilar.
+- Balanceamento todo em JSON; objetos curados por local podem vir de patches (M28) sem recompilar.
 - Objetos visuais não somem se o nível fosse perdido (hoje níveis nunca caem).

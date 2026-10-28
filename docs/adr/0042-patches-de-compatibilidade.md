@@ -2,7 +2,7 @@
 
 - **Status:** Aceita (leitura no DLL pendente)
 - **Data:** 2026-10-28
-- **Origem:** Técnica (M23)
+- **Origem:** Técnica (M28)
 
 ## Contexto
 O roadmap pede patches JSON opcionais para mods de locais (JK's, Lux, Open Cities) e uma lista de exclusão para

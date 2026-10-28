@@ -27,7 +27,7 @@ Ver [REFERENCIAS.md](REFERENCIAS.md) e [ADR 0030](adr/0030-referencias-externas-
 | Soldados sem FaceGen (`ISSUE-CTD-03`) | Usar NPCs/leveled lists vanilla com FaceGen pronto, nada de NPC gerado sem malha | M14, M20 |
 | "Tropas peladas": outfit não aplicado (`ISSUE-GAME-01`) | Aplicar outfit no DLL ao criar o ator e conferir no carregamento da célula | M14, M20, M21 |
 | Recompensa (bounty) da facção antiga continua (`ISSUE-GAME-02`) | Ao trocar dono de cidade, tratar a facção de crime da província (opcional, configurável) | M16/M17 |
-| Conflito com quests da Guerra Civil vanilla (`ISSUE-QST-03/04`) | Lista de exclusão e detecção de quests da Guerra Civil ativas; não tocar aliases vanilla | M5, M23 |
+| Conflito com quests da Guerra Civil vanilla (`ISSUE-QST-03/04`) | Lista de exclusão e detecção de quests da Guerra Civil ativas; não tocar aliases vanilla | M5, M28 |
 | Contagem de capitais dessincronizada e captura que não dispara (`ISSUE-QST-01/02`) | Estado derivado de uma única fonte (State) + evento de local limpo, sem gatilhos de proximidade | M5 |
 | Pacotes de IA presos (`ISSUE-GAME-03`) | Não reaproveitar NPCs vanilla com pacotes/aliases; criar os nossos | M14, M18, M20 |
 
@@ -41,15 +41,21 @@ Ver [REFERENCIAS.md](REFERENCIAS.md) e [ADR 0030](adr/0030-referencias-externas-
 | Batalhas em tempo real, formações (`FEAT-BAT-01/02`) | M21 batalhas em tempo real |
 | Títulos (`FEAT-PROG-01`) | M22 títulos e progressão |
 
-## 4. Funcionalidades do CoS ainda fora do roadmap (candidatas)
+## 4. Adotadas na Fase 5 ([ADR 0055](adr/0055-dominio-suave-lei-ordem-jarls.md))
 
-Decisão do usuário se entram como missões novas:
+| Conquest of Skyrim | Age of Skyrim |
+|---|---|
+| Troca de jarl, lealdade (`FEAT-JARL-*`, `FEAT-SETT-01`) | M24 troca de jarl / governo local |
+| Lei: recompensas, prisioneiros, resgates, execuções, prisões (`FEAT-LAW-*`, `FEAT-DIPL-03`) | M25 lei e prisioneiros |
+| Estabilidade: ordem pública, rebeliões (`FEAT-STAB-01/02`) | M26 ordem pública e rebeliões |
+| Vitória: conquistar as províncias (`FEAT-VICT-01`) | M27 Domínio de Skyrim — **vitória suave**: título + aviso, sem travar nenhum sistema (diferente do Moot/coroação do CoS, que encerra o jogo) |
+
+Recusados (ADR 0055): diálogo com voz (`FEAT-UI-01`, só texto en/pt-br) e cerco de capitais (`FEAT-SIEG-01..04`).
+
+## 5. Funcionalidades do CoS ainda fora do roadmap (candidatas)
 
 - **Cercos de capitais:** início do cerco, armas de cerco, invasão, rendição (`FEAT-SIEG-01..04`).
-- **Troca de jarl** e lealdade dos jarls (`FEAT-JARL-*`, `FEAT-SETT-01`).
-- **Lei:** recompensas, prisioneiros, resgates, execuções, prisões (`FEAT-LAW-*`, `FEAT-DIPL-03`).
-- **Estabilidade:** ordem pública, rebeliões (`FEAT-STAB-01/02`).
 - **Desfiles de vitória** (`FEAT-BAT-03`), **corte e guarda real** (`FEAT-PROG-02`).
-- **Vitória:** conquistar as 9 províncias, Moot e coroação (`FEAT-VICT-*`).
+- **Moot e coroação** como final fechado (`FEAT-VICT-02/03`) — recusado; ver M27.
 - **Pesquisa militar** (`FEAT-TECH-01`).
-- **Diálogo imersivo** com NPCs da facção (`FEAT-UI-01`), o que exige ESP com quests e diálogo, e voz.
+- **Diálogo com voz** (`FEAT-UI-01`) — recusado (ADR 0055); diálogo em texto pode entrar sem essa restrição.
