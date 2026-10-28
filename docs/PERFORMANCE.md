@@ -4,7 +4,7 @@ Metas do projeto ([ADR 0005](adr/0005-principios-performance-compatibilidade.md)
 
 | Tipo | Exemplos | Meta |
 |---|---|---|
-| **event** — reação a um evento do jogo ou hotkey | `Stock::CountByCategory` (fechar baú), `Claims::TryClaimHere` (F9), conquista de local | **< 1 ms** |
+| **event** — reação a um evento do jogo ou hotkey | `Stock::CountByCategory` (fechar baú), `Claims::TryClaimHere` (F3), conquista de local | **< 1 ms** |
 | **tick** — passo estratégico (no máximo 1×/hora de jogo) | economia, IA, rotas (nomes com `Tick`/`Hourly`) | **< 5 ms** |
 | **load** — uma vez por carregamento | `Discovery::Scan`, `Config::*`, `Stock::Load`, `BannerController::ApplyAll` | informativo |
 | **debug** | `SelfTest::Run` (F11) | informativo |

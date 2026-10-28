@@ -88,7 +88,7 @@ namespace AoS::Papyrus
 
         bool IsDebugEnabled(StaticTag*) { return Config::Get().Debug().enabled; }
 
-        // "owner" (F10), "selftest" (F11), "stock" (F8), "claim" (F9). -1 = nome desconhecido.
+        // "owner" (F10), "selftest" (F11), "stock" (F8), "claim" (F3). -1 = nome desconhecido.
         std::int32_t GetDebugHotkey(StaticTag*, std::string a_which)
         {
             const auto& d = Config::Get().Debug();
