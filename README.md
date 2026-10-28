@@ -107,6 +107,17 @@ Conquistar uma candidata pergunta se você quer fundar (ou mudar) a sede ali; ba
 Cosave `SEAT` v1. Ver [ADR 0023](docs/adr/0023-sede-implementacao.md) e [0025](docs/adr/0025-objetos-base-da-sede.md).
 Claims (F3) viram territórios do tipo `claim` da sua facção ([ADR 0024](docs/adr/0024-claims-como-territorios.md)).
 
+### IA (`settings.json` → `ai`) e diplomacia (`→ diplomacy`, `Factions/*.json`)
+A cada `tickHours` horas de jogo as facções de IA atacam vizinhos de facções em guerra com elas (ou neutros, com
+`expandIntoNeutral`), pagando a força com o ouro do saldo (`attackBase`, `goldPerStrength`, `min/maxGoldPerAttack`,
+`minAdvantage`, `cooldownHours`, `maxActiveAttacks`...). Defesa por tipo em `defenseByType`. Exclusões:
+`respectConquestExclusions`, `skipCivilWarForts`. Relações padrão em `Factions/*.json` (`relations`,
+`defaultRelation`, `playerRelation`), donos iniciais (`start`) e `aggression` por facção; `diplomacy` tem
+`truceHours`, `peaceAcceptRatio`, `allianceAcceptRatio`, `allianceNeedsCommonEnemy`, `warOnConquest`.
+Patches `Compat/*.json` (formato em [patches/README.md](patches/README.md)) somam exclusões. Debug: **NumPad7**
+(`aiHotkey`, DIK 71) força a avaliação e lista os ataques; **NumPad8** (`diplomacyHotkey`, DIK 72) alterna a sua
+relação com o dono do local atual. ADRs [0047](docs/adr/0047-ia-estrategica-ataques-numericos.md)–[0050](docs/adr/0050-loader-compat-e-exclusoes-da-ia.md).
+
 ## Estrutura
 
 | Arquivo | Responsabilidade |
@@ -127,8 +138,10 @@ Claims (F3) viram territórios do tipo `claim` da sua facção ([ADR 0024](docs/
 | `src/UI/Prompt.*` | MessageBox vanilla com botões e callback (sem ESP/Papyrus) |
 | `src/Sim/Economy.*` | Economia (M12): tick por hora por evento, produção por tipo/facção (`Economy.json`), depósito (`SetDepot`), consumo/déficit, registro `ECON` v1, debug F6 |
 | `src/Sim/Routes.*` | Rotas de comércio (M13): renda por distância/tipo, corte por inimigo, `CanTrade`, registro `ROUT` v1, debug F7 |
+| `src/Sim/Ai.*` | IA (M16): avaliação estratégica no tick, ataques numéricos (registro `WARS` v1), provedor de defesa, sede ocupada, debug NumPad7 |
+| `src/Sim/Diplomacy.*` | Diplomacia (M17): guerra/paz/aliança/trégua por par, padrões em `Factions/*.json`, registro `DIPL` v1, debug NumPad8 |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
-| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11) |
+| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad7/8) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
 
 ## Pendências conhecidas da Fase 1
