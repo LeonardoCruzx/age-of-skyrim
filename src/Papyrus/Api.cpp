@@ -323,7 +323,7 @@ namespace AoS::Papyrus
             return TotalsToArray(Stock::Get().CountByCategory(a_container));
         }
 
-        std::vector<std::int32_t> GetPlayerStockTotals(StaticStaticTag* a_tag)
+        std::vector<std::int32_t> GetPlayerStockTotals(StaticTag* a_tag)
         {
             return GetContainerStockTotals(a_tag, RE::PlayerCharacter::GetSingleton());
         }
