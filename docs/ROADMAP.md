@@ -225,11 +225,20 @@ como requisito: lógica no DLL, teto de atores, sem navmesh nem NPC vanilla com 
 - Cada título destrava coisas (mais cargos, doutrinas, teto de exército) e é anunciado na tela.
 - Cosave junto do `FACT` (subir versão com migração) ou `TITL` v1.
 
-### M23. ⬜ Patches de compatibilidade + release
-- Pacotes JSON opcionais para mods populares de locais/fortes (JK's, Lux, Open Cities...) incluindo coordenadas
-  ajustadas de baú/mesa da sede; lista de exclusão para mods de guerra civil.
-- Perfil de performance num save grande (todos os territórios, guarnições, exércitos, IA, rotas, batalhas).
-- Release: FOMOD (patches selecionáveis), página do Nexus, changelog; CI publica release em tag `v*`.
+### M23. 🔄 Patches de compatibilidade + release — infra pronta ([ADR 0040](adr/0040-pipeline-de-release.md), [0041](adr/0041-fomod-layout.md), [0042](adr/0042-patches-de-compatibilidade.md))
+- ✅ `.github/workflows/release.yml`: em tag `v*`, reaproveita o artefato do Build do mesmo commit
+  (`tools/wait_build_run.py` espera ou dispara o build), monta o zip FOMOD e publica o GitHub Release com a
+  seção do `CHANGELOG.md`. Passo a passo em [RELEASE.md](RELEASE.md).
+- ✅ FOMOD (`fomod/`): núcleo obrigatório + patches opcionais (`patches/<nome>/`); `tools/package_release.py`
+  monta e valida; testes em `tests/` (também no workflow `Tools` a cada push).
+- ✅ Formato dos patches (`Compat/*.json`, `patches/README.md`) + patch `civil-war-mods` (nomes de plugin a verificar).
+- ✅ `CHANGELOG.md`, rascunho da página do Nexus (`docs/nexus/`, en + pt-br).
+- ✅ Relatório de performance do log: `tools/perf_report.py` + [PERFORMANCE.md](PERFORMANCE.md).
+- ⬜ Leitura de `Compat/*.json` no DLL (TODO no ADR 0042, depois do bloco `conquest` da M5).
+- ⬜ Pacotes JSON para mods populares de locais/fortes (JK's, Lux, Open Cities...) com coordenadas de baú/mesa
+  da sede (depois da M6, medidas no jogo).
+- ⬜ Perfil de performance num save grande (todos os territórios, guarnições, exércitos, IA, rotas, batalhas).
+- ⬜ Primeiro release (tag `v0.1.0`) e upload no Nexus.
 
 ---
 

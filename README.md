@@ -6,7 +6,7 @@ Mod de gestão de facções e conquista territorial para Skyrim SE/AE (um único
 
 **Estado atual — Fase 1 (Core & Banners), esqueleto inicial.** Compila no CI (MSVC), mas **ainda não foi testado no jogo**.
 
-**Documentação:** [Roadmap](docs/ROADMAP.md) · [Decisões (ADRs)](docs/adr/README.md) · [Roteiros de teste](TESTES.md) · [Referências](docs/REFERENCIAS.md) · [Comparativo com Conquest of Skyrim](docs/COMPARATIVO-CONQUEST-OF-SKYRIM.md)
+**Documentação:** [Roadmap](docs/ROADMAP.md) · [Decisões (ADRs)](docs/adr/README.md) · [Roteiros de teste](TESTES.md) · [Referências](docs/REFERENCIAS.md) · [Comparativo com Conquest of Skyrim](docs/COMPARATIVO-CONQUEST-OF-SKYRIM.md) · [Changelog](CHANGELOG.md) · [Como lançar](docs/RELEASE.md) · [Performance](docs/PERFORMANCE.md)
 
 **Idiomas:** inglês e português do Brasil. `settings.json` → `"language": "en" | "pt-br" | "auto"`.
 Textos em `Data/SKSE/Plugins/AgeOfSkyrim/Translations/*.json`; o CI falha se os dois idiomas divergirem
@@ -42,6 +42,14 @@ Em *Actions → Build → (run) → Artifacts*, baixe `AgeOfSkyrim-<sha>`: o zip
 Se o build falhar, o fim dos logs do vcpkg/CMake aparece como anotações no *Summary* do run.
 
 O log fica em `Documents\My Games\Skyrim Special Edition\SKSE\AgeOfSkyrim.log`.
+
+### Release, FOMOD e patches
+Uma tag `v*` dispara `.github/workflows/release.yml`: reaproveita o artefato do Build do mesmo commit, monta o
+zip FOMOD (`fomod/` + `00 Core/` + `patch_<nome>/` de cada `patches/<nome>/`) com `tools/package_release.py` e
+publica o GitHub Release com a seção da versão do `CHANGELOG.md`. Passo a passo em [docs/RELEASE.md](docs/RELEASE.md).
+Patches de compatibilidade são só JSON (formato em [patches/README.md](patches/README.md)).
+Ferramentas python (sem dependências): `python3 -m unittest discover -s tests` (também no workflow `Tools`) e
+`python3 tools/perf_report.py AgeOfSkyrim.log` (resumo dos `[tempo]`, [docs/PERFORMANCE.md](docs/PERFORMANCE.md)).
 
 ## Como funciona o controle de banners
 

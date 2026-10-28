@@ -1,0 +1,32 @@
+{
+  // Patch de compatibilidade: mods de guerra civil (formato em patches/README.md, ADR 0042).
+  // Só vale se QUALQUER plugin de "whenLoaded" estiver carregado; nome ausente/errado = patch inativo, sem erro.
+  // Nomes de plugin de memória, NÃO conferidos no Nexus ("verified": false) — ver ADR 0042.
+  // Nenhum FormID de mod de terceiros aqui: só nomes de plugin.
+  "name": "civil-war-mods",
+  "whenLoaded": [
+    "Civil War Overhaul.esp",
+    "Warzones - Civil Unrest.esp",
+    "Immersive Patrols II.esp"
+  ],
+  // Documentação legível (o loader ignora): de onde vem cada nome e se já foi conferido.
+  "plugins": [
+    { "plugin": "Civil War Overhaul.esp",      "mod": "Civil War Overhaul (CWO)",   "kind": "civil-war", "verified": false },
+    { "plugin": "Warzones - Civil Unrest.esp", "mod": "Warzones - Civil Unrest",    "kind": "civil-war", "verified": false },
+    { "plugin": "Immersive Patrols II.esp",    "mod": "Immersive Patrols",          "kind": "patrols",   "verified": false }
+  ],
+  // Mesmas chaves dos blocos de settings.json; listas são SOMADAS às do settings (nunca substituem).
+  "conquest": {
+    // Locais (BGSLocation) definidos por estes plugins nunca são conquistáveis pelo Age of Skyrim.
+    "excludeFromPlugins": [
+      "Civil War Overhaul.esp",
+      "Warzones - Civil Unrest.esp"
+    ],
+    // Fortes militares (LocTypeMilitaryFort) disputados pela Guerra Civil ficam com o outro mod
+    // enquanto este patch estiver ativo.
+    "skipCivilWarForts": true
+  },
+  "discovery": {
+    "exclude": []
+  }
+}

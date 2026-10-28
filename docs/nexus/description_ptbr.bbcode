@@ -1,0 +1,57 @@
+[center][size=6][b]Age of Skyrim[/b][/size]
+[size=3]Gestão de facções e conquista territorial para Skyrim SE/AE[/size][/center]
+
+[size=4][b]O que é[/b][/size]
+Age of Skyrim permite fundar a sua própria facção, conquistar fortes, acampamentos, vilas e cidades, montar uma sede de poder e conduzir uma guerra por toda Skyrim. É um único plugin SKSE (DLL): sem loops em Papyrus, sem editar registros vanilla, e tudo configurado em JSON para que outros mods possam estender.
+
+[color=#e0a030][b]Em desenvolvimento:[/b] esta versão é uma prévia técnica. Nem tudo abaixo está pronto; veja o changelog.[/color]
+
+[size=4][b]Funcionalidades[/b][/size]
+[list]
+[*][b]Facções:[/b] pré-definidas (Império, Mantos da Tempestade) e a sua, com nome, estilo de bandeira e cor, salvas no cosave do SKSE.
+[*][b]Territórios encontrados sozinhos:[/b] fortes, acampamentos, vilas e cidades do jogo base [i]e de outros mods[/i] viram territórios, cada um com província, posição e vizinhos. Locais novos não precisam de patch.
+[*][b]Bandeiras por heráldica:[/b] quando um território muda de dono, as bandeiras dele aparecem e as outras somem.
+[*][b]Estoque por categoria:[/b] itens reais contados por categoria (ouro, comida, metais, materiais, alquimia, valiosos, equipamento) pelas keywords vanilla, então itens de outros mods também contam.
+[*][b]Free Claim:[/b] finque um estandarte em qualquer lugar adequado; ele se alinha ao terreno.
+[*][b]Planejado:[/b] conquista ao limpar um local, sede com mesa de guerra e mapa tático, MCM, economia, rotas de comércio, guarnições, melhorias, facções de IA e contra-ataques, diplomacia, exércitos e batalhas.
+[/list]
+
+[size=4][b]Performance e compatibilidade[/b][/size]
+[list]
+[*]Orientado a eventos: nada roda a cada frame; os ticks estratégicos rodam no máximo uma vez por hora de jogo. Toda operação tem o tempo medido no log.
+[*]Nenhuma edição de registro vanilla. Convive com mods de locais (JK's, Lux, Open Cities...) porque os locais são ligados por JSON, não editando células.
+[*]Plugin ausente citado num JSON só gera aviso no log, nunca crash.
+[*]Dependências opcionais detectadas em tempo de execução.
+[/list]
+
+[size=4][b]Requisitos[/b][/size]
+[list]
+[*][url=https://skse.silverlock.org/]SKSE64[/url] (obrigatório)
+[*][url=https://www.nexusmods.com/skyrimspecialedition/mods/32444]Address Library for SKSE Plugins[/url] (obrigatório)
+[*]SkyUI (opcional, para o MCM)
+[*]PrismaUI (opcional, para o mapa tático)
+[/list]
+
+[size=4][b]Instalação[/b][/size]
+Instale pelo Mod Organizer 2 ou Vortex. O instalador FOMOD sempre instala o núcleo e oferece patches de compatibilidade opcionais:
+[list]
+[*][b]Mods de guerra civil:[/b] evita que o Age of Skyrim conquiste locais controlados por mods de guerra civil conhecidos. Não faz nada se nenhum deles estiver instalado.
+[/list]
+Idioma: inglês e português do Brasil, escolhido automaticamente pelo idioma do jogo ([i]settings.json → "language"[/i]: "auto", "en" ou "pt-br").
+
+[size=4][b]Desinstalação[/b][/size]
+Ainda não é suportada no meio de um jogo: o estado do mod fica no cosave do SKSE. Comece um jogo novo ou mantenha o mod instalado.
+
+[size=4][b]Problemas[/b][/size]
+Log: [i]Documentos\My Games\Skyrim Special Edition\SKSE\AgeOfSkyrim.log[/i]. Anexe-o aos relatos de bug.
+
+[size=4][b]Código-fonte[/b][/size]
+[url=https://github.com/LeonardoCruzx/age-of-skyrim]github.com/LeonardoCruzx/age-of-skyrim[/url]
+
+[size=4][b]Créditos[/b][/size]
+[list]
+[*][url=https://github.com/CharmedBaryon/CommonLibSSE-NG]CommonLibSSE-NG[/url] e a equipe do SKSE.
+[*]Address Library for SKSE Plugins (meh321).
+[*]spdlog e nlohmann/json.
+[*]Inspiração de design: [i]Conquest of Skyrim[/i] e o projeto de pesquisa Dogfish, usados só como referência do que os jogadores esperam do gênero. O Age of Skyrim [b]não tem afiliação[/b] com o Conquest of Skyrim e não contém conteúdo, scripts nem assets dele.
+[/list]

@@ -1,0 +1,77 @@
+name: Release
+
+# Publica um GitHub Release a cada tag v* (ex.: v0.1.0, v0.2.0-beta.1). Não recompila: reaproveita o artefato
+# AgeOfSkyrim-<sha> que o build.yml gerou para o MESMO commit (espera o build ou o dispara se preciso).
+# Passo a passo e motivos: docs/RELEASE.md e docs/adr/0040-pipeline-de-release.md.
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag já existente para (re)publicar, ex.: v0.1.0"
+        required: true
+
+permissions:
+  contents: write  # criar o release
+  actions: write   # ler runs/artefatos do build e dispará-lo por workflow_dispatch
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout da tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Testes das ferramentas (python, sem dependências)
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Conferir traduções e instalador
+        run: |
+          python3 tools/check_translations.py
+          python3 tools/package_release.py --check
+
+      # SHA do commit (não do objeto de tag anotada), que é o head_sha do run do build.
+      - name: Commit da tag
+        id: commit
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Esperar/achar o build deste commit
+        id: build
+        run: python3 tools/wait_build_run.py --sha "${{ steps.commit.outputs.sha }}" --ref "$TAG" --timeout-min 45
+
+      - name: Baixar o artefato do build
+        run: gh run download "${{ steps.build.outputs.run_id }}" -R "$GITHUB_REPOSITORY" -n "AgeOfSkyrim-${{ steps.commit.outputs.sha }}" -D artifact
+
+      - name: Montar zip FOMOD + notas
+        run: python3 tools/package_release.py --artifact artifact --version "${TAG#v}" --out dist
+
+      - name: Publicar o release
+        run: |
+          flags=()
+          [[ "$TAG" == *-* ]] && flags+=(--prerelease)   # v0.2.0-beta.1 = pré-release
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.zip --clobber
+            gh release edit "$TAG" --notes-file dist/RELEASE_NOTES.md
+          else
+            gh release create "$TAG" dist/*.zip --verify-tag --title "Age of Skyrim $TAG" \
+              --notes-file dist/RELEASE_NOTES.md "${flags[@]}"
+          fi
+
+      - name: Guardar o pacote como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: AgeOfSkyrim-release-${{ env.TAG }}
+          path: dist/
+          if-no-files-found: error

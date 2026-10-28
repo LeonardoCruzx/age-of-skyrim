@@ -1,0 +1,19 @@
+name: Tools
+
+# Testes das ferramentas python (tests/) e validação do instalador FOMOD/patches. Rápido (ubuntu, sem deps);
+# separado do build.yml para não depender do runner Windows. O release.yml roda os mesmos testes.
+on:
+  push:
+    branches: [ main, "m*-*" ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Testes (unittest)
+        run: python3 -m unittest discover -s tests -v
+      - name: Validar fomod/ e patches/
+        run: python3 tools/package_release.py --check
