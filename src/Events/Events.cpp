@@ -9,6 +9,8 @@
 #include "Sim/Upgrades.h"  // M15
 #include "Sim/Ai.h"        // M16
 #include "Sim/Diplomacy.h" // M17
+#include "Sim/Law.h"       // M25
+#include "Sim/Stability.h" // M26
 #include "Stock/Stock.h"
 #include "UI/WarMap.h"  // M11
 #include "World/Claims.h"
@@ -113,6 +115,24 @@ namespace AoS::Events
                         continue;
                     }
                     // ---- fim M16/M17 ----
+                    // ---- M25/M26: lei/prisioneiros e ordem pública/rebeliões ----
+                    if (key == dbg.lawCaptureHotkey || key == dbg.lawRansomHotkey || key == dbg.lawExecuteHotkey ||
+                        key == dbg.stabilityHotkey) {
+                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
+                            continue;
+                        }
+                        if (key == dbg.lawCaptureHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Law::Get().DebugCapture(); });
+                        } else if (key == dbg.lawRansomHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Law::Get().DebugRansomFirst(); });
+                        } else if (key == dbg.lawExecuteHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Law::Get().DebugExecuteFirst(); });
+                        } else {
+                            SKSE::GetTaskInterface()->AddTask([] { Stability::Get().DebugHere(); });
+                        }
+                        continue;
+                    }
+                    // ---- fim M25/M26 ----
                     if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
                         key != dbg.claimHotkey && key != dbg.conquestHotkey) {
                         continue;
@@ -182,6 +202,9 @@ namespace AoS::Events
                              d.garrisonHotkey, d.upgradeHotkey, d.upgradeIgnoreCost);
                 logger::info("Debug hotkeys M16/M17 (tick da IA 0x{:X}, diplomacia 0x{:X}).", d.aiHotkey,
                              d.diplomacyHotkey);
+                logger::info("Debug hotkeys M25/M26 (captura 0x{:X}, resgate 0x{:X}, execução 0x{:X}, "
+                             "estabilidade 0x{:X}).",
+                             d.lawCaptureHotkey, d.lawRansomHotkey, d.lawExecuteHotkey, d.stabilityHotkey);
             }
         }
     }

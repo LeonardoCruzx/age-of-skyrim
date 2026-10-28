@@ -174,6 +174,7 @@
   "warmap.layer.garrison":   "Garrison",
   "warmap.layer.upgrades":   "Upgrades",
   "warmap.layer.threats":    "Threats",
+  "warmap.layer.stability":  "Stability",
   "warmap.type.fort":        "Fort",
   "warmap.type.tower":       "Tower",
   "warmap.type.camp":        "Camp",
@@ -321,5 +322,22 @@
   "jarl.debug.noTerritory": "AoS governor: no territory here (set debug.territory)",
 
   "mcm.realm.dominationHeader": "Domination",
-  "mcm.realm.domination":       "Dominator of Skyrim"
+  "mcm.realm.domination":       "Dominator of Skyrim",
+  "law.captured": "AoS: {} prisoner(s) captured from {}",
+  "law.ransomed": "AoS: {} prisoner(s) ransomed for {} gold",
+  "law.executed": "AoS: {} prisoner(s) executed",
+  "law.noTerritory": "AoS law: no territory here (set debug.territory)",
+  "law.neutral": "AoS: {} has no owner, so no prisoners",
+  "law.noCaptor": "AoS law (debug): no other faction to act as captor here",
+  "law.debugCaptured": "AoS law (debug): {} prisoner(s) captured by {} from {} ({}/{} capacity)",
+  "law.noPlayerFaction": "AoS: you have no faction yet",
+  "law.none": "AoS: no prisoners to act on",
+  "law.noSeat": "AoS: you need a seat (chest) to pay the ransom",
+  "law.insufficientGold": "AoS: not enough gold in the seat chest for the ransom ({} needed)",
+  "stability.unstable": "AoS: {} is becoming unstable",
+  "stability.rebelled": "AoS: {} has rebelled!",
+  "stability.debugNoRebellion": "AoS stability (debug): the roll failed; no rebellion this time",
+  "stability.noTerritory": "AoS stability: no territory here (set debug.territory)",
+  "stability.neutral": "AoS: {} has no owner",
+  "stability.status": "AoS stability of {} ({}): {} (rebellion below {}); unstable for {} h (grace {} h)"
 }

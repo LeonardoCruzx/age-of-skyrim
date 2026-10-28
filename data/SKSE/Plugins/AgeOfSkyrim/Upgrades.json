@@ -8,7 +8,8 @@
   //        (gold, food, metals, materials, alchemy, valuables, equipment); "hours" = horas de jogo de obra;
   //        "stats" = status do território com esse nível (não cumulativos entre níveis; somam entre melhorias):
   //          defense (% na força da guarnição), capacity (estoque, informativo), income (% na produção),
-  //          vision (alcance no mapa tático, unidades), garrisonMax (soldados a mais no teto).
+  //          vision (alcance no mapa tático, unidades), garrisonMax (soldados a mais no teto),
+  //          prisonCapacity (M25: teto extra de prisioneiros do território, Law::Capacity).
   // Uma obra por território; durante a obra a força da guarnição é multiplicada por constructionDefenseMultiplier.
   "constructionDefenseMultiplier": 0.75,
 
@@ -68,6 +69,17 @@
         { "cost": { "metals": 6, "materials": 4 },  "hours": 12, "stats": { "defense": 10 } },
         { "cost": { "metals": 15, "materials": 8 }, "hours": 24, "stats": { "defense": 20 } },
         { "cost": { "metals": 30, "materials": 15, "gold": 200 }, "hours": 48, "stats": { "defense": 30, "income": 5 } }
+      ]
+    },
+    {
+      // M25: prisão. Aumenta o teto de prisioneiros do território (law.baseCapacityPerTerritory + isto).
+      "id": "prison",
+      "name": { "en": "Prison", "pt-br": "Prisão" },
+      "types": ["fort", "city", "unknown"],
+      "levels": [
+        { "cost": { "materials": 8, "metals": 2 },  "hours": 12, "stats": { "prisonCapacity": 3 } },
+        { "cost": { "materials": 16, "metals": 4, "gold": 100 }, "hours": 24, "stats": { "prisonCapacity": 6 } },
+        { "cost": { "materials": 30, "metals": 8, "gold": 250 }, "hours": 48, "stats": { "prisonCapacity": 10, "defense": 5 } }
       ]
     }
   ],

@@ -174,6 +174,7 @@
   "warmap.layer.garrison":   "Guarnição",
   "warmap.layer.upgrades":   "Melhorias",
   "warmap.layer.threats":    "Ameaças",
+  "warmap.layer.stability":  "Estabilidade",
   "warmap.type.fort":        "Forte",
   "warmap.type.tower":       "Torre",
   "warmap.type.camp":        "Acampamento",
@@ -321,5 +322,22 @@
   "jarl.debug.noTerritory": "AoS governador: nenhum território aqui (defina debug.territory)",
 
   "mcm.realm.dominationHeader": "Domínio",
-  "mcm.realm.domination":       "Dominador(a) de Skyrim"
+  "mcm.realm.domination":       "Dominador(a) de Skyrim",
+  "law.captured": "AoS: {} prisioneiro(s) capturado(s) de {}",
+  "law.ransomed": "AoS: {} prisioneiro(s) resgatado(s) por {} de ouro",
+  "law.executed": "AoS: {} prisioneiro(s) executado(s)",
+  "law.noTerritory": "AoS lei: nenhum território aqui (configure debug.territory)",
+  "law.neutral": "AoS: {} não tem dono, então não há prisioneiros",
+  "law.noCaptor": "AoS lei (debug): nenhuma outra facção para servir de captora aqui",
+  "law.debugCaptured": "AoS lei (debug): {} prisioneiro(s) capturado(s) por {} de {} ({}/{} de capacidade)",
+  "law.noPlayerFaction": "AoS: você ainda não tem uma facção",
+  "law.none": "AoS: nenhum prisioneiro para agir",
+  "law.noSeat": "AoS: você precisa de uma sede (baú) para pagar o resgate",
+  "law.insufficientGold": "AoS: ouro insuficiente no baú da sede para o resgate (precisa de {})",
+  "stability.unstable": "AoS: {} está ficando instável",
+  "stability.rebelled": "AoS: {} se rebelou!",
+  "stability.debugNoRebellion": "AoS estabilidade (debug): o sorteio falhou; sem rebelião desta vez",
+  "stability.noTerritory": "AoS estabilidade: nenhum território aqui (configure debug.territory)",
+  "stability.neutral": "AoS: {} não tem dono",
+  "stability.status": "AoS estabilidade de {} ({}): {} (rebelião abaixo de {}); instável há {} h (graça {} h)"
 }

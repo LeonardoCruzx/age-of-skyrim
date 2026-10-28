@@ -11,6 +11,7 @@ namespace AoS::Realm
     {
         constexpr std::array<std::string_view, kModifierCount> kNames{
             "production", "tax", "trade", "recruitCost", "recruitSpeed", "populationGrowth", "defense", "upkeep",
+            "stability",  // M26, adicionado no fim
         };
 
         float Multiplier(float a_sum) noexcept { return std::max(kMinMultiplier, 1.0f + a_sum); }

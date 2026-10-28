@@ -327,18 +327,33 @@ capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
 - ✅ Perder a capital (ou a maioria da província) remove nosso NPC. Registro de cosave próprio `JARL` v1 (não
   estende o `GOVT`). Debug: NumPad- força a oferta na capital da província atual.
 
-### M25. ⬜ 🎮 Lei e prisioneiros de guerra
-- Facção de crime por território/província (bounty): ao trocar de dono, zera ou transfere a recompensa vanilla
-  (configurável; opção de nunca tocar a facção de crime, para compatibilidade).
-- Prisioneiros: parte dos inimigos derrotados em combates resolvidos pela M16 (fora da tela) vira prisioneiro
-  numérico por facção, sem ator; resgate (ouro), execução (moral) ou prisão (teto configurável) a qualquer hora.
-- Prisões próprias como melhoria de território (gancho na M15: `Upgrades.json` ganha uma entrada `prison`).
+### M25. ✅ 🎮 Lei e prisioneiros de guerra — implementada, aguardando teste no jogo ([ADR 0060](adr/0060-lei-prisioneiros-de-guerra.md), [0061](adr/0061-facao-de-crime-e-prisao-como-melhoria.md))
+- ✅ `Law::Prisoners(faction)`: contagem agregada por facção, sem ator, cosave `LAWS` v1. Ganha por combates
+  resolvidos pela M16 (`Ai::Resolve` chama `Law::CaptureFromCombat`, lendo `Garrison::Size` do defensor antes de
+  `SetTerritoryOwner`) ou por um hotkey de debug (captura simulada).
+- ✅ Ações: `Ransom` (resgate, custo em ouro — itens reais do baú da sede para o jogador, `Economy::Spend` para a
+  IA), `Execute` (execução, abala a estabilidade da própria facção via `Stability::ReportUnrest`, M26).
+- ✅ Prisões como melhoria (`Upgrades.json -> "prison"`, `Stat::kPrisonCapacity` aditivo no fim do enum): aumenta
+  o teto de prisioneiros do território (`Law::Capacity`).
+- ✅ Facção de crime vanilla do Hold (bounty): ao trocar de dono (gancho ao lado de `Realm::OnTerritoryOwnerChanged`
+  em `BannerController::SetTerritoryOwner`), zera a recompensa do jogador via
+  `RE::PlayerCharacter::ClearAllCrimeGold(BGSLocation::unreportedCrimeFaction)`. Desligado por padrão
+  (`settings.json -> law.touchCrimeFaction: false`), para compatibilidade (ADR 0005).
+- ✅ Debug: F1 simula capturas, F2 resgata e F12 executa o 1º prisioneiro da facção do jogador.
 
-### M26. ⬜ Ordem pública e rebeliões
-- Modificador novo `Realm::Modifier::Stability` (doutrina, governador, guarnição presente, déficit de comida/ouro).
-- Território com estabilidade baixa por tempo demais (tick da economia) tem chance de rebelião: vira neutro ou de
-  uma facção de rebeldes local, com aviso antecipado na tela e no mapa tático (M11, camada nova).
-- Guarnição e melhorias (muralhas) reduzem a chance; mitigação: ouro/comida extra, trocar o governador.
+### M26. ✅ Ordem pública e rebeliões — implementada, aguardando teste no jogo ([ADR 0062](adr/0062-modificador-de-estabilidade.md), [0063](adr/0063-rebelioes-faccao-rebels-sem-cosave.md))
+- ✅ Modificador novo `Realm::Modifier::Stability` (aditivo no fim do enum; doutrina + governador via
+  `Realm::Modifiers`, guarnição vs. população via `Garrison::Strength`/`Realm::Population`, déficit de comida ou
+  ouro via `Economy::InDeficit`).
+- ✅ Território com estabilidade abaixo de `stability.rebellionThreshold` por `stability.graceHours` horas
+  seguidas tem `stability.chancePerHour` de rebelião por hora (tick da economia): vira a facção fixa `rebels`
+  (`Factions/rebels.json`) ou neutro, com aviso antecipado ("território instável") e de novo se a rebelião
+  acontece. Camada nova no mapa tático (`WarMap::AddProvider("stability", ...)`).
+- ✅ Guarnição (`Garrison::Strength`, já reflete melhorias como muralhas) e governador/doutrina reduzem a chance;
+  mitigação: resolver o déficit ou trocar a doutrina/governador.
+- ✅ Debug: NumPad. (decimal) mostra a estabilidade do território atual e força uma checagem de rebelião imediata.
+- Estado transitório (horas seguidas instável) só em memória, sem registro de cosave — decisão documentada no
+  ADR 0063 (custo/benefício).
 
 ### M27. ✅ Domínio de Skyrim (vitória suave) — implementada, aguardando teste no jogo ([ADR 0057](adr/0057-dominio-skyrim-vitoria-suave.md))
 - ✅ Ao controlar (maioria) todas (ou `realm.dominationThreshold`, fração configurável, padrão 1.0) as

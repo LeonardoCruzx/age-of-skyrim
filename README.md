@@ -202,6 +202,25 @@ A cada `tickHours` horas de jogo as facções de IA atacam vizinhos de facções
 Patches `Compat/*.json` (formato em [patches/README.md](patches/README.md)) somam exclusões. Debug: **NumPad7**
 (`aiHotkey`, DIK 71) força a avaliação e lista os ataques; **NumPad8** (`diplomacyHotkey`, DIK 72) alterna a sua
 relação com o dono do local atual. ADRs [0047](docs/adr/0047-ia-estrategica-ataques-numericos.md)–[0050](docs/adr/0050-loader-compat-e-exclusoes-da-ia.md).
+### Lei e prisioneiros (`settings.json` → `law`)
+Prisioneiros de guerra: `Law::Prisoners(facção)`, contagem agregada sem ator, ganha por combates da IA (M16,
+`CaptureFromCombat`) ou pelo hotkey de debug. `captureFraction` dos derrotados vira prisioneiro, até a
+`Capacity` (`baseCapacityPerTerritory` + melhoria `Upgrades.json -> "prison"`). Ações: `Ransom` (resgate, custa
+`ransomCostPerPrisoner` de ouro), `Execute` (execução, abala a estabilidade da própria facção, M26). Facção de
+crime vanilla do Hold (bounty): `touchCrimeFaction` (padrão **false**, compatibilidade ADR 0005) + `resetBounty`
+zeram a recompensa do jogador ao trocar o dono de um território. Debug: **F1** (`lawCaptureHotkey`, DIK 59)
+simula capturas; **F2** (`lawRansomHotkey`, DIK 60) resgata; **F12** (`lawExecuteHotkey`, DIK 88) executa o 1º
+prisioneiro da sua facção. ADRs [0060](docs/adr/0060-lei-prisioneiros-de-guerra.md)–[0061](docs/adr/0061-facao-de-crime-e-prisao-como-melhoria.md).
+Nenhuma destas usa NumPad0: a tecla é mantida livre para o uso futuro já mencionado neste README ("debug de
+API"), mesmo que ainda não implementado.
+### Ordem pública e rebeliões (`settings.json` → `stability`)
+Estabilidade (0–100) por território: `baseline` × doutrina/governador, menos penalidade de guarnição
+insuficiente para a população (`popToStrength`, `garrisonPenalty`) e de déficit de comida ou ouro
+(`deficitPenalty`). Abaixo de `rebellionThreshold` por `graceHours` horas seguidas, `chancePerHour` por hora de
+rebelião: vira a facção `rebels` (`rebelFaction: true`, padrão) ou neutro. Aviso na tela ao ficar instável e ao
+rebelar; camada `"stability"` no mapa tático. Debug: **NumPad.** (`stabilityHotkey`, DIK 83) mostra a
+estabilidade do território atual e força uma checagem de rebelião imediata. ADRs
+[0062](docs/adr/0062-modificador-de-estabilidade.md)–[0063](docs/adr/0063-rebelioes-faccao-rebels-sem-cosave.md).
 
 ### Governo local / jarl (`settings.json` → `jarl`, ADR 0056)
 Ao conquistar a capital de uma província (cidade de maior população, `Realm::Population`; sem cidade, o
@@ -267,6 +286,8 @@ estratégico), nunca por polling. Cosave `DOMN` v1. Consulta: `Realm::HasDominat
 | `src/Realm/Domination.*` | Domínio de Skyrim (M27): marco permanente por fração de províncias, registro `DOMN` v1 |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
 | `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad7/8) |
+| `src/Sim/Law.*` | Lei e prisioneiros (M25): `Prisoners`/`Capacity`/`CaptureFromCombat`/`Ransom`/`Execute`, facção de crime do Hold, registro `LAWS` v1, debug F1/F2/F12 |
+| `src/Sim/Stability.*` | Ordem pública e rebeliões (M26): estabilidade por território, `Modifier::Stability`, rebeliões (`SetTerritoryOwner`), camada no mapa, sem cosave (ADR 0063), debug NumPad. (decimal) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
 
 ## Pendências conhecidas da Fase 1

@@ -11,8 +11,13 @@ namespace AoS::Realm
     //   Trade -> rotas (M13)                RecruitCost / RecruitSpeed -> recrutamento (M20)
     //   PopulationGrowth -> população (M19) Defense -> guarnição/batalhas (M14/M16/M21)
     //   Upkeep -> manutenção de guarnições e exércitos (M12/M14/M20)
+    //   Stability -> ordem pública/rebeliões (M26, src/Sim/Stability.*): multiplica uma base de estabilidade
+    //   por território (doutrina + governador aqui; guarnição/população/déficit somados depois, fora do Modifiers).
     // Nos JSONs cada fonte dá um bônus ADITIVO (0.10 = +10%, -0.05 = -5%); o multiplicador final é
     // 1 + soma das fontes, nunca abaixo de kMinMultiplier.
+    // Stability adicionado no FIM do enum (M25/M26): ModifierSet nunca é serializado no cosave (Government/Titles
+    // só persistem IDs de doutrina/cargo/título e recalculam o ModifierSet em runtime a partir do JSON atual —
+    // ver Government::AddModifiers/Titles::AddModifiers), então crescer o enum aqui não quebra saves antigos.
     enum class Modifier : std::uint8_t
     {
         Production,
@@ -23,6 +28,7 @@ namespace AoS::Realm
         PopulationGrowth,
         Defense,
         Upkeep,
+        Stability,  // M26: aditivo, no fim
         kCount
     };
 

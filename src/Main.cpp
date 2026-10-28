@@ -8,6 +8,8 @@
 #include "Sim/Diplomacy.h"  // M17
 #include "Sim/Economy.h"  // M12
 #include "Sim/Garrison.h"  // M14
+#include "Sim/Law.h"        // M25
+#include "Sim/Stability.h"  // M26
 #include "Sim/Upgrades.h"  // M15
 #include "Sim/Routes.h"   // M13
 #include "Realm/Domination.h"  // M27
@@ -74,6 +76,7 @@ namespace
         AoS::Realm::Jarl::Get().Save(a_intfc);
         AoS::Realm::Domination::Get().Save(a_intfc);
         // ---- fim M24/M27 ----
+        AoS::Law::Get().Save(a_intfc);  // M25 (Stability/M26 não persiste, ver ADR 0063)
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -141,6 +144,8 @@ namespace
                 break;
             case AoS::Realm::Domination::kRecord:  // M27
                 AoS::Realm::Domination::Get().LoadRecord(a_intfc, version);
+            case AoS::Law::kRecord:  // M25 (Stability/M26 não persiste, ver ADR 0063)
+                AoS::Law::Get().LoadRecord(a_intfc, version);
                 break;
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
@@ -170,6 +175,8 @@ namespace
         // ---- fim M14/M15 ----
         AoS::Diplomacy::Get().Clear();  // M17
         AoS::Ai::Get().Clear();         // M16
+        AoS::Law::Get().Clear();        // M25
+        AoS::Stability::Get().Clear();  // M26 (nada no cosave; só zera o estado em memória)
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -224,6 +231,8 @@ namespace
             AoS::WarMap::Get().Load();        // M11: detecta o PrismaUI (já carregado pelo SKSE)
             AoS::Upgrades::Get().Load();      // M15: depois de Stock/Economy
             AoS::Garrison::Get().Load();      // M14: depois de Economy/Upgrades/Conquest
+            AoS::Law::Get().Load();           // M25: depois de Economy/Stock/Seat/Upgrades (capacidade e resgate)
+            AoS::Stability::Get().Load();     // M26: depois de Factions/Economy/Garrison/Realm
 
             // Mapa tático (M11) <- guarnição (M14) e melhorias (M15): camadas opcionais por território.
             AoS::WarMap::Get().AddProvider("garrison", "warmap.layer.garrison", [](const AoS::Territory& t) {
@@ -249,6 +258,11 @@ namespace
                     soonest = std::min(soonest, a.hoursLeft);
                 }
                 return nlohmann::json{ { "attacks", threats.size() }, { "hoursLeft", soonest } };
+            });
+            // Mapa tático (M11) <- ordem pública (M26): estabilidade e horas seguidas instável por território.
+            AoS::WarMap::Get().AddProvider("stability", "warmap.layer.stability", [](const AoS::Territory& t) {
+                return nlohmann::json{ { "score", AoS::Stability::Get().Score(t.id) },
+                                       { "unstableHours", AoS::Stability::Get().UnstableHoursOf(t.id) } };
             });
 
             AoS::Events::Register();

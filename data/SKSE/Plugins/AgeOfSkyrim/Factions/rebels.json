@@ -1,0 +1,16 @@
+{
+  // M26 (ADR 0063): facção fixa, não-jogador, para territórios que se rebelam (Stability::CheckRebellion) quando
+  // settings.json -> stability.rebelFaction = true (padrão). Sem "aggression": não declara guerra por conta
+  // própria; mas como QUALQUER facção pré-definida não-jogador conta como "de IA" (Ai::Load), um território que
+  // os rebeldes conquistarem pode, depois, expandir/se defender pelas regras normais da M16 — efeito aceito e
+  // documentado no ADR 0063 (não é um bug: um território rebelado passa a se comportar como uma pequena facção).
+  // Sem "start": nunca aparece no mapa até uma rebelião de fato acontecer.
+  "factions": [
+    {
+      "id": "rebels",
+      "name": { "en": "Rebels", "pt-br": "Rebeldes" },
+      "style": "rebels",
+      "color": "#5C4033"
+    }
+  ]
+}

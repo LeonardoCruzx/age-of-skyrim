@@ -3,6 +3,7 @@
 #include "Api/Events.h"
 #include "Core/Timer.h"
 #include "Realm/Realm.h"
+#include "Sim/Law.h"  // M25: facção de crime vanilla (bounty), ao lado do gancho do Realm
 
 namespace AoS
 {
@@ -100,6 +101,10 @@ namespace AoS
         // M18/M19/M22: população (guerra), governadores e títulos reagem só a troca real de dono.
         if (changed) {
             Realm::OnTerritoryOwnerChanged(a_territory, previous, a_owner);
+        }
+        // M25: facção de crime vanilla do Hold (bounty), ao lado do gancho acima (mesmo evento, sem concorrer).
+        if (changed) {
+            Law::Get().OnTerritoryOwnerChanged(a_territory, previous, a_owner);
         }
 
         SKSE::GetTaskInterface()->AddTask([a_territory] { BannerController::Get().ApplyTerritory(a_territory); });

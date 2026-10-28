@@ -64,6 +64,13 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   (escolha automática ou `settings.json → jarl`), perto do marcador da cidade, **sem tocar o jarl vanilla**
   (ADR 0005/0056); reaproveita `Government::AssignGovernor` (M18) para a maioria/bônus. Ativar o NPC mostra o
   status da província (MessageBox só-texto, sem dublagem). Cosave próprio `JARL` v1. Debug NumPad-.
+- **M25 — Lei e prisioneiros de guerra:** `Law::Prisoners`/`Capacity` por facção (sem ator, cosave `LAWS` v1),
+  ganho por combates da IA (`Ai::Resolve` chama `CaptureFromCombat`) ou por debug (F1); resgate (ouro, F2) e
+  execução (F12); prisão como melhoria (`Upgrades.json → "prison"`, `Stat::kPrisonCapacity`); facção de crime
+  vanilla do Hold (bounty) zerada ao trocar de dono, desligado por padrão (`law.touchCrimeFaction`).
+- **M26 — Ordem pública e rebeliões:** `Realm::Modifier::Stability` (doutrina/governador/guarnição vs.
+  população/déficit), rebelião por território instável por tempo demais (facção `rebels` ou neutro), aviso na
+  tela e camada nova no mapa tático, debug NumPad. (decimal).
 - **M27 — Domínio de Skyrim:** marco permanente "Dominador(a) de Skyrim" ao controlar a maioria de
   `realm.dominationThreshold` (padrão 1.0 = todas) das províncias existentes; avaliado dentro do mesmo
   `Realm::Reevaluate` que já reavalia títulos, sem polling; vitória suave — sem travar nada. Cosave `DOMN` v1,
