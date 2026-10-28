@@ -19,6 +19,11 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   observado, debug F8.
 - **M8 — Free Claim (núcleo):** estandarte fincado por raycast e alinhado ao terreno, limites em
   `settings.json → claim`, cosave `CLAM` v1, debug F9.
+- **M12 — Economia:** tick por hora de jogo disparado por eventos baratos (sono/espera/menus/célula), produção
+  por tipo de território em `Economy.json`, depósito no baú da sede (pendente até existir sede), consumo e déficit,
+  cosave `ECON` v1, debug F6.
+- **M13 — Rotas de comércio:** rotas entre territórios da mesma facção com renda por distância/tipo e corte por
+  território inimigo, cosave `ROUT` v1, debug F7.
 - **M23 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
   compatibilidade com mods de guerra civil (formato definido, leitura no DLL pendente), relatório de performance
   do log (`tools/perf_report.py`).
