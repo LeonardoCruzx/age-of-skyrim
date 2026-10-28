@@ -3,6 +3,8 @@
 #include "Debug/SelfTest.h"
 #include "Events/Events.h"
 #include "Sim/Economy.h"  // M12
+#include "Sim/Garrison.h"  // M14
+#include "Sim/Upgrades.h"  // M15
 #include "Sim/Routes.h"   // M13
 #include "Stock/Stock.h"
 #include "World/Claims.h"
@@ -44,6 +46,10 @@ namespace
         AoS::Routes::Get().Save(a_intfc);
         // ---- fim M12/M13 ----
         AoS::Seat::Get().Save(a_intfc);  // M6
+        // ---- M14/M15 ----
+        AoS::Upgrades::Get().Save(a_intfc);
+        AoS::Garrison::Get().Save(a_intfc);
+        // ---- fim M14/M15 ----
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -78,6 +84,14 @@ namespace
             case AoS::Seat::kRecord:  // M6
                 AoS::Seat::Get().LoadRecord(a_intfc, version);
                 break;
+            // ---- M14/M15 ----
+            case AoS::Upgrades::kRecord:
+                AoS::Upgrades::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Garrison::kRecord:
+                AoS::Garrison::Get().LoadRecord(a_intfc, version);
+                break;
+            // ---- fim M14/M15 ----
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -97,6 +111,10 @@ namespace
         AoS::Economy::Get().Clear();
         AoS::Routes::Get().Clear();
         // ---- fim M12/M13 ----
+        // ---- M14/M15 ----
+        AoS::Upgrades::Get().Clear();
+        AoS::Garrison::Get().Clear();
+        // ---- fim M14/M15 ----
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -113,6 +131,8 @@ namespace
             AoS::Economy::Get().Load();  // M12/M13: depois do Stock (categorias); configura as rotas
             AoS::Conquest::Get().Register();  // M5
             AoS::Seat::Get().Load();          // M6: depois de Config/Factions/Stock
+            AoS::Upgrades::Get().Load();      // M15: depois de Stock/Economy
+            AoS::Garrison::Get().Load();      // M14: depois de Economy/Upgrades/Conquest
             AoS::Events::Register();
             break;
 
@@ -127,6 +147,8 @@ namespace
                 AoS::BannerController::Get().ApplyAll();
                 AoS::SelfTest::OnPostLoad();  // só age se o save tem registro do autoteste
                 AoS::Seat::Get().OnPostLoad();  // M6: observa e reconta o baú da sede
+                AoS::Upgrades::Get().OnPostLoad();  // M15: confere os objetos visuais
+                AoS::Garrison::Get().OnPostLoad();  // M14: apaga atores do save anterior e recria perto do jogador
             });
             break;
 

@@ -1,0 +1,105 @@
+{
+  // Melhorias de territórios (M15, ADR 0020/0045). Outros mods podem adicionar Upgrades/*.json (lidos depois, em
+  // ordem alfabética; mesmo "id" substitui a melhoria inteira; "visuals" somam).
+  //
+  // types: tipos de território onde a melhoria pode ser construída (vazio/ausente = todos):
+  //        unknown, fort, tower, camp, village, city, claim.
+  // levels: I, II, III... Cada nível: "cost" em itens reais do baú da sede, por categoria de Resources.json
+  //        (gold, food, metals, materials, alchemy, valuables, equipment); "hours" = horas de jogo de obra;
+  //        "stats" = status do território com esse nível (não cumulativos entre níveis; somam entre melhorias):
+  //          defense (% na força da guarnição), capacity (estoque, informativo), income (% na produção),
+  //          vision (alcance no mapa tático, unidades), garrisonMax (soldados a mais no teto).
+  // Uma obra por território; durante a obra a força da guarnição é multiplicada por constructionDefenseMultiplier.
+  "constructionDefenseMultiplier": 0.75,
+
+  "upgrades": [
+    {
+      "id": "walls",
+      "name": { "en": "Walls", "pt-br": "Muralhas" },
+      "levels": [
+        { "cost": { "materials": 5, "metals": 2 },   "hours": 12, "stats": { "defense": 15 } },
+        { "cost": { "materials": 15, "metals": 6 },  "hours": 24, "stats": { "defense": 30 } },
+        { "cost": { "materials": 30, "metals": 12, "gold": 300 }, "hours": 48, "stats": { "defense": 50 } }
+      ]
+    },
+    {
+      "id": "barracks",
+      "name": { "en": "Barracks", "pt-br": "Quartel" },
+      "levels": [
+        { "cost": { "materials": 8, "food": 5 },   "hours": 12, "stats": { "garrisonMax": 2 } },
+        { "cost": { "materials": 16, "food": 10, "gold": 100 }, "hours": 24, "stats": { "garrisonMax": 4 } },
+        { "cost": { "materials": 30, "food": 20, "gold": 300 }, "hours": 48, "stats": { "garrisonMax": 6, "defense": 5 } }
+      ]
+    },
+    {
+      "id": "watchtower",
+      "name": { "en": "Watchtower", "pt-br": "Torre de vigia" },
+      "levels": [
+        { "cost": { "materials": 6 },              "hours": 8,  "stats": { "vision": 4000 } },
+        { "cost": { "materials": 12, "metals": 2 }, "hours": 16, "stats": { "vision": 8000, "defense": 5 } },
+        { "cost": { "materials": 24, "metals": 6, "gold": 150 }, "hours": 32, "stats": { "vision": 14000, "defense": 10 } }
+      ]
+    },
+    {
+      "id": "storehouse",
+      "name": { "en": "Storehouse", "pt-br": "Armazém" },
+      "types": ["fort", "village", "city", "unknown"],
+      "levels": [
+        { "cost": { "materials": 10 },             "hours": 12, "stats": { "capacity": 100 } },
+        { "cost": { "materials": 20, "gold": 100 }, "hours": 24, "stats": { "capacity": 250 } },
+        { "cost": { "materials": 40, "gold": 300 }, "hours": 48, "stats": { "capacity": 500 } }
+      ]
+    },
+    {
+      "id": "market",
+      "name": { "en": "Market", "pt-br": "Mercado" },
+      "types": ["village", "city", "unknown"],
+      "levels": [
+        { "cost": { "materials": 10, "gold": 100 }, "hours": 12, "stats": { "income": 15 } },
+        { "cost": { "materials": 20, "gold": 250 }, "hours": 24, "stats": { "income": 30 } },
+        { "cost": { "materials": 35, "gold": 500, "valuables": 2 }, "hours": 48, "stats": { "income": 50 } }
+      ]
+    },
+    {
+      "id": "forge",
+      "name": { "en": "Forge", "pt-br": "Forja" },
+      "types": ["fort", "city", "unknown"],
+      "levels": [
+        { "cost": { "metals": 6, "materials": 4 },  "hours": 12, "stats": { "defense": 10 } },
+        { "cost": { "metals": 15, "materials": 8 }, "hours": 24, "stats": { "defense": 20 } },
+        { "cost": { "metals": 30, "materials": 15, "gold": 200 }, "hours": 48, "stats": { "defense": 30, "income": 5 } }
+      ]
+    }
+  ],
+
+  // Visual por nível: objetos extras criados em runtime (Placement::PlaceAt) quando o nível fica pronto e a âncora
+  // está numa célula carregada. territory = id do território (JSON) ou "Plugin.esp|0xID" do BGSLocation descoberto.
+  // anchor: "marker" (worldLocMarker do local), "banner" (uma bandeira do território) ou "auto" (marker, senão banner).
+  // offset = [direita, frente, cima] no referencial da âncora; angle = [x, y, z] em graus (somado à rotação da âncora).
+  // Locais sem entrada aqui recebem só os status.
+  "visuals": [
+    {
+      // Exemplo: torre de teste (Territories/example.json). A âncora é a bandeira criada pelo F10 na 1ª vez.
+      "territory": "test_tower",
+      "upgrade": "walls",
+      "level": 1,
+      "anchor": "banner",
+      "objects": [
+        { "base": "Skyrim.esm|0x06F993", "offset": [-120, 60, 0], "angle": [0, 0, 0] },
+        { "base": "Skyrim.esm|0x06F993", "offset": [0, 90, 0],    "angle": [0, 0, 45] },
+        { "base": "Skyrim.esm|0x06F993", "offset": [120, 60, 0],  "angle": [0, 0, 90] }
+      ]
+    },
+    {
+      // Nível II das muralhas na torre de teste: dois lingotes de ferro (IngotIron) além da lenha (Firewood01).
+      "territory": "test_tower",
+      "upgrade": "walls",
+      "level": 2,
+      "anchor": "banner",
+      "objects": [
+        { "base": "Skyrim.esm|0x05ACE4", "offset": [-60, 120, 0], "angle": [0, 0, 0] },
+        { "base": "Skyrim.esm|0x05ACE4", "offset": [60, 120, 0],  "angle": [0, 0, 0] }
+      ]
+    }
+  ]
+}

@@ -140,6 +140,11 @@ namespace AoS
             debug_.economyHours  = dbg->value("economyHours", 24u);
             // ---- fim M12/M13 ----
             debug_.conquestHotkey = dbg->value("conquestHotkey", 0x3E);
+            // ---- M14/M15: guarnição e melhorias ----
+            debug_.garrisonHotkey    = dbg->value("garrisonHotkey", 0x4C);
+            debug_.upgradeHotkey     = dbg->value("upgradeHotkey", 0x4D);
+            debug_.upgradeIgnoreCost = dbg->value("upgradeIgnoreCost", false);
+            // ---- fim M14/M15 ----
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
@@ -178,6 +183,15 @@ namespace AoS
             }
         }
         LoadConquestAndSeat(*json);  // M5/M6
+        // ---- M14: guarnição ----
+        if (const auto g = json->find("garrison"); g != json->end() && g->is_object()) {
+            garrison_.enabled       = g->value("enabled", garrison_.enabled);
+            garrison_.maxActors     = g->value("maxActors", garrison_.maxActors);
+            garrison_.spawnPerFrame = std::max<std::uint32_t>(1, g->value("spawnPerFrame", garrison_.spawnPerFrame));
+            garrison_.spawnRadius   = g->value("spawnRadius", garrison_.spawnRadius);
+            garrison_.spreadRadius  = g->value("spreadRadius", garrison_.spreadRadius);
+        }
+        // ---- fim M14 ----
     }
 
     // ---- M5/M6: blocos "conquest" e "seat" ------------------------------------------------------

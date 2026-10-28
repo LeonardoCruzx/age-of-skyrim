@@ -24,8 +24,10 @@ namespace AoS
 
         // Cria um objeto em posição/ângulo absolutos na célula do jogador (não entra no registro PLAC: quem
         // chama guarda o FormID, ex.: Claims). a_keyframed: desliga a física (itens não caem nem tombam).
+        // a_origin (M15): cria na célula desta referência (precisa estar com a célula carregada) em vez da do jogador.
         [[nodiscard]] static RE::TESObjectREFR* PlaceAt(RE::TESBoundObject* a_base, const RE::NiPoint3& a_pos,
-                                                        const RE::NiPoint3& a_angle, bool a_keyframed);
+                                                        const RE::NiPoint3& a_angle, bool a_keyframed,
+                                                        RE::TESObjectREFR* a_origin = nullptr);
 
         void Clear();
         void Save(SKSE::SerializationInterface* a_intfc) const;

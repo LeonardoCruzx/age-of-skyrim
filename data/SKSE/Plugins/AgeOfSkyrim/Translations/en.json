@@ -58,5 +58,26 @@
   "seat.already":           "AoS: {} is already your seat",
   "seat.warTable":          "AoS: war table of {} (tactical map coming soon)",
   "seat.stockTitle":        "AoS stockpile of the seat ({}):",
-  "seat.chestMissing":      "AoS: the seat chest is missing. Send the log."
+  "seat.chestMissing":      "AoS: the seat chest is missing. Send the log.",
+  // ---- M14/M15: guarnição e melhorias ----
+  "garrison.status": "AoS garrison of {} ({}): {}/{} soldiers, {} present, strength {}",
+  "garrison.deficit": "Upkeep unpaid for {} h: soldiers will desert",
+  "garrison.desertion": "AoS: {} soldier(s) deserted (upkeep unpaid)",
+  "garrison.noTerritory": "AoS garrison: no territory here (set debug.territory)",
+  "garrison.neutral": "AoS: {} has no owner, so no garrison",
+  "garrison.noTroop": "AoS: no troop type for {} (see Garrison.json; send the log)",
+  "garrison.cap": "AoS: garrison actor limit reached ({})",
+  "garrison.allPresent": "AoS: the whole garrison is already here",
+  "garrison.spawning": "AoS: calling {} soldier(s)...",
+  "upgrade.noTerritory": "AoS upgrades: no territory here (set debug.territory)",
+  "upgrade.notYours": "AoS: {} is not yours; conquer it first",
+  "upgrade.inProgress": "AoS: {} {} under construction in {} ({} h left)",
+  "upgrade.allDone": "AoS: every upgrade of {} is at the maximum level",
+  "upgrade.started": "AoS: construction of {} {} started in {} ({} h)",
+  "upgrade.done": "AoS: {} {} finished in {}",
+  "upgrade.cancelled": "AoS: construction of {} {} in {} was lost (territory changed hands)",
+  "upgrade.noSeat": "AoS: you need a seat (chest) to pay for construction",
+  "upgrade.insufficient": "AoS: not enough in the seat chest for {} {}: needs {}",
+  "upgrade.failed": "AoS: could not start {}. Send the log.",
+  "upgrade.stats": "Defense +{}%, storage +{}, income +{}%, vision {}, garrison +{}"
 }

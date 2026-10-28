@@ -76,13 +76,21 @@ namespace AoS
     }
 
     RE::TESObjectREFR* Placement::PlaceAt(RE::TESBoundObject* a_base, const RE::NiPoint3& a_pos,
-                                          const RE::NiPoint3& a_angle, bool a_keyframed)
+                                          const RE::NiPoint3& a_angle, bool a_keyframed, RE::TESObjectREFR* a_origin)
     {
         const auto player = RE::PlayerCharacter::GetSingleton();
         if (!a_base || !player || !player->GetParentCell() || !player->Is3DLoaded()) {
             return nullptr;
         }
-        const auto ref = player->PlaceObjectAtMe(a_base, /*forcePersist*/ true);
+        RE::TESObjectREFR* origin = player;
+        if (a_origin) {
+            const auto cell = a_origin->GetParentCell();
+            if (!cell || !cell->IsAttached()) {
+                return nullptr;  // célula da origem não carregada: quem chama tenta de novo depois
+            }
+            origin = a_origin;
+        }
+        const auto ref = origin->PlaceObjectAtMe(a_base, /*forcePersist*/ true);
         if (!ref) {
             logger::error("Placement: PlaceObjectAtMe falhou para 0x{:08X}.", a_base->GetFormID());
             return nullptr;

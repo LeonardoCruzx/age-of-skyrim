@@ -58,5 +58,26 @@
   "seat.already":           "AoS: {} já é a sua sede",
   "seat.warTable":          "AoS: mesa de guerra de {} (mapa tático em breve)",
   "seat.stockTitle":        "AoS estoque da sede ({}):",
-  "seat.chestMissing":      "AoS: o baú da sede sumiu. Envie o log."
+  "seat.chestMissing":      "AoS: o baú da sede sumiu. Envie o log.",
+  // ---- M14/M15: guarnição e melhorias ----
+  "garrison.status": "AoS guarnição de {} ({}): {}/{} soldados, {} presentes, força {}",
+  "garrison.deficit": "Manutenção sem pagar há {} h: soldados vão desertar",
+  "garrison.desertion": "AoS: {} soldado(s) desertaram (manutenção não paga)",
+  "garrison.noTerritory": "AoS guarnição: nenhum território aqui (configure debug.territory)",
+  "garrison.neutral": "AoS: {} não tem dono, então não tem guarnição",
+  "garrison.noTroop": "AoS: nenhum tipo de tropa para {} (veja Garrison.json; envie o log)",
+  "garrison.cap": "AoS: limite de atores da guarnição atingido ({})",
+  "garrison.allPresent": "AoS: a guarnição inteira já está aqui",
+  "garrison.spawning": "AoS: chamando {} soldado(s)...",
+  "upgrade.noTerritory": "AoS melhorias: nenhum território aqui (configure debug.territory)",
+  "upgrade.notYours": "AoS: {} não é seu; conquiste primeiro",
+  "upgrade.inProgress": "AoS: {} {} em obra em {} (faltam {} h)",
+  "upgrade.allDone": "AoS: todas as melhorias de {} estão no nível máximo",
+  "upgrade.started": "AoS: obra de {} {} iniciada em {} ({} h)",
+  "upgrade.done": "AoS: {} {} concluída em {}",
+  "upgrade.cancelled": "AoS: a obra de {} {} em {} se perdeu (o território mudou de dono)",
+  "upgrade.noSeat": "AoS: você precisa de uma sede (baú) para pagar a obra",
+  "upgrade.insufficient": "AoS: falta material no baú da sede para {} {}: precisa de {}",
+  "upgrade.failed": "AoS: não foi possível iniciar {}. Envie o log.",
+  "upgrade.stats": "Defesa +{}%, estoque +{}, renda +{}%, visão {}, guarnição +{}"
 }

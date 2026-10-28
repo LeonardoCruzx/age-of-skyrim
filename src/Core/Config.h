@@ -100,8 +100,25 @@ namespace AoS
         std::uint32_t economyHours{ 24 };     // horas forçadas pelo economyHotkey
         // ---- fim M12/M13 ----
         int  conquestHotkey{ 0x3E };  // DIK_F4: simula a conquista do local atual (M5)
+        // ---- M14/M15: guarnição e melhorias ----
+        int  garrisonHotkey{ 0x4C };    // DIK_NUMPAD5: guarnição do território atual + spawn forçado perto do jogador
+        int  upgradeHotkey{ 0x4D };     // DIK_NUMPAD6: inicia a próxima melhoria disponível no território atual/sede
+        bool upgradeIgnoreCost{ false };  // true: a hotkey de melhoria não cobra itens (só para testar)
+        // ---- fim M14/M15 ----
         Id   territory{ kNeutral };
     };
+
+    // ---- M14: guarnição (ADR 0043/0044) -----------------------------------------------------------
+    // settings.json -> "garrison": materialização dos soldados perto do jogador. Números e tropas em Garrison.json.
+    struct GarrisonSettings
+    {
+        bool          enabled{ true };       // false: só números (nenhum ator é criado)
+        std::uint32_t maxActors{ 12 };       // teto GLOBAL de soldados de guarnição vivos no mundo
+        std::uint32_t spawnPerFrame{ 2 };    // atores criados por frame (lotes encadeados via AddTask)
+        float         spawnRadius{ 8192.0f };  // marcador do território até esta distância do jogador (unidades)
+        float         spreadRadius{ 256.0f };  // raio do círculo em volta do marcador onde os soldados nascem
+    };
+    // ---- fim M14 ----------------------------------------------------------------------------------
 
     // settings.json -> "claim": Free Claim (estandarte em local genérico).
     struct ClaimSettings
@@ -155,6 +172,7 @@ namespace AoS
         [[nodiscard]] const DiscoverySettings&      Discovery() const noexcept { return discovery_; }
         [[nodiscard]] const ConquestSettings&       Conquest() const noexcept { return conquest_; }  // M5
         [[nodiscard]] const SeatSettings&           Seat() const noexcept { return seat_; }          // M6
+        [[nodiscard]] const GarrisonSettings&       Garrison() const noexcept { return garrison_; }  // M14
 
         // ---- M8: territórios dinâmicos (claims), por save, criados em runtime (ADR 0024) ----
         // Territories() continua só com os do JSON/descoberta; quem quer ver todos usa ForEachTerritory.
@@ -192,6 +210,7 @@ namespace AoS
         DiscoverySettings                       discovery_;
         ConquestSettings                        conquest_;
         SeatSettings                            seat_;
+        GarrisonSettings                        garrison_;  // M14
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;
 
         // M8: territórios dinâmicos (deque: push_back não invalida ponteiros).
