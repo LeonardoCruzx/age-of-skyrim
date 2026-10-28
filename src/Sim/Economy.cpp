@@ -374,6 +374,30 @@ namespace AoS
         return it != ledgers_.end() && idx && *idx < it->second.balance.size() ? it->second.balance[*idx] : 0.0;
     }
 
+    // ---- M16: gancho do tick e gasto -----------------------------------------------------------------
+
+    void Economy::AddTickListener(std::string_view a_key, TickListener a_listener)
+    {
+        std::scoped_lock l{ lock_ };
+        std::erase_if(tickListeners_, [&](const auto& p) { return p.first == a_key; });
+        tickListeners_.emplace_back(std::string(a_key), std::move(a_listener));
+    }
+
+    bool Economy::Spend(Id a_faction, Id a_resource, double a_amount)
+    {
+        std::scoped_lock l{ lock_ };
+        const auto       idx = IndexOf(a_resource);
+        if (!idx || a_amount < 0.0) {
+            return false;
+        }
+        auto& ledger = LedgerOf(a_faction);
+        if (ledger.balance[*idx] + 1e-9 < a_amount) {
+            return false;
+        }
+        ledger.balance[*idx] -= a_amount;
+        return true;
+    }
+
     Economy::Report Economy::LastReport() const
     {
         std::scoped_lock l{ lock_ };
@@ -403,26 +427,37 @@ namespace AoS
         if (now < 0.0) {
             return;
         }
-        std::scoped_lock l{ lock_ };
-        const auto       last = lastHour_.load();
-        if (last == kUnset || now < last) {
-            // Jogo novo / save sem registro ECON / relógio voltou: começa a contar daqui, sem produção retroativa.
-            lastHour_ = now;
-            return;
+        std::uint32_t                                     hours = 0;
+        std::vector<std::pair<std::string, TickListener>> listeners;  // M16
+        {
+            std::scoped_lock l{ lock_ };
+            const auto       last = lastHour_.load();
+            if (last == kUnset || now < last) {
+                // Jogo novo / save sem registro ECON / relógio voltou: começa a contar daqui, sem produção retroativa.
+                lastHour_ = now;
+                return;
+            }
+            const auto elapsed = static_cast<std::uint32_t>(std::min(std::floor(now - last), 1.0e6));
+            if (elapsed == 0) {
+                return;
+            }
+            lastHour_ = last + elapsed;  // mantém a fração da hora corrente
+            hours     = elapsed;
+            if (hours > maxCatchUpHours_) {
+                logger::warn("Economia: {} h desde o último tick; processando só {} h (maxCatchUpHours).", hours,
+                             maxCatchUpHours_);
+                hours = maxCatchUpHours_;
+            }
+            if (hours > 0) {
+                Process(hours);
+            }
+            listeners = tickListeners_;
         }
-        const auto elapsed = static_cast<std::uint32_t>(std::min(std::floor(now - last), 1.0e6));
-        if (elapsed == 0) {
-            return;
-        }
-        lastHour_ = last + elapsed;  // mantém a fração da hora corrente
-        auto hours = elapsed;
-        if (hours > maxCatchUpHours_) {
-            logger::warn("Economia: {} h desde o último tick; processando só {} h (maxCatchUpHours).", hours,
-                         maxCatchUpHours_);
-            hours = maxCatchUpHours_;
-        }
-        if (hours > 0) {
-            Process(hours);
+        // M16: fora do lock — os ouvintes (IA, diplomacia) consultam saldos e gastam.
+        for (const auto& [key, fn] : listeners) {
+            if (fn && hours > 0) {
+                fn(hours);
+            }
         }
     }
 

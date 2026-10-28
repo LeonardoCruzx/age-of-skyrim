@@ -4,8 +4,7 @@
 
 namespace AoS
 {
-    // Duas facções podem comerciar? Hoje: só a mesma facção (e nunca neutro).
-    // TODO(M17): consultar a diplomacia (paz/aliança).
+    // Duas facções podem comerciar? Mesma facção, ou em paz/aliança pela diplomacia (M17); nunca neutro.
     [[nodiscard]] bool CanTrade(Id a_factionA, Id a_factionB);
 
     // Rotas de comércio (M13) entre dois territórios. Simulação fora da tela: no tick da economia cada rota ativa

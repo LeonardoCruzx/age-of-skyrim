@@ -83,6 +83,20 @@ namespace AoS::Discovery
         }
     }
 
+    bool IsMilitaryFort(const RE::BGSLocation* a_location)
+    {
+        if (!a_location) {
+            return false;
+        }
+        const auto& kw = GetKeywords();
+        for (std::size_t i = 0; i < kTypeKeywords.size(); ++i) {
+            if (kTypeKeywords[i].editorId == "LocTypeMilitaryFort") {
+                return kw.types[i] && a_location->HasKeyword(kw.types[i]);
+            }
+        }
+        return false;
+    }
+
     std::string KeyOf(const RE::TESForm* a_form)
     {
         const auto file = a_form ? a_form->GetFile(0) : nullptr;

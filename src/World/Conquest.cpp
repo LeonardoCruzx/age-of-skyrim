@@ -164,6 +164,9 @@ namespace AoS
         if (c.exclude.contains(MakeId(Discovery::KeyOf(a_territory.location)))) {
             return true;
         }
+        if (c.skipCivilWarForts && Discovery::IsMilitaryFort(a_territory.location)) {
+            return true;  // M16/ADR 0042: forte da Guerra Civil (patch civil-war-mods ou settings)
+        }
         if (!c.excludePlugins.empty()) {
             if (const auto file = a_territory.location->GetFile(0)) {
                 std::string name{ file->GetFilename() };

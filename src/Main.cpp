@@ -2,6 +2,8 @@
 #include "Core/Factions.h"
 #include "Debug/SelfTest.h"
 #include "Events/Events.h"
+#include "Sim/Ai.h"       // M16
+#include "Sim/Diplomacy.h"  // M17
 #include "Sim/Economy.h"  // M12
 #include "Sim/Routes.h"   // M13
 #include "Stock/Stock.h"
@@ -44,6 +46,10 @@ namespace
         AoS::Routes::Get().Save(a_intfc);
         // ---- fim M12/M13 ----
         AoS::Seat::Get().Save(a_intfc);  // M6
+        // ---- M16/M17 (depois de FACT: facções validadas no load) ----
+        AoS::Diplomacy::Get().Save(a_intfc);
+        AoS::Ai::Get().Save(a_intfc);
+        // ---- fim M16/M17 ----
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -78,6 +84,14 @@ namespace
             case AoS::Seat::kRecord:  // M6
                 AoS::Seat::Get().LoadRecord(a_intfc, version);
                 break;
+            // ---- M16/M17 ----
+            case AoS::Diplomacy::kRecord:
+                AoS::Diplomacy::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Ai::kRecord:
+                AoS::Ai::Get().LoadRecord(a_intfc, version);
+                break;
+            // ---- fim M16/M17 ----
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -97,6 +111,8 @@ namespace
         AoS::Economy::Get().Clear();
         AoS::Routes::Get().Clear();
         // ---- fim M12/M13 ----
+        AoS::Diplomacy::Get().Clear();  // M17
+        AoS::Ai::Get().Clear();         // M16
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -108,6 +124,8 @@ namespace
                 logger::warn("Nenhum território carregado; verifique Data/SKSE/Plugins/AgeOfSkyrim/Territories/.");
             }
             AoS::Factions::Get().Load();  // depois da Config: valida estilos
+            AoS::Ai::Get().Load();         // M16: donos iniciais ("start") antes do ResetToDefaults
+            AoS::Diplomacy::Get().Load();  // M17: relações padrão (Factions/*.json)
             AoS::State::Get().ResetToDefaults();
             AoS::Stock::Get().Load();
             AoS::Economy::Get().Load();  // M12/M13: depois do Stock (categorias); configura as rotas
@@ -127,6 +145,7 @@ namespace
                 AoS::BannerController::Get().ApplyAll();
                 AoS::SelfTest::OnPostLoad();  // só age se o save tem registro do autoteste
                 AoS::Seat::Get().OnPostLoad();  // M6: observa e reconta o baú da sede
+                AoS::Ai::Get().OnPostLoad();    // M16: sede ocupada -> depósito suspenso (depois do Seat)
             });
             break;
 

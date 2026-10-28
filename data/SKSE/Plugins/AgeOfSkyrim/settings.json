@@ -24,6 +24,8 @@
   // onlyFromNeutral: true = não toma locais que já têm dono (ex.: deixar a Guerra Civil com outro mod).
   // exclude: ["Plugin.esp|0xID" (BGSLocation) ou "id_do_territorio"]; excludePlugins: ["MeuModDeGuerra.esp"].
   // defaultStyle/defaultColor: facção criada na primeira conquista se você ainda não tem uma ("" = automático).
+  // M16: "skipCivilWarForts": true deixa os fortes da Guerra Civil de fora (também ligado pelo patch civil-war-mods;
+  // se definido aqui, vence o patch).
   "conquest": {
     "enabled": true,
     "requirePlayerInLocation": true,
@@ -43,6 +45,53 @@
     "chestOffset": [-100, 150, 0],
     "warTableOffset": [120, 220, 0]
   },
+  // ---- M16: facções de IA e contra-ataques (ADR 0047/0048) ----
+  // tickHours: horas de jogo entre avaliações. A IA ataca vizinhos de facções em GUERRA com ela (diplomacia) e,
+  // com expandIntoNeutral, territórios neutros dos expandTypes. Força do ataque = attackBase + ouro gasto /
+  // goldPerStrength (gasta entre minGoldPerAttack e maxGoldPerAttack do saldo da facção); só lança se a força
+  // >= defesa × minAdvantage. Defesa padrão por tipo (defenseByType; neutro × neutralDefenseMultiplier).
+  // Marcha: hoursPer10000Units (70 unidades ≈ 1 m), entre minTravelHours e maxTravelHours.
+  // respectConquestExclusions: a IA também não toca nos locais excluídos da conquista (settings + Compat/*.json).
+  // skipCivilWarForts: fortes militares da Guerra Civil vanilla nunca são alvo da IA (também via Compat/*.json,
+  // bloco "ai"; o valor daqui, se presente, vence o dos patches — por isso vem comentado).
+  "ai": {
+    "enabled": true,
+    "tickHours": 6,
+    "maxEvaluationsPerTick": 512,
+    "maxActiveAttacks": 8,
+    "maxAttacksPerFaction": 2,
+    "cooldownHours": 24,
+    "attackBase": 20,
+    "goldPerStrength": 10,
+    "minGoldPerAttack": 50,
+    "maxGoldPerAttack": 500,
+    "minAdvantage": 1.2,
+    "randomness": 0.2,
+    "hoursPer10000Units": 2,
+    "minTravelHours": 2,
+    "maxTravelHours": 48,
+    "nearPlayerRadius": 8192,
+    "attackPlayer": true,
+    "expandIntoNeutral": true,
+    "expandTypes": ["fort", "village", "city"],
+    "neutralDefenseMultiplier": 0.5,
+    "declareWarRatio": 2.0,
+    "respectConquestExclusions": true,
+    // "skipCivilWarForts": false,
+    "defenseByType": { "fort": 40, "tower": 25, "camp": 15, "village": 15, "city": 60, "claim": 10, "unknown": 15 }
+  },
+  // ---- M17: diplomacia (ADR 0049) ----
+  // Paz aceita depois de guerra = trégua de truceHours horas (sem guerra), depois paz. A IA aceita a paz se o
+  // poder dela < o seu × peaceAcceptRatio (ou se está em déficit); aliança se você tem poder >= o dela ×
+  // allianceAcceptRatio (e, com allianceNeedsCommonEnemy, um inimigo em comum). warOnConquest: tomar um território
+  // de uma facção de IA que não está em guerra com você faz ela declarar guerra.
+  "diplomacy": {
+    "truceHours": 72,
+    "peaceAcceptRatio": 1.5,
+    "allianceAcceptRatio": 0.75,
+    "allianceNeedsCommonEnemy": true,
+    "warOnConquest": true
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,
@@ -55,6 +104,10 @@
     "routeHotkey": 65,
     "economyHours": 24,
     "conquestHotkey": 62,
+    // M16/M17: NumPad7 força o tick estratégico da IA e mostra os ataques; NumPad8 alterna a relação da sua facção
+    // com o dono do território atual (paz -> guerra -> trégua -> aliança).
+    "aiHotkey": 71,
+    "diplomacyHotkey": 72,
     "territory": "test_tower"
   }
 }

@@ -5,6 +5,8 @@
 #include "Debug/SelfTest.h"
 #include "Sim/Economy.h"  // M12/M13
 #include "Sim/Routes.h"   // M12/M13
+#include "Sim/Ai.h"        // M16
+#include "Sim/Diplomacy.h" // M17
 #include "Stock/Stock.h"
 #include "World/Claims.h"
 #include "World/Conquest.h"
@@ -73,6 +75,19 @@ namespace AoS::Events
                         continue;
                     }
                     // ---- fim M12/M13 ----
+                    // ---- M16/M17: IA e diplomacia ----
+                    if (key == dbg.aiHotkey || key == dbg.diplomacyHotkey) {
+                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
+                            continue;
+                        }
+                        if (key == dbg.aiHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Ai::Get().DebugForceTick(); });
+                        } else {
+                            SKSE::GetTaskInterface()->AddTask([] { Diplomacy::Get().DebugCycleHere(); });
+                        }
+                        continue;
+                    }
+                    // ---- fim M16/M17 ----
                     if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
                         key != dbg.claimHotkey && key != dbg.conquestHotkey) {
                         continue;
@@ -137,6 +152,8 @@ namespace AoS::Events
                              d.hotkey, d.selfTestHotkey, d.stockHotkey, d.claimHotkey, d.conquestHotkey);
                 logger::info("Debug hotkeys M12/M13 (economia 0x{:X} = {} h, rota 0x{:X}).", d.economyHotkey,
                              d.economyHours, d.routeHotkey);
+                logger::info("Debug hotkeys M16/M17 (tick da IA 0x{:X}, diplomacia 0x{:X}).", d.aiHotkey,
+                             d.diplomacyHotkey);
             }
         }
     }

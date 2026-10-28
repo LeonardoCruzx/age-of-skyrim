@@ -100,6 +100,10 @@ namespace AoS
         std::uint32_t economyHours{ 24 };     // horas forçadas pelo economyHotkey
         // ---- fim M12/M13 ----
         int  conquestHotkey{ 0x3E };  // DIK_F4: simula a conquista do local atual (M5)
+        // ---- M16/M17: IA e diplomacia ----
+        int aiHotkey{ 0x47 };          // DIK_NUMPAD7: força o tick estratégico e mostra os ataques ativos
+        int diplomacyHotkey{ 0x48 };   // DIK_NUMPAD8: alterna a relação do jogador com o dono do território atual
+        // ---- fim M16/M17 ----
         Id   territory{ kNeutral };
     };
 
@@ -122,6 +126,7 @@ namespace AoS
         bool                     onlyFromNeutral{ false };         // true: não toma locais de outras facções
         std::unordered_set<Id>   exclude;                          // MakeId("Plugin.esp|0x00ABCD") ou id de território
         std::vector<std::string> excludePlugins;                   // locais destes plugins são ignorados (minúsculas)
+        bool                     skipCivilWarForts{ false };       // M16/ADR 0042: fortes LocTypeMilitaryFort ficam de fora
         std::string              defaultStyle;                     // facção criada na 1ª conquista; vazio = automático
         std::uint32_t            defaultColor{ 0x2E7D32 };
     };
@@ -136,6 +141,51 @@ namespace AoS
         RE::NiPoint3           warTableOffset{ 120.0f, 220.0f, 0.0f };
     };
     // ---- fim M5/M6 ------------------------------------------------------------------------------
+
+    // ---- M16/M17 (IA e diplomacia) ---------------------------------------------------------------
+    // settings.json -> "ai": facções de IA e contra-ataques (ADR 0047).
+    struct AiSettings
+    {
+        bool          enabled{ true };
+        std::uint32_t tickHours{ 6 };               // horas de jogo entre avaliações estratégicas
+        std::size_t   maxEvaluationsPerTick{ 512 }; // territórios examinados por avaliação (lote)
+        std::size_t   maxActiveAttacks{ 8 };        // teto global de ataques em andamento
+        std::size_t   maxAttacksPerFaction{ 2 };
+        std::uint32_t cooldownHours{ 24 };          // espera da facção entre dois ataques lançados
+        double        attackBase{ 20.0 };           // força de um ataque sem gastar ouro
+        double        goldPerStrength{ 10.0 };      // ouro do saldo da IA por ponto de força
+        double        minGoldPerAttack{ 50.0 };     // a IA só ataca se puder pagar isto
+        double        maxGoldPerAttack{ 500.0 };
+        double        minAdvantage{ 1.2 };          // força >= defesa × isto para lançar
+        double        randomness{ 0.2 };            // ± na resolução (0 = determinística)
+        double        hoursPer10kUnits{ 2.0 };      // marcha: horas por 10000 unidades (≈ 143 m)
+        std::uint32_t minTravelHours{ 2 };
+        std::uint32_t maxTravelHours{ 48 };
+        float         nearPlayerRadius{ 8192.0f };  // ataque "perto do jogador" (gancho da M21)
+        bool          attackPlayer{ true };
+        bool          expandIntoNeutral{ true };
+        std::vector<TerritoryType> expandTypes{ TerritoryType::kFort, TerritoryType::kVillage, TerritoryType::kCity };
+        double        neutralDefenseMultiplier{ 0.5 };
+        double        declareWarRatio{ 2.0 };       // poder >= alvo × isto para a IA declarar guerra por agressão
+        bool          respectConquestExclusions{ true };  // locais excluídos da conquista (settings + Compat)
+        bool          skipCivilWarForts{ false };         // fortes da Guerra Civil vanilla nunca são alvo da IA
+        std::unordered_map<TerritoryType, double> defenseByType{
+            { TerritoryType::kUnknown, 15.0 }, { TerritoryType::kFort, 40.0 },    { TerritoryType::kTower, 25.0 },
+            { TerritoryType::kCamp, 15.0 },    { TerritoryType::kVillage, 15.0 }, { TerritoryType::kCity, 60.0 },
+            { TerritoryType::kClaim, 10.0 }
+        };
+    };
+
+    // settings.json -> "diplomacy": relações entre facções (ADR 0049).
+    struct DiplomacySettings
+    {
+        std::uint32_t truceHours{ 72 };          // paz aceita depois de guerra = trégua por N horas, depois paz
+        double        peaceAcceptRatio{ 1.5 };   // IA aceita paz se poder(IA) < poder(proponente) × isto
+        double        allianceAcceptRatio{ 0.75 };  // aliança: poder(proponente) >= poder(IA) × isto
+        bool          allianceNeedsCommonEnemy{ true };
+        bool          warOnConquest{ true };     // tomar território de uma facção em paz = guerra com ela
+    };
+    // ---- fim M16/M17 ------------------------------------------------------------------------------
 
     class Config
     {
@@ -155,6 +205,12 @@ namespace AoS
         [[nodiscard]] const DiscoverySettings&      Discovery() const noexcept { return discovery_; }
         [[nodiscard]] const ConquestSettings&       Conquest() const noexcept { return conquest_; }  // M5
         [[nodiscard]] const SeatSettings&           Seat() const noexcept { return seat_; }          // M6
+        [[nodiscard]] const AiSettings&             Ai() const noexcept { return ai_; }              // M16
+        [[nodiscard]] const DiplomacySettings&      Diplomacy() const noexcept { return diplomacy_; } // M17
+
+        // M16: dono padrão vindo dos "start" das facções (Factions/*.json). Só vale se o JSON do território não
+        // definiu defaultOwner. Chamar em kDataLoaded, antes de State::ResetToDefaults.
+        void SetDefaultOwner(Id a_territory, Id a_owner);
 
         // ---- M8: territórios dinâmicos (claims), por save, criados em runtime (ADR 0024) ----
         // Territories() continua só com os do JSON/descoberta; quem quer ver todos usa ForEachTerritory.
@@ -179,6 +235,8 @@ namespace AoS
         void LoadSettings(const fs::path& a_file);
         void LoadTerritoryFile(const fs::path& a_file);
         void LoadConquestAndSeat(const nlohmann::json& a_json);  // M5/M6
+        void LoadAiAndDiplomacy(const nlohmann::json& a_json);   // M16/M17
+        void LoadCompat();                                       // M16: Compat/*.json (ADR 0042)
         void RegisterName(Id a_id, const std::string& a_key);
         void MergeDiscovered();   // M4: territórios do jogo + vínculo dos JSON com "location"
         void ComputeNeighbors();
@@ -192,6 +250,10 @@ namespace AoS
         DiscoverySettings                       discovery_;
         ConquestSettings                        conquest_;
         SeatSettings                            seat_;
+        AiSettings                              ai_;          // M16
+        DiplomacySettings                       diplomacy_;   // M17
+        bool                                    userSkipCwConquest_{ false };  // definido no settings.json?
+        bool                                    userSkipCwAi_{ false };
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;
 
         // M8: territórios dinâmicos (deque: push_back não invalida ponteiros).

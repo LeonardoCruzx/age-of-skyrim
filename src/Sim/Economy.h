@@ -77,6 +77,15 @@ namespace AoS
         // Saldo numérico: IA = estoque acumulado; jogador = pendente ainda não entregue no depósito.
         [[nodiscard]] double Balance(Id a_faction, Id a_resource) const;
 
+        // ---- M16: gancho do tick e gasto da IA ----
+        // Chamado na thread principal depois de cada Tick que processou horas (fora do lock: pode chamar a Economy).
+        // Outros sistemas por hora (IA M16, diplomacia M17, obras M15) penduram aqui em vez de criar relógios (ADR 0026).
+        using TickListener = std::function<void(std::uint32_t a_hours)>;
+        void AddTickListener(std::string_view a_key, TickListener a_listener);  // mesma chave substitui
+        // Tira a_amount do saldo numérico (IA). false (sem mexer) se o saldo não cobre.
+        bool Spend(Id a_faction, Id a_resource, double a_amount);
+        // ---- fim M16 ----
+
         [[nodiscard]] const std::vector<Resource>& Resources() const noexcept { return resources_; }
         [[nodiscard]] const Resource*              FindResource(Id a_resource) const;  // O(1)
         [[nodiscard]] Report                       LastReport() const;
@@ -128,6 +137,7 @@ namespace AoS
         std::unordered_map<Id, Ledger>      ledgers_;
 
         std::vector<std::pair<std::string, UpkeepProvider>> upkeep_;
+        std::vector<std::pair<std::string, TickListener>>   tickListeners_;  // M16
         Report                                              last_;
     };
 }
