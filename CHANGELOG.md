@@ -85,5 +85,10 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   `Realm::Reevaluate` que já reavalia títulos, sem polling; vitória suave — sem travar nada. Cosave `DOMN` v1,
   exposto por `Realm::HasDominated`, native Papyrus e a página "Reino" do MCM.
 
+### Corrigido
+- `docs/adr/0042`/`docs/ROADMAP.md`: marcavam a leitura de `Compat/*.json` no DLL como pendente; já foi feita
+  junto da M16 (`Config::LoadCompat`) — só a documentação estava desatualizada.
+
 ### Observações
-- Ainda não testado no jogo (roteiro único no fim, [ADR 0021](docs/adr/0021-implementar-tudo-teste-unico-no-fim.md)).
+- Roteiro de teste único e consolidado para as 28 missões em [TESTES.md](TESTES.md) (ADR 0021); ainda não
+  executado no jogo.

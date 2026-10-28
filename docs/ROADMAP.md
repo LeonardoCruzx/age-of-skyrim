@@ -391,7 +391,7 @@ capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
 - ✅ Formato dos patches (`Compat/*.json`, `patches/README.md`) + patch `civil-war-mods` (nomes de plugin a verificar).
 - ✅ `CHANGELOG.md`, rascunho da página do Nexus (`docs/nexus/`, en + pt-br).
 - ✅ Relatório de performance do log: `tools/perf_report.py` + [PERFORMANCE.md](PERFORMANCE.md).
-- ⬜ Leitura de `Compat/*.json` no DLL (TODO no ADR 0042, depois do bloco `conquest` da M5).
+- ✅ Leitura de `Compat/*.json` no DLL (feita na M16; ver [atualização do ADR 0042](adr/0042-patches-de-compatibilidade.md)).
 - ⬜ Pacotes JSON para mods populares de locais/fortes (JK's, Lux, Open Cities...) com coordenadas de baú/mesa
   da sede (depois da M6, medidas no jogo).
 - ⬜ Perfil de performance num save grande (todos os territórios, guarnições, exércitos, IA, rotas, batalhas).

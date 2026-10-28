@@ -58,3 +58,14 @@ Não há como conferir aqui FormIDs nem nomes de plugin de mods de terceiros (se
 - Patches são só dados: qualquer mod pode trazer o próprio `Compat/<mod>.json` sem esperar um release nosso.
 - Até o TODO ser feito, instalar o patch `civil-war-mods` não muda nada no jogo (arquivo ignorado pelo DLL).
 - A lista de plugins precisa de uma conferência humana no Nexus antes do release (marcar `verified: true`).
+
+## Atualização: TODO do loader concluído (M16)
+Os 6 itens da lista acima foram implementados junto da M16 (`Config::LoadCompat`, `src/Core/Config.cpp`):
+leitura em `kDataLoaded` depois do `LoadSettings`, `whenLoaded` via `LookupLoadedModByName`/
+`LookupLoadedLightModByName`, `discovery.exclude` normalizado como os demais, `conquest.exclude`/
+`excludeFromPlugins`/`skipCivilWarForts` somados ao bloco da M5 (checados em `Conquest::IsExcluded` e, para a
+IA, em `Ai::IsExcluded`), `ai.skipCivilWarForts` (M16), e o log de ativo/inativo por patch.
+`skipCivilWarForts` usa `Discovery::IsMilitaryFort` (keyword/EditorID em runtime, sem FormID de memória,
+ADR 0005) — não o índice de `TESFile` sugerido no item 4, porque conquista é um evento raro (não um caminho
+quente); o filtro por `excludeFromPlugins` já é uma comparação de string barata contra uma lista pequena.
+`territories` condicional (item 6) não foi feito; fica como extensão futura se algum patch precisar.
