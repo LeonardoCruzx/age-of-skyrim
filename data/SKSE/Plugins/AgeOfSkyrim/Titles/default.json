@@ -1,0 +1,43 @@
+{
+  // Títulos da facção do jogador (M22), em ordem de "rank". Todos os marcos de "requires" precisam ser atingidos:
+  // territories, provinces (províncias com maioria), cities, population (total). Títulos só sobem.
+  // "unlocks": valores numéricos consultáveis pelos outros sistemas (officers, governors, armyCap...);
+  // cada título herda os do anterior. "nameFemaleKey": nome quando o jogador é mulher.
+  // Outros mods podem soltar mais *.json nesta pasta (id repetido substitui).
+  "titles": [
+    {
+      "id": "warband_chief",
+      "rank": 0,
+      "nameKey": "realm.title.warband_chief",
+      "nameFemaleKey": "realm.title.warband_chief.f",
+      "requires": {},
+      "unlocks": { "officers": 1, "governors": 0, "armyCap": 20 }
+    },
+    {
+      "id": "lord",
+      "rank": 1,
+      "nameKey": "realm.title.lord",
+      "nameFemaleKey": "realm.title.lord.f",
+      "requires": { "territories": 5, "population": 150 },
+      "modifiers": { "tax": 0.05 },
+      "unlocks": { "officers": 2, "governors": 1, "armyCap": 60 }
+    },
+    {
+      "id": "jarl",
+      "rank": 2,
+      "nameKey": "realm.title.jarl",
+      "requires": { "territories": 12, "provinces": 1, "cities": 1, "population": 1500 },
+      "modifiers": { "tax": 0.10, "defense": 0.05 },
+      "unlocks": { "officers": 3, "governors": 3, "armyCap": 150 }
+    },
+    {
+      "id": "high_king",
+      "rank": 3,
+      "nameKey": "realm.title.high_king",
+      "nameFemaleKey": "realm.title.high_king.f",
+      "requires": { "territories": 40, "provinces": 5, "cities": 3, "population": 6000 },
+      "modifiers": { "tax": 0.15, "defense": 0.10, "production": 0.05 },
+      "unlocks": { "officers": 3, "governors": 9, "armyCap": 400 }
+    }
+  ]
+}

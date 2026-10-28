@@ -1,0 +1,55 @@
+{
+  // Doutrinas, cargos e governadores (M18). Outros mods podem soltar mais *.json nesta pasta (ordem alfabética;
+  // um "id" repetido num arquivo posterior substitui o anterior). Modificadores são bônus ADITIVOS
+  // (0.10 = +10%): production, tax, trade, recruitCost, recruitSpeed, populationGrowth, defense, upkeep.
+  // Textos: "nameKey"/"descriptionKey" (chave de Translations/*.json) ou "name": "texto" / { "en": .., "pt-br": .. }.
+  // "changeCost": custo para TROCAR para esta doutrina (categorias de Resources.json); a 1ª escolha é livre.
+  // "requiresTitle": título mínimo (Titles/*.json) para escolher.
+  "defaultDoctrine": "feudal",
+  "doctrines": [
+    {
+      "id": "feudal",
+      "nameKey": "realm.doctrine.feudal",
+      "descriptionKey": "realm.doctrine.feudal.desc",
+      "modifiers": { "tax": 0.10, "defense": 0.10, "populationGrowth": -0.05 },
+      "changeCost": { "gold": 1000 }
+    },
+    {
+      "id": "military",
+      "nameKey": "realm.doctrine.military",
+      "descriptionKey": "realm.doctrine.military.desc",
+      "modifiers": { "recruitCost": -0.20, "recruitSpeed": 0.25, "defense": 0.05, "production": -0.10, "upkeep": 0.10 },
+      "changeCost": { "gold": 1500 }
+    },
+    {
+      "id": "republic",
+      "nameKey": "realm.doctrine.republic",
+      "descriptionKey": "realm.doctrine.republic.desc",
+      "modifiers": { "populationGrowth": 0.20, "production": 0.05, "tax": -0.10, "recruitSpeed": -0.10 },
+      "changeCost": { "gold": 1500 },
+      "requiresTitle": "lord"
+    },
+    {
+      "id": "mercantile",
+      "nameKey": "realm.doctrine.mercantile",
+      "descriptionKey": "realm.doctrine.mercantile.desc",
+      "modifiers": { "trade": 0.25, "production": 0.10, "defense": -0.10, "recruitCost": 0.10 },
+      "changeCost": { "gold": 2000 },
+      "requiresTitle": "lord"
+    }
+  ],
+  // Cargos da facção. O bônus vale ao nomear; o NPC na sede vem depois da M6 (ADR 0036).
+  // Vagas: "unlocks.officers" do título atual (Titles/*.json).
+  "offices": [
+    { "id": "steward",   "nameKey": "realm.office.steward",   "modifiers": { "production": 0.10, "tax": 0.05 } },
+    { "id": "commander", "nameKey": "realm.office.commander", "modifiers": { "recruitSpeed": 0.15, "defense": 0.05 } },
+    { "id": "smith",     "nameKey": "realm.office.smith",     "modifiers": { "recruitCost": -0.10, "upkeep": -0.05 },
+      "requiresTitle": "lord" }
+  ],
+  // Governador de província: bônus nos territórios da província. A facção precisa ter MAIS que "majority"
+  // dos territórios dela. Vagas: "unlocks.governors" do título atual.
+  "governor": {
+    "majority": 0.5,
+    "modifiers": { "production": 0.10, "tax": 0.10, "defense": 0.10 }
+  }
+}

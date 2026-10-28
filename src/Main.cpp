@@ -2,6 +2,10 @@
 #include "Core/Factions.h"
 #include "Debug/SelfTest.h"
 #include "Events/Events.h"
+#include "Realm/Government.h"
+#include "Realm/Population.h"
+#include "Realm/Realm.h"
+#include "Realm/Titles.h"
 #include "Stock/Stock.h"
 #include "World/Claims.h"
 #include "World/Placement.h"
@@ -34,6 +38,9 @@ namespace
         AoS::Placement::Get().Save(a_intfc);
         AoS::SelfTest::Save(a_intfc);
         AoS::Claims::Get().Save(a_intfc);
+        AoS::Realm::Government::Get().Save(a_intfc);  // depois do FACT: facções validadas ao carregar
+        AoS::Realm::Population::Get().Save(a_intfc);
+        AoS::Realm::Titles::Get().Save(a_intfc);
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -57,6 +64,15 @@ namespace
             case AoS::Claims::kRecord:
                 AoS::Claims::Get().LoadRecord(a_intfc, version);
                 break;
+            case AoS::Realm::Government::kRecord:
+                AoS::Realm::Government::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Realm::Population::kRecord:
+                AoS::Realm::Population::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Realm::Titles::kRecord:
+                AoS::Realm::Titles::Get().LoadRecord(a_intfc, version);
+                break;
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -71,6 +87,7 @@ namespace
         AoS::Placement::Get().Clear();
         AoS::SelfTest::Clear();
         AoS::Claims::Get().Clear();
+        AoS::Realm::Clear();
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -84,6 +101,7 @@ namespace
             AoS::Factions::Get().Load();  // depois da Config: valida estilos
             AoS::State::Get().ResetToDefaults();
             AoS::Stock::Get().Load();
+            AoS::Realm::Load();  // depois de Config + Factions (províncias, idioma)
             AoS::Events::Register();
             break;
 

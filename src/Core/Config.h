@@ -91,6 +91,21 @@ namespace AoS
         int  stockHotkey{ 0x42 };     // DIK_F8: estoque do inventário do jogador por categoria
         int  claimHotkey{ 0x43 };     // DIK_F9: Free Claim (fincar estandarte)
         Id   territory{ kNeutral };
+
+        // M18/M19/M22 (src/Realm): resumo do reino, simular horas, ciclar doutrina, conquistar locais próximos.
+        int   realmHotkey{ 0x41 };          // DIK_F7: resumo do reino na tela
+        int   realmHoursHotkey{ 0x40 };     // DIK_F6: simula realmDebugHours horas (Realm::OnHoursPassed)
+        int   realmDoctrineHotkey{ 0x3D };  // DIK_F3: troca para a próxima doutrina (custo/espera valem)
+        int   realmConquerHotkey{ 0x3E };   // DIK_F4: dá à facção do jogador os N locais mais próximos
+        float realmDebugHours{ 24.0f };
+        int   realmConquerCount{ 5 };
+    };
+
+    // settings.json -> "realm": governo/doutrina (M18), população (M19), títulos (M22).
+    struct RealmSettings
+    {
+        float doctrineCooldownHours{ 168.0f };  // horas de jogo entre trocas de doutrina (a 1ª escolha é livre)
+        bool  announceTitles{ true };           // anúncio na tela ao subir de título
     };
 
     // settings.json -> "claim": Free Claim (estandarte em local genérico).
@@ -119,6 +134,9 @@ namespace AoS
         [[nodiscard]] const DebugSettings&          Debug() const noexcept { return debug_; }
         [[nodiscard]] const ClaimSettings&          Claim() const noexcept { return claim_; }
         [[nodiscard]] const DiscoverySettings&      Discovery() const noexcept { return discovery_; }
+        [[nodiscard]] const RealmSettings&          Realm() const noexcept { return realm_; }
+        // Posição do território em Territories() (O(1)); nullopt se desconhecido.
+        [[nodiscard]] std::optional<std::size_t>    IndexOf(Id a_territory) const;
 
     private:
         void LoadSettings(const fs::path& a_file);
@@ -134,6 +152,7 @@ namespace AoS
         DebugSettings                           debug_;
         ClaimSettings                           claim_;
         DiscoverySettings                       discovery_;
+        RealmSettings                           realm_;
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;
     };
 }
