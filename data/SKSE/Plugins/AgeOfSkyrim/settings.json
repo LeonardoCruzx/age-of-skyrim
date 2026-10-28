@@ -47,9 +47,23 @@
   },
   // Reino (M18/M19/M22): horas de jogo entre trocas de doutrina (a 1ª escolha é livre) e anúncio de títulos.
   // Doutrinas/cargos/governadores em Doctrines/*.json, população em Population/*.json, títulos em Titles/*.json.
+  // dominationThreshold (M27, ADR 0057): fração de províncias com maioria para "Dominador(a) de Skyrim" (1 = todas).
   "realm": {
     "doctrineCooldownHours": 168,
-    "announceTitles": true
+    "announceTitles": true,
+    "dominationThreshold": 1.0
+  },
+  // ---- M24: governo local / presença na capital da província (ADR 0056) ----
+  // askBeforeAssign: pergunta (MessageBox) antes de colocar o governador ao conquistar a capital.
+  // actor/outfit: "auto" (o DLL escolhe um NPC não-único do Skyrim.esm) ou "Plugin.esp|0xID"/EditorID.
+  // autoHint: dica no modelo do outfit padrão para a escolha automática ("noble" = roupas nobres vanilla).
+  // offset: [direita, frente, cima] relativo ao marcador da capital.
+  "jarl": {
+    "askBeforeAssign": true,
+    "actor": "auto",
+    "outfit": "auto",
+    "autoHint": "noble",
+    "offset": [0, 150, 0]
   },
   // Integração com outros mods (API C++ e Papyrus, ADR 0032): papyrusEvents = ModEvents "AoS_*" para scripts;
   // allowOwnerChanges = outros mods podem trocar o dono de territórios.
@@ -159,6 +173,8 @@
     // com o dono do território atual (paz -> guerra -> trégua -> aliança).
     "aiHotkey": 71,
     "diplomacyHotkey": 72,
+    // M24: NumPad0 força a oferta de governador na capital da província do território atual.
+    "jarlHotkey": 82,
     "territory": "test_tower"
   }
 }

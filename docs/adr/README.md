@@ -48,6 +48,8 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0053 | [Mapa tático sem PrismaUI: cadeia de MessageBox vanilla](0053-mapa-fallback-menus-vanilla.md) | Técnica | Aceita |
 | 0054 | [Alvos de ataque marcados no mapa ficam no cosave (`WMAP` v1)](0054-alvos-de-ataque-no-cosave.md) | Técnica | Aceita |
 | 0055 | ["Dominar Skyrim" como vitória suave; lei e prisioneiros; ordem pública e rebeliões; troca de jarl](0055-dominio-suave-lei-ordem-jarls.md) | Decisão do usuário | Aceita |
+| 0056 | [Governo local (M24): capital da província, presença do governador, sem tocar o jarl vanilla](0056-jarl-governo-local-presenca.md) | Técnica | Aceita |
+| 0057 | [Domínio de Skyrim (M27): marco separado, não um título, avaliação dentro de Realm::Reevaluate](0057-dominio-skyrim-vitoria-suave.md) | Técnica | Aceita |
 | 0043 | [Guarnição numérica, materializada só perto do jogador](0043-guarnicao-numerica-materializada.md) | Técnica | Aceita |
 | 0044 | [Tropas da guarnição: bases vanilla, outfit pelo DLL e facções de combate](0044-tropas-bases-vanilla-outfit-faccoes.md) | Técnica | Aceita |
 | 0045 | [Melhorias de territórios: implementação (custo por categoria, obra no tick, visual ancorado)](0045-melhorias-implementacao.md) | Técnica | Aceita |

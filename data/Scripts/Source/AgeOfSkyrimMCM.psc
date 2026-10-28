@@ -210,6 +210,8 @@ Function AddStockLines(String[] names, Int[] totals)
 EndFunction
 
 Function PageRealm()
+	String mine = AgeOfSkyrim.GetPlayerFaction()
+
 	AddHeaderOption(AgeOfSkyrim.Tr("mcm.realm.economyHeader"))
 	AddTextOption(AgeOfSkyrim.Tr("mcm.realm.economySoon"), "", OPTION_FLAG_DISABLED)
 	AddEmptyOption()
@@ -218,6 +220,14 @@ Function PageRealm()
 	SetCursorPosition(1)
 	AddHeaderOption(AgeOfSkyrim.Tr("mcm.realm.governmentHeader"))
 	AddTextOption(AgeOfSkyrim.Tr("mcm.realm.governmentSoon"), "", OPTION_FLAG_DISABLED)
+
+	; M27 (ADR 0057): marco permanente, só leitura.
+	AddHeaderOption(AgeOfSkyrim.Tr("mcm.realm.dominationHeader"))
+	If mine != "" && AgeOfSkyrim.HasDominated(mine)
+		AddTextOption(AgeOfSkyrim.Tr("mcm.realm.domination"), AgeOfSkyrim.Tr("mcm.yes"), OPTION_FLAG_DISABLED)
+	Else
+		AddTextOption(AgeOfSkyrim.Tr("mcm.realm.domination"), AgeOfSkyrim.Tr("mcm.no"), OPTION_FLAG_DISABLED)
+	EndIf
 EndFunction
 
 Function PageDebug()

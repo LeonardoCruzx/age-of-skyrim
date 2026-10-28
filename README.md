@@ -203,6 +203,22 @@ Patches `Compat/*.json` (formato em [patches/README.md](patches/README.md)) soma
 (`aiHotkey`, DIK 71) força a avaliação e lista os ataques; **NumPad8** (`diplomacyHotkey`, DIK 72) alterna a sua
 relação com o dono do local atual. ADRs [0047](docs/adr/0047-ia-estrategica-ataques-numericos.md)–[0050](docs/adr/0050-loader-compat-e-exclusoes-da-ia.md).
 
+### Governo local / jarl (`settings.json` → `jarl`, ADR 0056)
+Ao conquistar a capital de uma província (cidade de maior população, `Realm::Population`; sem cidade, o
+território de maior população), oferece (MessageBox) substituir o governo local por um governador seu —
+reaproveita `Government::AssignGovernor` (M18) para a maioria/bônus, mais um NPC próprio (não-único, FaceGen
+pronto, outfit pelo DLL) perto do marcador da cidade. O jarl vanilla **nunca é tocado** (ADR 0005). Ativar o NPC
+mostra o status da província (população) num MessageBox só-texto (sem dublagem, ADR 0055). Settings:
+`askBeforeAssign`, `actor`/`outfit` (`"auto"` ou `"Plugin.esp|0xID"`), `autoHint`, `offset`. Cosave `JARL` v1.
+Debug: **NumPad0** (`jarlHotkey`, DIK 82) força a oferta na capital da província atual.
+
+### Domínio de Skyrim (`settings.json` → `realm.dominationThreshold`, ADR 0057)
+Ao controlar a maioria de `dominationThreshold` (padrão 1.0 = todas) das províncias existentes, a facção do
+jogador recebe o marco permanente "Dominador(a) de Skyrim" e um aviso único na tela — sem travar nada, o mod
+continua normalmente. Avaliado dentro do mesmo `Realm::Reevaluate` que já reavalia títulos (troca de dono + tick
+estratégico), nunca por polling. Cosave `DOMN` v1. Consulta: `Realm::HasDominated`, native Papyrus
+`AgeOfSkyrim.HasDominated`, página "Reino" do MCM.
+
 ## Estrutura
 
 | Arquivo | Responsabilidade |
@@ -247,6 +263,8 @@ relação com o dono do local atual. ADRs [0047](docs/adr/0047-ia-estrategica-at
 | `tools/gen_skyui_translations.py` | `Interface/Translations/AgeOfSkyrim_*.txt` a partir dos JSON de tradução |
 | `src/Sim/Ai.*` | IA (M16): avaliação estratégica no tick, ataques numéricos (registro `WARS` v1), provedor de defesa, sede ocupada, debug NumPad7 |
 | `src/Sim/Diplomacy.*` | Diplomacia (M17): guerra/paz/aliança/trégua por par, padrões em `Factions/*.json`, registro `DIPL` v1, debug NumPad8 |
+| `src/Realm/Jarl.*` | Governo local (M24): capital por população, NPC não-único perto do marcador, ativação com status, registro `JARL` v1, debug NumPad0 |
+| `src/Realm/Domination.*` | Domínio de Skyrim (M27): marco permanente por fração de províncias, registro `DOMN` v1 |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
 | `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad7/8) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |

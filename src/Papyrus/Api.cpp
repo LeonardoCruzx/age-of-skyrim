@@ -9,6 +9,7 @@
 #include "Core/State.h"
 #include "Core/Timer.h"
 #include "Debug/SelfTest.h"
+#include "Realm/Realm.h"  // M27: HasDominated
 #include "Stock/Stock.h"
 #include "World/Claims.h"
 
@@ -356,6 +357,9 @@ namespace AoS::Papyrus
             return static_cast<std::int32_t>(Api::Government(KeyToId(a_faction)));
         }
 
+        // M27 (ADR 0057): "Dominador(a) de Skyrim" — marco permanente, consulta O(1).
+        bool HasDominated(StaticTag*, std::string a_faction) { return Realm::HasDominated(KeyToId(a_faction)); }
+
         // ---- Free Claim e ações de debug (thread principal) -----------------------------------------
         std::int32_t GetClaimCount(StaticTag*) { return static_cast<std::int32_t>(Claims::Get().All().size()); }
         std::int32_t GetMaxClaims(StaticTag*) { return Config::Get().Claim().maxClaims; }
@@ -418,6 +422,7 @@ namespace AoS::Papyrus
             a_vm->RegisterFunction("GetTreasury", kClass, GetTreasury, kMain);
             a_vm->RegisterFunction("GetTradeRouteCount", kClass, GetTradeRouteCount, kMain);
             a_vm->RegisterFunction("GetGovernmentId", kClass, GetGovernmentId, kMain);
+            a_vm->RegisterFunction("HasDominated", kClass, HasDominated, kAnyThread);  // M27
 
             a_vm->RegisterFunction("GetClaimCount", kClass, GetClaimCount, kMain);
             a_vm->RegisterFunction("GetMaxClaims", kClass, GetMaxClaims, kAnyThread);

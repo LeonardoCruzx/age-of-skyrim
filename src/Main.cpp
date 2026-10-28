@@ -10,7 +10,9 @@
 #include "Sim/Garrison.h"  // M14
 #include "Sim/Upgrades.h"  // M15
 #include "Sim/Routes.h"   // M13
+#include "Realm/Domination.h"  // M27
 #include "Realm/Government.h"
+#include "Realm/Jarl.h"  // M24
 #include "Realm/Population.h"
 #include "Realm/Realm.h"
 #include "Realm/Titles.h"
@@ -68,6 +70,10 @@ namespace
         AoS::Diplomacy::Get().Save(a_intfc);
         AoS::Ai::Get().Save(a_intfc);
         // ---- fim M16/M17 ----
+        // ---- M24/M27 ----
+        AoS::Realm::Jarl::Get().Save(a_intfc);
+        AoS::Realm::Domination::Get().Save(a_intfc);
+        // ---- fim M24/M27 ----
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -110,6 +116,7 @@ namespace
                 break;
             case AoS::Realm::Titles::kRecord:
                 AoS::Realm::Titles::Get().LoadRecord(a_intfc, version);
+                break;  // fix: faltava (caía direto no WarMap e lia o registro errado)
             case AoS::WarMap::kRecord:  // M11
                 AoS::WarMap::Get().LoadRecord(a_intfc, version);
                 break;
@@ -129,6 +136,12 @@ namespace
                 AoS::Ai::Get().LoadRecord(a_intfc, version);
                 break;
             // ---- fim M16/M17 ----
+            case AoS::Realm::Jarl::kRecord:  // M24
+                AoS::Realm::Jarl::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Realm::Domination::kRecord:  // M27
+                AoS::Realm::Domination::Get().LoadRecord(a_intfc, version);
+                break;
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -256,6 +269,7 @@ namespace
                 AoS::Upgrades::Get().OnPostLoad();  // M15: confere os objetos visuais
                 AoS::Garrison::Get().OnPostLoad();  // M14: apaga atores do save anterior e recria perto do jogador
                 AoS::Ai::Get().OnPostLoad();    // M16: sede ocupada -> depósito suspenso (depois do Seat)
+                AoS::Realm::Jarl::Get().OnPostLoad();  // M24: confere se o NPC do governador ainda existe
             });
             break;
 

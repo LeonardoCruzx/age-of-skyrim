@@ -316,13 +316,16 @@ Escolhidas pelo usuário entre as funcionalidades do Conquest of Skyrim ainda fo
 ([comparativo](COMPARATIVO-CONQUEST-OF-SKYRIM.md), seção 4). Sem diálogo com voz (ADR 0055) e sem cerco de
 capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
 
-### M24. ⬜ 🎮 Troca de jarl / governo local
-- Ao conquistar a capital de uma província (cidade com `worldLocMarker` de jarl, se identificável, ou a cidade
-  mais populosa da província), oferece substituir o jarl vanilla por um governador seu (reaproveita/estende o
-  conceito de governador de província da M18, agora com presença na capital, não só bônus numérico).
-- Sem tocar aliases/pacotes do jarl vanilla (ADR 0005): o jarl original é desabilitado (não deletado) enquanto
-  a província for sua; seu NPC (próprio, FaceGen pronto, outfit pelo DLL) ocupa o posto, com diálogo só texto.
-- Perder a capital devolve o jarl vanilla. Cosave junto do `GOVT` (M18) ou registro próprio.
+### M24. ✅ 🎮 Troca de jarl / governo local — implementada, aguardando teste no jogo ([ADR 0056](adr/0056-jarl-governo-local-presenca.md))
+- ✅ Ao conquistar a capital de uma província (cidade de maior população na província, `Realm::Population`; sem
+  cidade, o território de maior população), oferece (`Prompt::Ask`) substituir o jarl local por um governador
+  seu — reaproveita `Government::AssignGovernor` (M18) para o bônus numérico/maioria, mais presença na capital.
+- ✅ Sem tocar aliases/pacotes/estado do jarl vanilla (ADR 0005): **decisão final, mais conservadora que o
+  rascunho acima** — o jarl original NÃO é desabilitado (desabilitar um ator de quest vanilla sem certeza do que
+  depende dele é arriscado); nosso NPC (próprio, não-único, FaceGen pronto, outfit pelo DLL) só aparece **ao
+  lado**, perto do marcador da cidade, com diálogo só texto (MessageBox, status da província).
+- ✅ Perder a capital (ou a maioria da província) remove nosso NPC. Registro de cosave próprio `JARL` v1 (não
+  estende o `GOVT`). Debug: NumPad0 força a oferta na capital da província atual.
 
 ### M25. ⬜ 🎮 Lei e prisioneiros de guerra
 - Facção de crime por território/província (bounty): ao trocar de dono, zera ou transfere a recompensa vanilla
@@ -337,11 +340,17 @@ capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
   uma facção de rebeldes local, com aviso antecipado na tela e no mapa tático (M11, camada nova).
 - Guarnição e melhorias (muralhas) reduzem a chance; mitigação: ouro/comida extra, trocar o governador.
 
-### M27. ⬜ Domínio de Skyrim (vitória suave)
-- Ao controlar todas (ou a fração configurável de) as províncias do mapa, a facção do jogador recebe o título
-  "Dominador(a) de Skyrim" (extensão de `Titles.json`, M22) e uma notificação única — sem encerrar o mod nem
-  travar nenhum sistema; tudo (IA, rebeliões, comércio, diplomacia) continua rodando normalmente depois.
-- Marco visível no MCM/mapa tático; não é um requisito para nenhuma outra missão.
+### M27. ✅ Domínio de Skyrim (vitória suave) — implementada, aguardando teste no jogo ([ADR 0057](adr/0057-dominio-skyrim-vitoria-suave.md))
+- ✅ Ao controlar (maioria) todas (ou `realm.dominationThreshold`, fração configurável, padrão 1.0) as
+  províncias existentes, a facção do jogador recebe o marco "Dominador(a) de Skyrim" e uma notificação única —
+  sem encerrar o mod nem travar nenhum sistema; tudo (IA, rebeliões, comércio, diplomacia) continua rodando
+  normalmente depois. Implementado como marco booleano permanente separado (`Realm::Domination`, registro
+  `DOMN` v1), não como entrada de `Titles.json` (a fração de províncias não cabe no esquema de marcos absolutos
+  dos títulos) — decisão e motivo completos na ADR 0057.
+- ✅ Avaliado dentro de `Realm::Reevaluate` (troca de dono + tick), nunca por polling; `Realm::HasDominated`
+  exposto ao MCM (página Reino) e a um native Papyrus; sem camada nova no mapa tático (M11) por ora — não é um
+  requisito para nenhuma outra missão (ADR 0057 explica o porquê de não reaproveitar `WarMap::AddProvider`,
+  que é por território, não por facção).
 
 ### M28. 🔄 Patches de compatibilidade + release — infra pronta ([ADR 0040](adr/0040-pipeline-de-release.md), [0041](adr/0041-fomod-layout.md), [0042](adr/0042-patches-de-compatibilidade.md))
 - ✅ `.github/workflows/release.yml`: em tag `v*`, reaproveita o artefato do Build do mesmo commit

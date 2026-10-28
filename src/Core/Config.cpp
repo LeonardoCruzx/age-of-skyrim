@@ -155,6 +155,7 @@ namespace AoS
             // ---- fim M14/M15 ----
             debug_.aiHotkey        = dbg->value("aiHotkey", debug_.aiHotkey);                // M16
             debug_.diplomacyHotkey = dbg->value("diplomacyHotkey", debug_.diplomacyHotkey);  // M17
+            debug_.jarlHotkey      = dbg->value("jarlHotkey", debug_.jarlHotkey);             // M24
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
@@ -171,7 +172,32 @@ namespace AoS
         if (const auto r = json->find("realm"); r != json->end() && r->is_object()) {
             realm_.doctrineCooldownHours = std::max(0.0f, r->value("doctrineCooldownHours", realm_.doctrineCooldownHours));
             realm_.announceTitles        = r->value("announceTitles", realm_.announceTitles);
+            // M27 (ADR 0057): fração de províncias com maioria para "Dominador(a) de Skyrim" (1.0 = todas).
+            realm_.dominationThreshold =
+                std::clamp(r->value("dominationThreshold", realm_.dominationThreshold), 0.0f, 1.0f);
         }
+        // ---- M24: presença do governador na capital da província (ADR 0056) ----
+        if (const auto j = json->find("jarl"); j != json->end() && j->is_object()) {
+            jarl_.askBeforeAssign = j->value("askBeforeAssign", jarl_.askBeforeAssign);
+            // "auto" (ou ausente) = escolha automática, igual ao padrão do bloco "seat".
+            if (const auto b = j->value("actor", "auto"s); b != "auto") {
+                jarl_.actor = FormRef::Parse(b);
+                if (!jarl_.actor) {
+                    logger::warn("settings.json: jarl.actor inválido; usando escolha automática.");
+                }
+            }
+            if (const auto b = j->value("outfit", "auto"s); b != "auto") {
+                jarl_.outfit = FormRef::Parse(b);
+                if (!jarl_.outfit) {
+                    logger::warn("settings.json: jarl.outfit inválido; usando o outfit padrão do NPC.");
+                }
+            }
+            jarl_.autoHint = j->value("autoHint", jarl_.autoHint);
+            if (const auto v = j->value("offset", std::vector<float>{}); v.size() == 3) {
+                jarl_.offset = { v[0], v[1], v[2] };
+            }
+        }
+        // ---- fim M24 ----
         if (const auto a = json->find("api"); a != json->end() && a->is_object()) {
             api_.papyrusEvents     = a->value("papyrusEvents", api_.papyrusEvents);
             api_.allowOwnerChanges = a->value("allowOwnerChanges", api_.allowOwnerChanges);
