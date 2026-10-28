@@ -4,6 +4,10 @@
 #include "Events/Events.h"
 #include "Sim/Economy.h"  // M12
 #include "Sim/Routes.h"   // M13
+#include "Realm/Government.h"
+#include "Realm/Population.h"
+#include "Realm/Realm.h"
+#include "Realm/Titles.h"
 #include "Stock/Stock.h"
 #include "World/Claims.h"
 #include "World/Conquest.h"
@@ -44,6 +48,9 @@ namespace
         AoS::Routes::Get().Save(a_intfc);
         // ---- fim M12/M13 ----
         AoS::Seat::Get().Save(a_intfc);  // M6
+        AoS::Realm::Government::Get().Save(a_intfc);  // depois do FACT: facções validadas ao carregar
+        AoS::Realm::Population::Get().Save(a_intfc);
+        AoS::Realm::Titles::Get().Save(a_intfc);
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -78,6 +85,15 @@ namespace
             case AoS::Seat::kRecord:  // M6
                 AoS::Seat::Get().LoadRecord(a_intfc, version);
                 break;
+            case AoS::Realm::Government::kRecord:
+                AoS::Realm::Government::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Realm::Population::kRecord:
+                AoS::Realm::Population::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Realm::Titles::kRecord:
+                AoS::Realm::Titles::Get().LoadRecord(a_intfc, version);
+                break;
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -97,6 +113,7 @@ namespace
         AoS::Economy::Get().Clear();
         AoS::Routes::Get().Clear();
         // ---- fim M12/M13 ----
+        AoS::Realm::Clear();
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -113,6 +130,11 @@ namespace
             AoS::Economy::Get().Load();  // M12/M13: depois do Stock (categorias); configura as rotas
             AoS::Conquest::Get().Register();  // M5
             AoS::Seat::Get().Load();          // M6: depois de Config/Factions/Stock
+            AoS::Realm::Load();  // depois de Config + Factions (províncias, idioma)
+            // Reino <- economia: comida suficiente = facção sem déficit de manutenção (M12).
+            // A troca de doutrina segue grátis até existir pagamento por categoria do baú (ADR 0039).
+            AoS::Realm::Population::Get().SetFoodProvider(
+                [](AoS::Id a_faction) { return !AoS::Economy::Get().InDeficit(a_faction); });
             AoS::Events::Register();
             break;
 

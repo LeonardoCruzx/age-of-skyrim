@@ -1,6 +1,7 @@
 #include "Banner/BannerController.h"
 
 #include "Core/Timer.h"
+#include "Realm/Realm.h"
 
 namespace AoS
 {
@@ -88,8 +89,14 @@ namespace AoS
             return false;
         }
 
-        State::Get().SetOwner(a_territory, a_owner);
+        const auto previous = State::Get().Owner(a_territory);
+        const bool changed  = State::Get().SetOwner(a_territory, a_owner);
         logger::info("Território '{}' -> {}", t->key, Factions::Get().NameOf(a_owner));
+
+        // M18/M19/M22: população (guerra), governadores e títulos reagem só a troca real de dono.
+        if (changed) {
+            Realm::OnTerritoryOwnerChanged(a_territory, previous, a_owner);
+        }
 
         SKSE::GetTaskInterface()->AddTask([a_territory] { BannerController::Get().ApplyTerritory(a_territory); });
         return true;

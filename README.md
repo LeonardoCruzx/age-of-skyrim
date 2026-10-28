@@ -107,6 +107,14 @@ Conquistar uma candidata pergunta se você quer fundar (ou mudar) a sede ali; ba
 Cosave `SEAT` v1. Ver [ADR 0023](docs/adr/0023-sede-implementacao.md) e [0025](docs/adr/0025-objetos-base-da-sede.md).
 Claims (F3) viram territórios do tipo `claim` da sua facção ([ADR 0024](docs/adr/0024-claims-como-territorios.md)).
 
+### Reino: doutrina, população e títulos (`settings.json` → `realm`)
+`doctrineCooldownHours` (espera entre trocas de doutrina, horas de jogo; a 1ª escolha é livre) e `announceTitles`.
+Dados em `Doctrines/*.json` (doutrinas, cargos, governador), `Population/*.json` e `Titles/*.json`, todos
+extensíveis por outros mods (id repetido num arquivo posterior substitui). Debug: **NumPad1** (`realmHotkey`) resumo do
+reino, **NumPad2** (`realmHoursHotkey`) simula `realmDebugHours` horas, **NumPad3** (`realmDoctrineHotkey`) próxima doutrina,
+**NumPad4** (`realmConquerHotkey`) entrega os `realmConquerCount` territórios mais próximos à sua facção.
+Ver ADRs [0036](docs/adr/0036-governo-doutrina-cargos.md)–[0039](docs/adr/0039-reino-modulo-integracao.md).
+
 ## Estrutura
 
 | Arquivo | Responsabilidade |
@@ -127,6 +135,12 @@ Claims (F3) viram territórios do tipo `claim` da sua facção ([ADR 0024](docs/
 | `src/UI/Prompt.*` | MessageBox vanilla com botões e callback (sem ESP/Papyrus) |
 | `src/Sim/Economy.*` | Economia (M12): tick por hora por evento, produção por tipo/facção (`Economy.json`), depósito (`SetDepot`), consumo/déficit, registro `ECON` v1, debug F6 |
 | `src/Sim/Routes.*` | Rotas de comércio (M13): renda por distância/tipo, corte por inimigo, `CanTrade`, registro `ROUT` v1, debug F7 |
+| `src/Realm/Realm.*` | Reino (M18/M19/M22): `OnHoursPassed`, `OnTerritoryOwnerChanged`, estatísticas, debug NumPad1–4 |
+| `src/Realm/Modifiers.*` | Modificadores agregados por facção/território (produção, impostos, recrutamento, defesa...) |
+| `src/Realm/Data.*` | `Doctrines/*.json`, `Population/*.json`, `Titles/*.json` |
+| `src/Realm/Government.*` | Doutrina, cargos, governadores, relógio do reino (registro `GOVT` v1) |
+| `src/Realm/Population.*` | População por território, crescimento/fome/guerra/alistamento (registro `POPL` v1) |
+| `src/Realm/Titles.*` | Títulos por marcos e desbloqueios (registro `TITL` v1) |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
 | `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |

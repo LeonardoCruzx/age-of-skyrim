@@ -43,6 +43,12 @@
     "chestOffset": [-100, 150, 0],
     "warTableOffset": [120, 220, 0]
   },
+  // Reino (M18/M19/M22): horas de jogo entre trocas de doutrina (a 1ª escolha é livre) e anúncio de títulos.
+  // Doutrinas/cargos/governadores em Doctrines/*.json, população em Population/*.json, títulos em Titles/*.json.
+  "realm": {
+    "doctrineCooldownHours": 168,
+    "announceTitles": true
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,
@@ -55,6 +61,14 @@
     "routeHotkey": 65,
     "economyHours": 24,
     "conquestHotkey": 62,
+    // Reino (DIK): NumPad1 resumo, NumPad2 simula realmDebugHours horas, NumPad3 próxima doutrina,
+    // NumPad4 entrega os realmConquerCount territórios mais próximos à facção do jogador.
+    "realmHotkey": 79,
+    "realmHoursHotkey": 80,
+    "realmDoctrineHotkey": 81,
+    "realmConquerHotkey": 75,
+    "realmDebugHours": 24,
+    "realmConquerCount": 5,
     "territory": "test_tower"
   }
 }

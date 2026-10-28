@@ -140,6 +140,12 @@ namespace AoS
             debug_.economyHours  = dbg->value("economyHours", 24u);
             // ---- fim M12/M13 ----
             debug_.conquestHotkey = dbg->value("conquestHotkey", 0x3E);
+            debug_.realmHotkey         = dbg->value("realmHotkey", debug_.realmHotkey);
+            debug_.realmHoursHotkey    = dbg->value("realmHoursHotkey", debug_.realmHoursHotkey);
+            debug_.realmDoctrineHotkey = dbg->value("realmDoctrineHotkey", debug_.realmDoctrineHotkey);
+            debug_.realmConquerHotkey  = dbg->value("realmConquerHotkey", debug_.realmConquerHotkey);
+            debug_.realmDebugHours     = dbg->value("realmDebugHours", debug_.realmDebugHours);
+            debug_.realmConquerCount   = dbg->value("realmConquerCount", debug_.realmConquerCount);
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
@@ -152,6 +158,10 @@ namespace AoS
             claim_.maxClaims       = c->value("maxClaims", claim_.maxClaims);
             claim_.maxSlopeDegrees = c->value("maxSlopeDegrees", claim_.maxSlopeDegrees);
             claim_.forwardDistance = c->value("forwardDistance", claim_.forwardDistance);
+        }
+        if (const auto r = json->find("realm"); r != json->end() && r->is_object()) {
+            realm_.doctrineCooldownHours = std::max(0.0f, r->value("doctrineCooldownHours", realm_.doctrineCooldownHours));
+            realm_.announceTitles        = r->value("announceTitles", realm_.announceTitles);
         }
         if (const auto d = json->find("discovery"); d != json->end() && d->is_object()) {
             discovery_.enabled   = d->value("enabled", true);
@@ -499,6 +509,12 @@ namespace AoS
         std::unique_lock l{ dynamicLock_ };
         dynamicIndex_.clear();
         dynamic_.clear();
+    }
+
+    std::optional<std::size_t> Config::IndexOf(Id a_territory) const
+    {
+        const auto it = index_.find(a_territory);
+        return it == index_.end() ? std::nullopt : std::optional{ it->second };
     }
 
     std::string_view Config::NameOf(Id a_id) const

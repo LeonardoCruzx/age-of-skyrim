@@ -84,7 +84,7 @@ namespace AoS
         // Eventos baratos chamam isto (qualquer thread): se passou >= 1 hora de jogo, agenda Tick na thread principal.
         void OnTimeEvent();
         // Thread principal: processa as horas inteiras desde o último tick (limitado a maxCatchUpHours).
-        void Tick();
+        std::uint32_t Tick();  // horas processadas (0 = nada); o chamador avisa o reino fora do lock
 
         // Debug: processa N horas agora (sem mexer no relógio) e mostra o resumo na tela.
         void DebugForceHours(std::uint32_t a_hours);

@@ -4,6 +4,8 @@
 #include "Core/I18n.h"
 #include "Core/State.h"
 #include "Core/Timer.h"
+#include "Realm/Modifiers.h"
+#include "Realm/Realm.h"
 #include "Sim/Routes.h"
 #include "Stock/Stock.h"
 
@@ -392,27 +394,29 @@ namespace AoS
         if (!queued_.exchange(true)) {
             SKSE::GetTaskInterface()->AddTask([] {
                 Economy::Get().queued_ = false;
-                Economy::Get().Tick();
+                if (const auto hours = Economy::Get().Tick(); hours > 0) {
+                    Realm::OnHoursPassed(static_cast<float>(hours));  // M18/M19/M22, fora do lock da economia
+                }
             });
         }
     }
 
-    void Economy::Tick()
+    std::uint32_t Economy::Tick()
     {
         const auto now = HoursNow();
         if (now < 0.0) {
-            return;
+            return 0;
         }
         std::scoped_lock l{ lock_ };
         const auto       last = lastHour_.load();
         if (last == kUnset || now < last) {
             // Jogo novo / save sem registro ECON / relógio voltou: começa a contar daqui, sem produção retroativa.
             lastHour_ = now;
-            return;
+            return 0;
         }
         const auto elapsed = static_cast<std::uint32_t>(std::min(std::floor(now - last), 1.0e6));
         if (elapsed == 0) {
-            return;
+            return 0;
         }
         lastHour_ = last + elapsed;  // mantém a fração da hora corrente
         auto hours = elapsed;
@@ -424,6 +428,7 @@ namespace AoS
         if (hours > 0) {
             Process(hours);
         }
+        return hours;
     }
 
     // Produção é linear nas horas: um lote de N horas custa o mesmo que 1 hora (O(territórios × regras)).
@@ -453,7 +458,9 @@ namespace AoS
                 continue;
             }
             const bool player = players.contains(owner);
-            const auto mult   = Multiplier(owner, player) * a_hours;
+            // M18/M19: doutrina, cargos, título, governador e mão de obra do território.
+            const auto mult = Multiplier(owner, player) * a_hours *
+                              Realm::Modifiers::GetFor(owner, t.id, Realm::Modifier::Production);
             auto&      ledger = LedgerOf(owner);
             for (const auto& [idx, perHour] : rules) {
                 const auto amount = perHour * mult;
@@ -561,6 +568,7 @@ namespace AoS
             Process(std::max<std::uint32_t>(a_hours, 1));
             r = last_;
         }
+        Realm::OnHoursPassed(static_cast<float>(r.hours));  // o reino acompanha as horas forçadas
         I18n::NotifyTr("economy.summary", r.hours, r.producing, std::format("{:.2f}", r.ms));
         for (const auto& [id, amount] : r.playerProduced) {
             const auto  res  = FindResource(id);
