@@ -52,15 +52,20 @@ jobs:
             Get-ChildItem -Recurse "$dir/bin" | ForEach-Object { Write-Output $_.FullName }
             exit 1
           }
-          $scripts = Get-ChildItem data/Scripts/Source -Filter *.psc | ForEach-Object { $_.FullName }
-          $out = & $exe.FullName --game skyrim --flags tools/papyrus/AgeOfSkyrim_Flags.flg `
-                   --import tools/papyrus/stubs --import data/Scripts/Source --output build/pex @scripts 2>&1
+          # Caprica tira o "namespace" do caminho relativo ao diretório atual: no Skyrim não pode haver nenhum,
+          # então roda de dentro da pasta dos fontes e recebe só os nomes dos arquivos.
+          $root = (Get-Location).Path
+          $scripts = Get-ChildItem data/Scripts/Source -Filter *.psc | ForEach-Object { $_.Name }
+          Push-Location data/Scripts/Source
+          $out = & $exe.FullName --game skyrim --flags "$root/tools/papyrus/AgeOfSkyrim_Flags.flg" `
+                   --import "$root/tools/papyrus/stubs" --output "$root/build/pex" @scripts 2>&1
           $code = $LASTEXITCODE
+          Pop-Location
           $out | ForEach-Object { Write-Output "$_" }
           $pex = @(Get-ChildItem build/pex -Filter *.pex)
           if ($code -ne 0 -or $pex.Count -ne $scripts.Count) {
             $msg = ($out | Select-Object -Last 40) -join '%0A'
-            Write-Output "::error title=Papyrus (Caprica, código $code, $($pex.Count) de $($scripts.Count) .pex)::$msg"
+            Write-Output "::error title=Papyrus (Caprica) codigo $code - $($pex.Count) de $($scripts.Count) pex::$msg"
             exit 1
           }
           $pex | ForEach-Object { Write-Output "OK: $($_.Name) ($($_.Length) bytes)" }
