@@ -10,6 +10,9 @@
 #include "Sim/Garrison.h"  // M14
 #include "Sim/Upgrades.h"  // M15
 #include "Sim/Routes.h"   // M13
+#include "Sim/Army.h"     // M20
+#include "Sim/Battle.h"   // M21
+#include "Sim/Troops.h"   // M20/M21
 #include "Realm/Government.h"
 #include "Realm/Population.h"
 #include "Realm/Realm.h"
@@ -68,6 +71,10 @@ namespace
         AoS::Diplomacy::Get().Save(a_intfc);
         AoS::Ai::Get().Save(a_intfc);
         // ---- fim M16/M17 ----
+        // ---- M20/M21 ----
+        AoS::Army::Get().Save(a_intfc);
+        AoS::Battle::Get().Save(a_intfc);  // só a lista de atores vivos (stale cleanup; a batalha não sobrevive)
+        // ---- fim M20/M21 ----
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -129,6 +136,14 @@ namespace
                 AoS::Ai::Get().LoadRecord(a_intfc, version);
                 break;
             // ---- fim M16/M17 ----
+            // ---- M20/M21 ----
+            case AoS::Army::kRecord:
+                AoS::Army::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Battle::kRecord:
+                AoS::Battle::Get().LoadRecord(a_intfc, version);
+                break;
+            // ---- fim M20/M21 ----
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -157,6 +172,8 @@ namespace
         // ---- fim M14/M15 ----
         AoS::Diplomacy::Get().Clear();  // M17
         AoS::Ai::Get().Clear();         // M16
+        AoS::Army::Get().Clear();       // M20
+        AoS::Battle::Get().Clear();     // M21
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -211,6 +228,9 @@ namespace
             AoS::WarMap::Get().Load();        // M11: detecta o PrismaUI (já carregado pelo SKSE)
             AoS::Upgrades::Get().Load();      // M15: depois de Stock/Economy
             AoS::Garrison::Get().Load();      // M14: depois de Economy/Upgrades/Conquest
+            AoS::Troops::Get().Load();        // M20/M21: depois de Economy (upkeep) e Stock (categorias)
+            AoS::Army::Get().Load();          // M20: depois de Troops/Economy/Realm::Population/Stock/Seat
+            AoS::Battle::Get().Load();        // M21: depois de Ai/Army/Troops (registra os ganchos)
 
             // Mapa tático (M11) <- guarnição (M14) e melhorias (M15): camadas opcionais por território.
             AoS::WarMap::Get().AddProvider("garrison", "warmap.layer.garrison", [](const AoS::Territory& t) {
@@ -256,6 +276,7 @@ namespace
                 AoS::Upgrades::Get().OnPostLoad();  // M15: confere os objetos visuais
                 AoS::Garrison::Get().OnPostLoad();  // M14: apaga atores do save anterior e recria perto do jogador
                 AoS::Ai::Get().OnPostLoad();    // M16: sede ocupada -> depósito suspenso (depois do Seat)
+                AoS::Battle::Get().OnPostLoad();  // M21: apaga atores de uma batalha interrompida pelo save
             });
             break;
 

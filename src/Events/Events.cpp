@@ -9,6 +9,8 @@
 #include "Sim/Upgrades.h"  // M15
 #include "Sim/Ai.h"        // M16
 #include "Sim/Diplomacy.h" // M17
+#include "Sim/Army.h"      // M20
+#include "Sim/Battle.h"    // M21
 #include "Stock/Stock.h"
 #include "UI/WarMap.h"  // M11
 #include "World/Claims.h"
@@ -113,6 +115,21 @@ namespace AoS::Events
                         continue;
                     }
                     // ---- fim M16/M17 ----
+                    // ---- M20/M21: exército e batalhas ----
+                    if (key == dbg.armyRecruitHotkey || key == dbg.armyListHotkey || key == dbg.battleTestHotkey) {
+                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
+                            continue;
+                        }
+                        if (key == dbg.armyRecruitHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Army::Get().DebugRecruitHere(); });
+                        } else if (key == dbg.armyListHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Army::Get().DebugListArmies(); });
+                        } else {
+                            SKSE::GetTaskInterface()->AddTask([] { Battle::Get().DebugTestBattle(); });
+                        }
+                        continue;
+                    }
+                    // ---- fim M20/M21 ----
                     if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
                         key != dbg.claimHotkey && key != dbg.conquestHotkey) {
                         continue;
@@ -182,6 +199,9 @@ namespace AoS::Events
                              d.garrisonHotkey, d.upgradeHotkey, d.upgradeIgnoreCost);
                 logger::info("Debug hotkeys M16/M17 (tick da IA 0x{:X}, diplomacia 0x{:X}).", d.aiHotkey,
                              d.diplomacyHotkey);
+                logger::info("Debug hotkeys M20/M21 (recrutar 0x{:X}, listar exércitos 0x{:X}, batalha de teste "
+                             "0x{:X}).",
+                             d.armyRecruitHotkey, d.armyListHotkey, d.battleTestHotkey);
             }
         }
     }

@@ -59,3 +59,5 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0048 | [Contra-ataque: território do jogador perdido e sede ocupada](0048-contra-ataque-e-sede-ocupada.md) | Técnica | Aceita |
 | 0049 | [Diplomacia: guerra, paz, aliança e trégua entre facções (`DIPL`)](0049-diplomacia-relacoes-entre-faccoes.md) | Técnica | Aceita |
 | 0050 | [Loader de `Compat/*.json` e exclusões da IA](0050-loader-compat-e-exclusoes-da-ia.md) | Técnica | Aceita |
+| 0064 | [Exército abstrato, recrutamento e manutenção (M20)](0064-exercito-abstrato-recrutamento.md) | Técnica | Aceita |
+| 0065 | [Batalhas em tempo real: materialização, teto próprio e facções de combate próprias (M21)](0065-batalhas-tempo-real-faccoes-proprias.md) | Técnica | Aceita |

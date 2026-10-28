@@ -203,6 +203,23 @@ Patches `Compat/*.json` (formato em [patches/README.md](patches/README.md)) soma
 (`aiHotkey`, DIK 71) força a avaliação e lista os ataques; **NumPad8** (`diplomacyHotkey`, DIK 72) alterna a sua
 relação com o dono do local atual. ADRs [0047](docs/adr/0047-ia-estrategica-ataques-numericos.md)–[0050](docs/adr/0050-loader-compat-e-exclusoes-da-ia.md).
 
+### Exército (`Troops.json` + `settings.json` → `army`) e batalhas em tempo real (`→ battle`)
+Recrute soldados num território seu (`Army::Recruit`): consome ouro, equipamento do baú da sede e população
+(`Realm::Population::Draft`); depois de `trainHours` eles entram no exército ABSTRATO do território (contagem
+por tipo, oficiais, escolta). Tropas de campo em `Troops.json` (mesmo formato de `Garrison.json`: `actor`,
+`autoArmorHint`, `outfit`, + `strength`, `goldCost`, `equipCategory`/`equipAmount`, `trainHours`, `upkeep`).
+Marcha só entre vizinhos (`army.hoursPer10000Units`, `min/maxTravelHours`); manutenção e deserção por déficit
+como a guarnição (`army.desertPerHour`, `deficitGraceHours`, `aiUpkeep`); `army.maxOfficers`/`officerBonusEach`
+(bônus simples, sem NPC); `army.maxEscort` (teto global de soldados em escolta; seguimento físico é TODO).
+Quando um ataque da IA chega ao seu território, ou dois exércitos hostis se encontram, com você por perto, a
+batalha é MATERIALIZADA (`battle.realTime`): atores em lotes por frame (`battle.spawnPerFrame`), teto GLOBAL
+próprio `battle.maxActors` (separado da guarnição), reforços conforme morrem, 2-3 posições por lado
+(`battle.sideDistance`/`formationSpacing`), facções de combate criadas em runtime (nunca vanilla). Longe de você
+(ou `realTime: false`): resolução numérica (reaproveita `Ai::Resolve`/`Army`). Debug: **NumPad0**
+(`armyRecruitHotkey`, DIK 82) recruta no território atual; **NumPad.** (`armyListHotkey`, DIK 83) lista os seus
+exércitos; **NumPad+** (`battleTestHotkey`, DIK 78) força uma batalha de teste perto de você. ADRs
+[0064](docs/adr/0064-exercito-abstrato-recrutamento.md) e [0065](docs/adr/0065-batalhas-tempo-real-faccoes-proprias.md).
+
 ## Estrutura
 
 | Arquivo | Responsabilidade |
@@ -247,8 +264,11 @@ relação com o dono do local atual. ADRs [0047](docs/adr/0047-ia-estrategica-at
 | `tools/gen_skyui_translations.py` | `Interface/Translations/AgeOfSkyrim_*.txt` a partir dos JSON de tradução |
 | `src/Sim/Ai.*` | IA (M16): avaliação estratégica no tick, ataques numéricos (registro `WARS` v1), provedor de defesa, sede ocupada, debug NumPad7 |
 | `src/Sim/Diplomacy.*` | Diplomacia (M17): guerra/paz/aliança/trégua por par, padrões em `Factions/*.json`, registro `DIPL` v1, debug NumPad8 |
+| `src/Sim/Troops.*` | Tropas de campo (M20/M21): `Troops.json`, mesma escolha de `ActorBase`/outfit que a guarnição, dados de custo/treino/manutenção |
+| `src/Sim/Army.*` | Exército abstrato (M20): recrutamento, treino, marcha, oficiais, escolta, deserção, registro `ARMY` v1, debug NumPad0/NumPad. |
+| `src/Sim/Battle.*` | Batalhas em tempo real (M21): materialização perto do jogador, teto global próprio, lotes por frame, facções de combate próprias, registro `BATL` v1 (só limpeza), debug NumPad+ |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
-| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad7/8) |
+| `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad0/1–9/.+) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
 
 ## Pendências conhecidas da Fase 1

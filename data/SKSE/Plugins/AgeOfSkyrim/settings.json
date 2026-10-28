@@ -128,6 +128,44 @@
     "allianceNeedsCommonEnemy": true,
     "warOnConquest": true
   },
+  // ---- M20: exército e recrutamento (ADR 0064) ----
+  // Exércitos são ENTIDADES ABSTRATAS (Army.cpp); tropas, custo e tempo de treino por tipo ficam em Troops.json.
+  // desertPerHour/deficitGraceHours: deserção por déficit de manutenção, como a guarnição (M14). aiUpkeep: false
+  // = só facções do jogador pagam manutenção do exército (comida/ouro por soldado, Troops.json). Marcha entre
+  // territórios vizinhos: hoursPer10000Units (70 unidades ≈ 1 m), entre minTravelHours e maxTravelHours.
+  // maxOfficers/officerBonusEach: bônus de força simples por oficial (sem NPC por ora, ver ADR 0064).
+  // maxEscort: teto GLOBAL de soldados em exércitos marcados para escoltar o jogador (M20: só contagem/teto;
+  // seguimento físico é TODO, ver ADR 0064).
+  "army": {
+    "enabled": true,
+    "desertPerHour": 0.1,
+    "deficitGraceHours": 6,
+    "aiUpkeep": false,
+    "hoursPer10000Units": 2,
+    "minTravelHours": 1,
+    "maxTravelHours": 48,
+    "maxOfficers": 3,
+    "officerBonusEach": 0.1,
+    "maxEscort": 6
+  },
+  // ---- M21: batalhas em tempo real (ADR 0065) ----
+  // realTime: false = sempre resolução numérica (Ai::ResolveAttack / Army), nenhum ator é criado.
+  // maxActors: teto GLOBAL de atores de batalha vivos no mundo (PRÓPRIO; não soma com garrison.maxActors).
+  // spawnPerFrame: atores criados por frame (lotes encadeados via AddTask, como a guarnição). radius: distância
+  // do jogador ao marcador do território para materializar e para continuar materializado (saiu = conclui a
+  // batalha pela força restante). sideDistance/formationSpacing: formação simples (2-3 posições por lado).
+  // randomness: só usado se o jogador abandona a área antes do fim (desfecho pela força restante, ± isto).
+  // maxFrameMs: log de alerta se um lote de spawn passar disto.
+  "battle": {
+    "realTime": true,
+    "maxActors": 10,
+    "spawnPerFrame": 2,
+    "radius": 4096,
+    "sideDistance": 700,
+    "formationSpacing": 180,
+    "randomness": 0.15,
+    "maxFrameMs": 2.0
+  },
   "debug": {
     "enabled": true,
     "hotkey": 68,
@@ -159,6 +197,14 @@
     // com o dono do território atual (paz -> guerra -> trégua -> aliança).
     "aiHotkey": 71,
     "diplomacyHotkey": 72,
+    // M20/M21: NumPad0 recruta armyRecruitCount soldados no território atual da sua facção; NumPad. (Decimal)
+    // lista os seus exércitos; NumPad+ (Add) força uma batalha de teste (battleTestSize x battleTestSize) perto
+    // do jogador. Teclas confirmadas em REX/W32/DINPUT.h (extern/CommonLibSSE-NG), sem colidir com NumPad1-9.
+    "armyRecruitHotkey": 82,
+    "armyListHotkey": 83,
+    "battleTestHotkey": 78,
+    "armyRecruitCount": 10,
+    "battleTestSize": 6,
     "territory": "test_tower"
   }
 }

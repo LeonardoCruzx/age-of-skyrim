@@ -155,6 +155,13 @@ namespace AoS
             // ---- fim M14/M15 ----
             debug_.aiHotkey        = dbg->value("aiHotkey", debug_.aiHotkey);                // M16
             debug_.diplomacyHotkey = dbg->value("diplomacyHotkey", debug_.diplomacyHotkey);  // M17
+            // ---- M20/M21: exército e batalhas ----
+            debug_.armyRecruitHotkey = dbg->value("armyRecruitHotkey", debug_.armyRecruitHotkey);
+            debug_.armyListHotkey    = dbg->value("armyListHotkey", debug_.armyListHotkey);
+            debug_.battleTestHotkey  = dbg->value("battleTestHotkey", debug_.battleTestHotkey);
+            debug_.armyRecruitCount  = dbg->value("armyRecruitCount", debug_.armyRecruitCount);
+            debug_.battleTestSize    = dbg->value("battleTestSize", debug_.battleTestSize);
+            // ---- fim M20/M21 ----
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
@@ -222,6 +229,7 @@ namespace AoS
         }
         // ---- fim M14 ----
         LoadAiAndDiplomacy(*json);   // M16/M17
+        LoadArmyAndBattle(*json);    // M20/M21
     }
 
     // ---- M5/M6: blocos "conquest" e "seat" ------------------------------------------------------
@@ -352,6 +360,34 @@ namespace AoS
             diplomacy_.warOnConquest            = d->value("warOnConquest", diplomacy_.warOnConquest);
         }
     }
+
+    // ---- M20/M21: blocos "army" e "battle" -------------------------------------------------------
+    void Config::LoadArmyAndBattle(const nlohmann::json& a_json)
+    {
+        if (const auto a = a_json.find("army"); a != a_json.end() && a->is_object()) {
+            army_.enabled           = a->value("enabled", army_.enabled);
+            army_.desertPerHour     = a->value("desertPerHour", army_.desertPerHour);
+            army_.deficitGraceHours = a->value("deficitGraceHours", army_.deficitGraceHours);
+            army_.aiUpkeep          = a->value("aiUpkeep", army_.aiUpkeep);
+            army_.hoursPer10kUnits  = a->value("hoursPer10000Units", army_.hoursPer10kUnits);
+            army_.minTravelHours    = std::max(1u, a->value("minTravelHours", army_.minTravelHours));
+            army_.maxTravelHours    = std::max(army_.minTravelHours, a->value("maxTravelHours", army_.maxTravelHours));
+            army_.maxOfficers       = a->value("maxOfficers", army_.maxOfficers);
+            army_.officerBonusEach  = a->value("officerBonusEach", army_.officerBonusEach);
+            army_.maxEscort         = a->value("maxEscort", army_.maxEscort);
+        }
+        if (const auto b = a_json.find("battle"); b != a_json.end() && b->is_object()) {
+            battle_.realTime         = b->value("realTime", battle_.realTime);
+            battle_.maxActors        = b->value("maxActors", battle_.maxActors);
+            battle_.spawnPerFrame    = std::max<std::uint32_t>(1, b->value("spawnPerFrame", battle_.spawnPerFrame));
+            battle_.radius           = b->value("radius", battle_.radius);
+            battle_.sideDistance     = b->value("sideDistance", battle_.sideDistance);
+            battle_.formationSpacing = b->value("formationSpacing", battle_.formationSpacing);
+            battle_.randomness       = std::clamp(b->value("randomness", battle_.randomness), 0.0, 0.9);
+            battle_.maxFrameMs       = b->value("maxFrameMs", battle_.maxFrameMs);
+        }
+    }
+    // ---- fim M20/M21 ------------------------------------------------------------------------------
 
     // Compat/*.json (ADR 0042, formato em patches/README.md): exclusões condicionais trazidas por patches.
     // Ativo se QUALQUER plugin de "whenLoaded" estiver carregado (vazio = sempre). Listas somam às do
