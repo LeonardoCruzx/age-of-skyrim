@@ -63,7 +63,7 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   território de maior população), oferece um governador seu com presença física — NPC não-único do `Skyrim.esm`
   (escolha automática ou `settings.json → jarl`), perto do marcador da cidade, **sem tocar o jarl vanilla**
   (ADR 0005/0056); reaproveita `Government::AssignGovernor` (M18) para a maioria/bônus. Ativar o NPC mostra o
-  status da província (MessageBox só-texto, sem dublagem). Cosave próprio `JARL` v1. Debug NumPad0.
+  status da província (MessageBox só-texto, sem dublagem). Cosave próprio `JARL` v1. Debug NumPad-.
 - **M27 — Domínio de Skyrim:** marco permanente "Dominador(a) de Skyrim" ao controlar a maioria de
   `realm.dominationThreshold` (padrão 1.0 = todas) das províncias existentes; avaliado dentro do mesmo
   `Realm::Reevaluate` que já reavalia títulos, sem polling; vitória suave — sem travar nada. Cosave `DOMN` v1,

@@ -173,8 +173,9 @@
     // com o dono do território atual (paz -> guerra -> trégua -> aliança).
     "aiHotkey": 71,
     "diplomacyHotkey": 72,
-    // M24: NumPad0 força a oferta de governador na capital da província do território atual.
-    "jarlHotkey": 82,
+    // M24: NumPad- força a oferta de governador na capital da província do território atual
+    // (NumPad0 fica reservado para a API, ver src/Events/Events.*).
+    "jarlHotkey": 74,
     "territory": "test_tower"
   }
 }

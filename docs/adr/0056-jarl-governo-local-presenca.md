@@ -91,7 +91,7 @@ Dois gatilhos, ambos aditivos (sem alterar a lógica existente de `Government`/`
    remover a presença dessas províncias também (cobre perder maioria sem perder a capital em si).
 
 ## Consequências
-- `src/Realm/Jarl.h/.cpp` novo; `Config` ganha `settings.json → jarl` e `debug.jarlHotkey` (NumPad0); `Main.cpp`
+- `src/Realm/Jarl.h/.cpp` novo; `Config` ganha `settings.json → jarl` e `debug.jarlHotkey` (NumPad-, NumPad0 fica reservado para a API); `Main.cpp`
   ganha `Jarl::Get().Load()` e o despacho do registro `JARL` no cosave.
 - `docs/ROADMAP.md` (M24) foi ajustado: não desabilitamos o jarl vanilla (mais conservador que o rascunho).
 - M25/M26 (outro agente, `src/Realm/Law*`/`Stability*`) não são tocados; a ordem pública futura pode um dia

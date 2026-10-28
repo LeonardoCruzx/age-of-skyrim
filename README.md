@@ -210,7 +210,7 @@ reaproveita `Government::AssignGovernor` (M18) para a maioria/bônus, mais um NP
 pronto, outfit pelo DLL) perto do marcador da cidade. O jarl vanilla **nunca é tocado** (ADR 0005). Ativar o NPC
 mostra o status da província (população) num MessageBox só-texto (sem dublagem, ADR 0055). Settings:
 `askBeforeAssign`, `actor`/`outfit` (`"auto"` ou `"Plugin.esp|0xID"`), `autoHint`, `offset`. Cosave `JARL` v1.
-Debug: **NumPad0** (`jarlHotkey`, DIK 82) força a oferta na capital da província atual.
+Debug: **NumPad-** (`jarlHotkey`, DIK 74) força a oferta na capital da província atual.
 
 ### Domínio de Skyrim (`settings.json` → `realm.dominationThreshold`, ADR 0057)
 Ao controlar a maioria de `dominationThreshold` (padrão 1.0 = todas) das províncias existentes, a facção do
@@ -263,7 +263,7 @@ estratégico), nunca por polling. Cosave `DOMN` v1. Consulta: `Realm::HasDominat
 | `tools/gen_skyui_translations.py` | `Interface/Translations/AgeOfSkyrim_*.txt` a partir dos JSON de tradução |
 | `src/Sim/Ai.*` | IA (M16): avaliação estratégica no tick, ataques numéricos (registro `WARS` v1), provedor de defesa, sede ocupada, debug NumPad7 |
 | `src/Sim/Diplomacy.*` | Diplomacia (M17): guerra/paz/aliança/trégua por par, padrões em `Factions/*.json`, registro `DIPL` v1, debug NumPad8 |
-| `src/Realm/Jarl.*` | Governo local (M24): capital por população, NPC não-único perto do marcador, ativação com status, registro `JARL` v1, debug NumPad0 |
+| `src/Realm/Jarl.*` | Governo local (M24): capital por população, NPC não-único perto do marcador, ativação com status, registro `JARL` v1, debug NumPad- |
 | `src/Realm/Domination.*` | Domínio de Skyrim (M27): marco permanente por fração de províncias, registro `DOMN` v1 |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
 | `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F3, F4, F6–F8, F10, F11, NumPad7/8) |

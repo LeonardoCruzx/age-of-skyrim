@@ -325,7 +325,7 @@ capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
   depende dele é arriscado); nosso NPC (próprio, não-único, FaceGen pronto, outfit pelo DLL) só aparece **ao
   lado**, perto do marcador da cidade, com diálogo só texto (MessageBox, status da província).
 - ✅ Perder a capital (ou a maioria da província) remove nosso NPC. Registro de cosave próprio `JARL` v1 (não
-  estende o `GOVT`). Debug: NumPad0 força a oferta na capital da província atual.
+  estende o `GOVT`). Debug: NumPad- força a oferta na capital da província atual.
 
 ### M25. ⬜ 🎮 Lei e prisioneiros de guerra
 - Facção de crime por território/província (bounty): ao trocar de dono, zera ou transfere a recompensa vanilla

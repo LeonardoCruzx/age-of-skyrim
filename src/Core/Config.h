@@ -111,7 +111,9 @@ namespace AoS
         int diplomacyHotkey{ 0x48 };   // DIK_NUMPAD8: alterna a relação do jogador com o dono do território atual
         // ---- fim M16/M17 ----
         // ---- M24: governo local (jarl) ----
-        int jarlHotkey{ 0x52 };  // DIK_NUMPAD0: força a oferta de governador na capital da província atual
+        // DIK_NUMPADMINUS (NumPad0 fica reservado para a API, ver src/Events/Events.*): força a oferta de
+        // governador na capital da província atual.
+        int jarlHotkey{ 0x4A };
         // ---- fim M24 ----
         Id   territory{ kNeutral };
 
