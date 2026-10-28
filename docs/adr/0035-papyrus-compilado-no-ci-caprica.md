@@ -19,8 +19,9 @@ Ainda assim os `.pex` precisam sair no artefato do CI.
 - Arquivo de flags próprio `tools/papyrus/AgeOfSkyrim_Flags.flg` (`Hidden` = bit 0, `Conditional` = bit 1,
   mesmos bits do jogo).
 - O passo falha se o Caprica retornar erro ou se faltar algum `.pex` (anotação `::error` com o fim da saída).
-- `AgeOfSkyrim.psc` é `Hidden` (sem `Native` no cabeçalho, como os scripts de plugins SKSE): só funções
-  `Global Native`, ligadas pelo nome da classe.
+- `AgeOfSkyrim.psc` é `Native Hidden`: o Caprica (ao contrário do compilador do CK) só aceita funções `Native` em
+  script marcado `Native`. No `.pex` do Skyrim isso não vira flag (só `Hidden` é user flag); as funções
+  `Global Native` são ligadas pelo nome da classe aos natives registrados pelo DLL.
 
 ## Consequências
 - Build reproduzível sem CK, sem nada proprietário no repositório.

@@ -1,4 +1,4 @@
-Scriptname AgeOfSkyrim Hidden
+Scriptname AgeOfSkyrim Native Hidden
 {Age of Skyrim: funções nativas (AgeOfSkyrim.dll) para o MCM e para outros mods só-script.
 
  Facções e territórios são identificados pela CHAVE de texto ("imperial", "player_1",
