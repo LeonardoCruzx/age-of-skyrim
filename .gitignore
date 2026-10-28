@@ -7,3 +7,5 @@ CMakeUserPresets.json
 *.user
 *.aps
 .claude/
+__pycache__/
+dist/

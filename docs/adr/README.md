@@ -28,3 +28,6 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0021 | [Implementar as missões restantes sem esperar testes; teste único no fim](0021-implementar-tudo-teste-unico-no-fim.md) | Decisão do usuário | Aceita |
 | 0030 | [Dogfish / Conquest of Skyrim como referência de design (sem copiar conteúdo)](0030-referencias-externas-dogfish.md) | Decisão do usuário | Aceita |
 | 0031 | [Fase 4: governo e doutrina, população, exército, batalhas em tempo real, títulos](0031-exercito-governo-populacao-titulos.md) | Decisão do usuário | Aceita |
+| 0040 | [Release em tag `v*` reaproveitando o artefato do build do mesmo commit](0040-pipeline-de-release.md) | Técnica | Aceita |
+| 0041 | [Instalador FOMOD: núcleo obrigatório + patches opcionais, idioma automático](0041-fomod-layout.md) | Técnica | Aceita |
+| 0042 | [Patches de compatibilidade como dados (`Compat/*.json`) e lista de mods de guerra civil](0042-patches-de-compatibilidade.md) | Técnica | Aceita (loader pendente) |

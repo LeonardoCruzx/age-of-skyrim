@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Instalador FOMOD (MO2 / Vortex). Layout do zip montado por tools/package_release.py:
+    00 Core/                 artefato do CI (SKSE/Plugins/AgeOfSkyrim.dll + JSONs) - sempre instalado
+    patch_<nome>/            cada pasta patches/<nome>/ do repositório (sem os .md)
+  Todo patch novo em patches/ precisa de um <plugin> aqui com source="patch_<nome>" (o teste confere).
+  Idioma: não há escolha aqui; settings.json usa "language": "auto" (idioma do jogo). Ver ADR 0041.
+  Textos em inglês e português no mesmo campo (o FOMOD não tem tradução por idioma).
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd">
+  <moduleName>Age of Skyrim</moduleName>
+  <requiredInstallFiles>
+    <folder source="00 Core" destination="" />
+  </requiredInstallFiles>
+  <installSteps order="Explicit">
+    <installStep name="Compatibility patches / Patches de compatibilidade">
+      <optionalFileGroups order="Explicit">
+        <group name="Optional patches / Patches opcionais" type="SelectAny">
+          <plugins order="Explicit">
+            <plugin name="Civil war mods / Mods de guerra civil">
+              <description>Only takes effect if one of the listed civil war mods is loaded; otherwise it does nothing. Keeps Age of Skyrim from conquering locations those mods control. The list is on the mod page.
+
+Só tem efeito se um dos mods de guerra civil listados estiver carregado; senão não faz nada. Evita que o Age of Skyrim conquiste locais controlados por esses mods. A lista está na página do mod.</description>
+              <files>
+                <folder source="patch_civil-war-mods" destination="" priority="0" />
+              </files>
+              <typeDescriptor>
+                <type name="Optional" />
+              </typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+  </installSteps>
+</config>
