@@ -1,0 +1,46 @@
+{
+  // Economia (M12) e rotas de comércio (M13). Outros mods podem adicionar Economy/*.json: são lidos depois
+  // deste arquivo, em ordem alfabética; recursos com o mesmo "id" e regras de produção repetidas substituem as
+  // anteriores, "routes" é mesclado campo a campo.
+  //
+  // Horas máximas processadas de uma vez (ex.: depois de dormir/esperar muito ou de uma viagem longa).
+  "maxCatchUpHours": 168,
+
+  // Recursos = itens reais ("Plugin.esp|0xID", ID local). "category" deve ser uma categoria de Resources.json
+  // (o item é classificado lá ao contar o baú). O log mostra o nome de cada item resolvido.
+  "resources": [
+    { "id": "gold",     "category": "gold",      "item": "Skyrim.esm|0x00000F" },  // Gold001
+    { "id": "bread",    "category": "food",      "item": "Skyrim.esm|0x065C97" },  // pão
+    { "id": "cabbage",  "category": "food",      "item": "Skyrim.esm|0x064B3F" },  // repolho
+    { "id": "iron",     "category": "metals",    "item": "Skyrim.esm|0x05ACE4" },  // IngotIron
+    { "id": "firewood", "category": "materials", "item": "Skyrim.esm|0x06F993" },  // Firewood01
+    { "id": "leather",  "category": "materials", "item": "Skyrim.esm|0x0DB5D2" }   // Leather01
+  ],
+
+  // Produção por hora de jogo, por tipo de território (fort, tower, camp, village, city, unknown).
+  // Frações acumulam: 0.25/h = 1 item a cada 4 horas.
+  "production": {
+    "village": { "bread": 0.25, "cabbage": 0.25, "firewood": 0.25 },
+    "city":    { "gold": 2.0, "bread": 0.25 },
+    "fort":    { "iron": 0.1 },
+    "tower":   { "firewood": 0.1 },
+    "camp":    { "leather": 0.1 }
+  },
+
+  // Multiplicador da produção por facção (Factions/*.json). "player" = todas as facções do jogador.
+  "factionMultiplier": { "player": 1.0 },
+
+  // Rotas de comércio entre dois territórios do mesmo dono. Renda/h = (baseGoldPerHour + goldPer10000Units ×
+  // distância/10000) × média de typeMultiplier das pontas. 70 unidades ≈ 1 m.
+  // Rota cortada (sem renda) se um território inimigo estiver a menos de blockRadius do caminho em linha reta.
+  // maxDistance 0 = sem limite.
+  "routes": {
+    "resource": "gold",
+    "maxRoutes": 8,
+    "baseGoldPerHour": 0.5,
+    "goldPer10000Units": 0.5,
+    "maxDistance": 0,
+    "blockRadius": 6000,
+    "typeMultiplier": { "city": 2.0, "village": 1.0, "fort": 0.75, "tower": 0.5, "camp": 0.5, "unknown": 1.0 }
+  }
+}

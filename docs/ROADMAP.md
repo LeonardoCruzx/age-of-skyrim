@@ -131,16 +131,28 @@ Regras para todas as missões:
   (MessageBox / ListMenu) com as mesmas ações essenciais.
 - Dados enviados para a view só ao abrir e quando mudam (sem polling JS ↔ C++).
 
-### M12. ⬜ Economia
+### M12. ✅ Economia — implementada, aguardando teste no jogo — [ADR 0026](adr/0026-tick-por-hora-orientado-a-evento.md), [ADR 0027](adr/0027-economia-producao-deposito-consumo.md)
 - Tick por hora de jogo (lote, < 5 ms): territórios geram recursos por tipo (vila → comida, mina → metais, cidade → ouro),
   depositados como itens no baú da sede (respeitando a classificação da M7).
 - Consumo: guarnições comem comida e recebem ouro; falta de estoque → moral/desserção (gancho para M14).
 - Registro de cosave `ECON` v1 (último tick, saldos pendentes).
+- Feito: `src/Sim/Economy.*`. Tick disparado por eventos que o jogo já emite (fechar menu, célula carregada, fim de
+  sono/espera) comparando `Calendar::GetHoursPassed`; horas atrasadas em lote, limitadas por `maxCatchUpHours`.
+- Feito: `Economy.json` + `Economy/*.json` (recursos = itens reais por categoria, produção por tipo de território,
+  multiplicador por facção). Jogador → itens no depósito (`Economy::SetDepot`, a ligar na sede M6; sem depósito
+  acumula pendente); IA → saldo numérico (`Balance`, para M16).
+- Feito: `RegisterUpkeep` (custo por hora, para M14) e déficit consultável (`InDeficit`/`Deficit`/`DeficitHours`).
+- Debug F6 (`debug.economyHotkey`): força `economyHours` horas e mostra o resumo.
 
-### M13. ⬜ Rotas de comércio
+### M13. ✅ Rotas de comércio — implementada, aguardando teste no jogo — [ADR 0028](adr/0028-rotas-de-comercio.md)
 - Rotas entre territórios da facção (ou com facções em paz, M17) traçadas no mapa; cosave `ROUT` v1.
 - Rendem ouro por tick conforme distância/tipo dos pontos; rota passando por território inimigo pode ser cortada.
 - Simulação fora da tela (sem spawn de caravanas no MVP; caravanas visíveis ficam como extensão futura).
+- Feito: `src/Sim/Routes.*` com `Create/Remove/List/StatusOf` (para M10/M11), `CanTrade` (hoje: mesma facção),
+  limite `routes.maxRoutes`; renda = base + distância × média do multiplicador por tipo; corte se território
+  inimigo a menos de `blockRadius` do segmento entre as pontas.
+- Debug F7 (`debug.routeHotkey`): rota entre os 2 territórios mais próximos do jogador com o mesmo dono.
+- Falta (outras missões): traçar no mapa (M11), menu no MCM (M10), diplomacia em `CanTrade` (M17).
 
 ### M14. ⬜ 🎮 Guarnição
 - Ao conquistar, spawn de N guardas da facção (leveled list por estilo, definida no ESP) no marcador do território.

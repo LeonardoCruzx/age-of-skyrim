@@ -133,6 +133,11 @@ namespace AoS
             debug_.selfTestHotkey = dbg->value("selfTestHotkey", 0x57);
             debug_.stockHotkey    = dbg->value("stockHotkey", 0x42);
             debug_.claimHotkey    = dbg->value("claimHotkey", 0x43);
+            // ---- M12/M13: economia e rotas ----
+            debug_.economyHotkey = dbg->value("economyHotkey", 0x40);
+            debug_.routeHotkey   = dbg->value("routeHotkey", 0x41);
+            debug_.economyHours  = dbg->value("economyHours", 24u);
+            // ---- fim M12/M13 ----
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }

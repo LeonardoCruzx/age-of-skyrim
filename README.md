@@ -72,6 +72,14 @@ Categorias ordenadas (a ordem é a prioridade) com nome `{en, pt-br}` e regras `
 `keywords` (keywords vanilla `VendorItem*`; itens de outros mods entram sozinhos) e `formTypes` (fallback).
 Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/0017-estoque-classificacao-por-keyword.md).
 
+### Economia e rotas (`Economy.json`)
+Recursos (`id`, `category` de `Resources.json`, `item` real), produção por hora por tipo de território,
+`factionMultiplier`, `maxCatchUpHours` e bloco `routes` (`maxRoutes`, `baseGoldPerHour`, `goldPer10000Units`,
+`maxDistance`, `blockRadius`, `typeMultiplier`). Outros mods: `Economy/*.json`. Debug: **F6** (`economyHotkey`,
+DIK 64) força `economyHours` horas de economia e mostra o resumo; **F7** (`routeHotkey`, DIK 65) cria uma rota de
+teste. Ver ADRs [0026](docs/adr/0026-tick-por-hora-orientado-a-evento.md),
+[0027](docs/adr/0027-economia-producao-deposito-consumo.md) e [0028](docs/adr/0028-rotas-de-comercio.md).
+
 ### Free Claim (`settings.json` → `claim`)
 `banner` (objeto base, padrão provisório Iron Sword), `minDistance` (unidades; 70 ≈ 1 m), `maxClaims`,
 `maxSlopeDegrees`, `forwardDistance`. Claims ficam no cosave (registro `CLAM`). Ver [ADR 0018](docs/adr/0018-free-claim-raycast.md).
@@ -91,6 +99,8 @@ Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/00
 | `src/Debug/SelfTest.*` | Autoteste F11 e checagem de persistência (registro `TEST` v1) |
 | `src/Stock/Stock.*` | Estoque por categoria (`Resources.json`), recontagem ao fechar baú observado, debug F8 |
 | `src/World/Claims.*` | Free Claim: raycast + alinhamento à normal, limites, registro `CLAM` v1, debug F9 |
+| `src/Sim/Economy.*` | Economia (M12): tick por hora por evento, produção por tipo/facção (`Economy.json`), depósito (`SetDepot`), consumo/déficit, registro `ECON` v1, debug F6 |
+| `src/Sim/Routes.*` | Rotas de comércio (M13): renda por distância/tipo, corte por inimigo, `CanTrade`, registro `ROUT` v1, debug F7 |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
 | `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F10/F11) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
