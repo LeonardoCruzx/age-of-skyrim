@@ -786,7 +786,7 @@ namespace AoS
         pos.x += radius * std::cos(theta);
         pos.y += radius * std::sin(theta);
         pos.z += 32.0f;
-        actor->SetPosition(pos);
+        actor->SetPosition(pos, /*updateCharController*/ true);  // Actor::SetPosition oculta os overloads da base
 
         if (IsPlayerFaction(a_job.owner) && playerFaction_) {
             actor->AddToFaction(playerFaction_, 0);  // aliados do jogador (só nesta ref; nenhum registro editado)

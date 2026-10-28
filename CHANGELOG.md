@@ -24,6 +24,12 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   cosave `ECON` v1, debug F6.
 - **M13 — Rotas de comércio:** rotas entre territórios da mesma facção com renda por distância/tipo e corte por
   território inimigo, cosave `ROUT` v1, debug F7.
+- **M14 — Guarnição:** guarnição numérica por território (`Garrison.json`, cosave `GARR` v1) que só vira atores
+  perto do jogador, em lotes por frame e com teto global (`settings.json → garrison`); tropas vanilla por estilo
+  com outfit aplicado pelo DLL; manutenção por soldado, reposição e deserção no tick da economia; debug NumPad5.
+- **M15 — Melhorias de territórios:** `Upgrades.json` (muralhas, quartel, torre de vigia, armazém, mercado,
+  forja; I–III) com custo em itens do baú da sede e tempo de obra, status por território (defesa, renda,
+  guarnição máx., capacidade, visão), objetos visuais por nível, cosave `UPGR` v1, debug NumPad6.
 - **M23 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
   compatibilidade com mods de guerra civil (formato definido, leitura no DLL pendente), relatório de performance
   do log (`tools/perf_report.py`).

@@ -35,6 +35,10 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0028 | [Rotas de comércio: renda por distância/tipo e corte por território inimigo](0028-rotas-de-comercio.md) | Técnica | Aceita |
 | 0030 | [Dogfish / Conquest of Skyrim como referência de design (sem copiar conteúdo)](0030-referencias-externas-dogfish.md) | Decisão do usuário | Aceita |
 | 0031 | [Fase 4: governo e doutrina, população, exército, batalhas em tempo real, títulos](0031-exercito-governo-populacao-titulos.md) | Decisão do usuário | Aceita |
+| 0043 | [Guarnição numérica, materializada só perto do jogador](0043-guarnicao-numerica-materializada.md) | Técnica | Aceita |
+| 0044 | [Tropas da guarnição: bases vanilla, outfit pelo DLL e facções de combate](0044-tropas-bases-vanilla-outfit-faccoes.md) | Técnica | Aceita |
+| 0045 | [Melhorias de territórios: implementação (custo por categoria, obra no tick, visual ancorado)](0045-melhorias-implementacao.md) | Técnica | Aceita |
+| 0046 | [Ganchos do tick da economia: listeners por hora e multiplicador por território](0046-ganchos-do-tick-da-economia.md) | Técnica | Aceita |
 | 0040 | [Release em tag `v*` reaproveitando o artefato do build do mesmo commit](0040-pipeline-de-release.md) | Técnica | Aceita |
 | 0041 | [Instalador FOMOD: núcleo obrigatório + patches opcionais, idioma automático](0041-fomod-layout.md) | Técnica | Aceita |
 | 0042 | [Patches de compatibilidade como dados (`Compat/*.json`) e lista de mods de guerra civil](0042-patches-de-compatibilidade.md) | Técnica | Aceita (loader pendente) |
