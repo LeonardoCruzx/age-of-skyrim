@@ -176,7 +176,13 @@ Regras para todas as missões:
 Inspiradas no Conquest of Skyrim ([comparativo](COMPARATIVO-CONQUEST-OF-SKYRIM.md)), mas com as lições da seção 2
 como requisito: lógica no DLL, teto de atores, sem navmesh nem NPC vanilla com pacotes.
 
-### M18. ⬜ Governo e doutrina
+### M18. ✅ Governo e doutrina — núcleo numérico implementado, aguardando teste no jogo ([ADR 0036](adr/0036-governo-doutrina-cargos.md), [0039](adr/0039-reino-modulo-integracao.md))
+- ✅ `src/Realm/`: `Doctrines/*.json` (feudal, militar, república, mercantil; extensível, id repetido substitui),
+  `Realm::Modifiers::Get/GetFor` (doutrina + cargos + governador + título), 1ª escolha livre, troca com
+  `changeCost` (gancho `Government::SetPaymentHandler`) e espera `realm.doctrineCooldownHours` no relógio do reino.
+- ✅ Cargos como dados + bônus (`AssignOfficer(facção, cargo, npc)`, vagas por título); governadores por província
+  com maioria (bônus regional; saem ao perder a maioria). Cosave `GOVT` v1. Debug F7 resumo / F3 próxima doutrina.
+- ⬜ NPCs dos cargos na sede (depois da M6) e escolha na criação da facção (M10).
 - Doutrinas data-driven (`Doctrines.json`, extensível): ex. feudal, militar, república, mercantil. Cada uma é
   um conjunto de modificadores numéricos (produção, impostos, custo/velocidade de recrutamento, crescimento da
   população, defesa) lidos por M12/M13/M14/M19/M20. Escolha na fundação da facção, troca com custo e espera.
@@ -184,7 +190,11 @@ como requisito: lógica no DLL, teto de atores, sem navmesh nem NPC vanilla com 
   (base vanilla, sem aliases/pacotes vanilla) colocados na sede, cada um dá bônus e abre o menu da sua área.
 - Governadores por província conquistada (bônus regional). Cosave `GOVT` v1. Textos en/pt-br.
 
-### M19. ⬜ População
+### M19. ✅ População — núcleo numérico implementado, aguardando teste no jogo ([ADR 0037](adr/0037-populacao-numerica.md))
+- ✅ `Population/*.json` (inicial por tipo + por território); crescimento logístico/fome em `Realm::OnHoursPassed`
+  (gancho de comida `Population::SetFoodProvider`), perda na troca de dono, `Draft(território, n)` para a M20,
+  mão de obra no `Production` de `Modifiers::GetFor`. Cosave `POPL` v1 compacto (tamanho no log). Debug F6 simula horas.
+- ⬜ M12 chama `OnHoursPassed` e fornece a comida; M10/M11 mostram os números.
 - Cada território tem população numérica por tipo (vila/cidade/forte), simulada no tick por hora (M12):
   cresce com comida no estoque, cai com fome, guerra e alistamento.
 - Mão de obra multiplica a produção (M12); população é a fonte de recrutas (M20) e de impostos (doutrina M18).
@@ -207,7 +217,10 @@ como requisito: lógica no DLL, teto de atores, sem navmesh nem NPC vanilla com 
 - Resultado da batalha atualiza as contagens do exército abstrato; longe do jogador, a resolução é numérica
   (a mesma da M16). Limpeza dos atores ao fim ou ao sair da área. Desempenho medido no log (meta: sem picos > 5 ms/frame).
 
-### M22. ⬜ Títulos e progressão
+### M22. ✅ Títulos e progressão — núcleo implementado, aguardando teste no jogo ([ADR 0038](adr/0038-titulos-progressao.md))
+- ✅ `Titles/*.json` (Chefe de Bando → Senhor → Jarl → Rei/Rainha Supremo(a)) com marcos (territórios, províncias
+  com maioria, cidades, população), avaliação só em eventos, títulos só sobem, anúncio traduzido no gênero do jogador,
+  `unlocks` numéricos (`officers`, `governors`, `armyCap`) via `Titles::Unlock`. Cosave `TITL` v1. Debug F4.
 - Títulos da facção do jogador por marcos (territórios, províncias, população, exército): ex. Chefe de bando →
   Senhor → Jarl → Rei/Rainha Supremo(a) de Skyrim. Tabela data-driven (`Titles.json`), textos en/pt-br.
 - Cada título destrava coisas (mais cargos, doutrinas, teto de exército) e é anunciado na tela.

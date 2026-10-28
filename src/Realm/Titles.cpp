@@ -67,15 +67,16 @@ namespace AoS::Realm
         }
         std::scoped_lock l{ Mutex() };
         const auto       it    = titles_.find(a_faction);
-        const bool       first = it == titles_.end() || !Data::Get().FindTitle(it->second);
-        if (!first && Data::Get().RankOf(it->second) >= best->rank) {
+        const bool       none  = it == titles_.end() || !Data::Get().FindTitle(it->second);
+        if (!none && Data::Get().RankOf(it->second) >= best->rank) {
             return {};  // títulos só sobem
         }
         titles_[a_faction] = best->id;
         logger::info("Títulos: '{}' agora é '{}' (rank {}; {} território(s), {} província(s), {} cidade(s), pop. {:.0f}).",
                      Factions::Get().NameOf(a_faction), best->key, best->rank, a_stats.territories,
                      a_stats.majorityProvinces.size(), a_stats.cities, a_stats.population);
-        return { best, first };
+        // Silencioso só a atribuição do título inicial; quem já chega com marcos maiores ouve o anúncio.
+        return { best, none && best == &list.front() };
     }
 
     void Titles::AddModifiers(Id a_faction, ModifierSet& a_io) const

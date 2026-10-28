@@ -76,6 +76,14 @@ Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/00
 `banner` (objeto base, padrão provisório Iron Sword), `minDistance` (unidades; 70 ≈ 1 m), `maxClaims`,
 `maxSlopeDegrees`, `forwardDistance`. Claims ficam no cosave (registro `CLAM`). Ver [ADR 0018](docs/adr/0018-free-claim-raycast.md).
 
+### Reino: doutrina, população e títulos (`settings.json` → `realm`)
+`doctrineCooldownHours` (espera entre trocas de doutrina, horas de jogo; a 1ª escolha é livre) e `announceTitles`.
+Dados em `Doctrines/*.json` (doutrinas, cargos, governador), `Population/*.json` e `Titles/*.json`, todos
+extensíveis por outros mods (id repetido num arquivo posterior substitui). Debug: **F7** (`realmHotkey`) resumo do
+reino, **F6** (`realmHoursHotkey`) simula `realmDebugHours` horas, **F3** (`realmDoctrineHotkey`) próxima doutrina,
+**F4** (`realmConquerHotkey`) entrega os `realmConquerCount` territórios mais próximos à sua facção.
+Ver ADRs [0036](docs/adr/0036-governo-doutrina-cargos.md)–[0039](docs/adr/0039-reino-modulo-integracao.md).
+
 ## Estrutura
 
 | Arquivo | Responsabilidade |
@@ -91,6 +99,12 @@ Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/00
 | `src/Debug/SelfTest.*` | Autoteste F11 e checagem de persistência (registro `TEST` v1) |
 | `src/Stock/Stock.*` | Estoque por categoria (`Resources.json`), recontagem ao fechar baú observado, debug F8 |
 | `src/World/Claims.*` | Free Claim: raycast + alinhamento à normal, limites, registro `CLAM` v1, debug F9 |
+| `src/Realm/Realm.*` | Reino (M18/M19/M22): `OnHoursPassed`, `OnTerritoryOwnerChanged`, estatísticas, debug F7/F6/F3/F4 |
+| `src/Realm/Modifiers.*` | Modificadores agregados por facção/território (produção, impostos, recrutamento, defesa...) |
+| `src/Realm/Data.*` | `Doctrines/*.json`, `Population/*.json`, `Titles/*.json` |
+| `src/Realm/Government.*` | Doutrina, cargos, governadores, relógio do reino (registro `GOVT` v1) |
+| `src/Realm/Population.*` | População por território, crescimento/fome/guerra/alistamento (registro `POPL` v1) |
+| `src/Realm/Titles.*` | Títulos por marcos e desbloqueios (registro `TITL` v1) |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
 | `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F10/F11) |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |

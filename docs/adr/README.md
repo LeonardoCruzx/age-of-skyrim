@@ -28,3 +28,7 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0021 | [Implementar as missões restantes sem esperar testes; teste único no fim](0021-implementar-tudo-teste-unico-no-fim.md) | Decisão do usuário | Aceita |
 | 0030 | [Dogfish / Conquest of Skyrim como referência de design (sem copiar conteúdo)](0030-referencias-externas-dogfish.md) | Decisão do usuário | Aceita |
 | 0031 | [Fase 4: governo e doutrina, população, exército, batalhas em tempo real, títulos](0031-exercito-governo-populacao-titulos.md) | Decisão do usuário | Aceita |
+| 0036 | [Governo: doutrinas, cargos e governadores como dados + bônus numéricos](0036-governo-doutrina-cargos.md) | Técnica | Aceita |
+| 0037 | [População numérica por território, crescimento logístico e cosave compacto](0037-populacao-numerica.md) | Técnica | Aceita |
+| 0038 | [Títulos por marcos, avaliados só em eventos, que nunca rebaixam](0038-titulos-progressao.md) | Técnica | Aceita |
+| 0039 | [Módulo `src/Realm`: modificadores agregados, ganchos de integração e relógio próprio](0039-reino-modulo-integracao.md) | Técnica | Aceita |
