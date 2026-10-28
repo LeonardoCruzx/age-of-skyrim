@@ -44,6 +44,8 @@ class FomodTest(unittest.TestCase):
             pr.validate_compat("x.json", {"conquest": {"exclude": ["Skyrim.esm:1234"]}})
         with self.assertRaises(pr.PackageError):
             pr.validate_compat("x.json", {"whenLoaded": "Mod.esp"})
+        with self.assertRaises(pr.PackageError):
+            pr.validate_compat("x.json", {"discovery": {"exclude": ""}})
         pr.validate_compat("x.json", {"discovery": {"exclude": ["Skyrim.esm|0x01A2B3"]}})
 
 

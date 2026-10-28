@@ -124,7 +124,10 @@ def validate_compat(path, data):
         b = data.get(block, {})
         if not isinstance(b, dict):
             raise PackageError(f"{path}: '{block}' deve ser objeto")
-        for ref in b.get("exclude", []):
+        excludes = b.get("exclude", [])
+        if not isinstance(excludes, list):
+            raise PackageError(f"{path}: '{block}.exclude' deve ser lista")
+        for ref in excludes:
             if not re.fullmatch(r"[^|]+\|0[xX][0-9A-Fa-f]{1,8}", str(ref)):
                 raise PackageError(f"{path}: '{ref}' não está no formato Plugin.esp|0xID")
 
