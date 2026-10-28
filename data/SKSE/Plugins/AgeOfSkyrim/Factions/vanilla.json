@@ -1,18 +1,44 @@
 {
   // Facções pré-definidas. Outros mods podem adicionar arquivos nesta pasta.
   // "style" precisa ser um estilo declarado em Territories/*.json; "color" = "#RRGGBB" (mapa/UI).
+  // ---- M16 (IA, ADR 0047) ----
+  // "aggression" (0..1): chance, a cada avaliação, de declarar guerra a um vizinho em paz bem mais fraco.
+  // "start": donos iniciais em jogo novo. "locations" = BGSLocation ("Plugin.esp|0xID"); com "province": true,
+  // os territórios dos "types" na mesma província (Hold) também começam da facção. Só vale para territórios sem
+  // "defaultOwner" no JSON. FormIDs das cidades escritos de memória: o log avisa se algum não for encontrado.
   "factions": [
     {
       "id": "imperial",
       "name": { "en": "Imperial Legion", "pt-br": "Legião Imperial" },
       "style": "imperial",
-      "color": "#9B1C1C"
+      "color": "#9B1C1C",
+      "aggression": 0.25,
+      "start": {
+        "locations": ["Skyrim.esm|0x018A5A", "Skyrim.esm|0x018A59"],  // Solidão, Markarth
+        "province": true,
+        "types": ["city", "village", "fort"]
+      }
     },
     {
       "id": "stormcloak",
       "name": { "en": "Stormcloaks", "pt-br": "Mantos da Tempestade" },
       "style": "stormcloak",
-      "color": "#1F4E99"
+      "color": "#1F4E99",
+      "aggression": 0.25,
+      "start": {
+        "locations": ["Skyrim.esm|0x018A57", "Skyrim.esm|0x018A58"],  // Windhelm, Riften
+        "province": true,
+        "types": ["city", "village", "fort"]
+      }
     }
+  ],
+  // ---- M17 (diplomacia, ADR 0049) ----
+  // Relação entre pares: "peace", "war" ou "alliance" (a trégua só nasce em jogo, ao aceitar a paz).
+  // "player" = qualquer facção do jogador. Par não listado: "defaultRelation" (entre IAs) / "playerRelation".
+  // Outros mods podem declarar relações nos próprios arquivos desta pasta (arquivo posterior substitui o par).
+  "defaultRelation": "peace",
+  "playerRelation": "peace",
+  "relations": [
+    { "a": "imperial", "b": "stormcloak", "relation": "war" }
   ]
 }

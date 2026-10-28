@@ -1,6 +1,6 @@
 # 0042. Patches de compatibilidade como dados (`Compat/*.json`) e lista de mods de guerra civil
 
-- **Status:** Aceita (leitura no DLL pendente)
+- **Status:** Aceita (loader implementado na M16, [ADR 0050](0050-loader-compat-e-exclusoes-da-ia.md))
 - **Data:** 2026-10-28
 - **Origem:** Técnica (M28)
 

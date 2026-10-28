@@ -7,6 +7,8 @@
 #include "Sim/Routes.h"   // M12/M13
 #include "Sim/Garrison.h"  // M14
 #include "Sim/Upgrades.h"  // M15
+#include "Sim/Ai.h"        // M16
+#include "Sim/Diplomacy.h" // M17
 #include "Stock/Stock.h"
 #include "UI/WarMap.h"  // M11
 #include "World/Claims.h"
@@ -98,6 +100,19 @@ namespace AoS::Events
                         continue;
                     }
                     // ---- fim M14/M15 ----
+                    // ---- M16/M17: IA e diplomacia ----
+                    if (key == dbg.aiHotkey || key == dbg.diplomacyHotkey) {
+                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
+                            continue;
+                        }
+                        if (key == dbg.aiHotkey) {
+                            SKSE::GetTaskInterface()->AddTask([] { Ai::Get().DebugForceTick(); });
+                        } else {
+                            SKSE::GetTaskInterface()->AddTask([] { Diplomacy::Get().DebugCycleHere(); });
+                        }
+                        continue;
+                    }
+                    // ---- fim M16/M17 ----
                     if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
                         key != dbg.claimHotkey && key != dbg.conquestHotkey) {
                         continue;
@@ -165,6 +180,8 @@ namespace AoS::Events
                 logger::info("Debug hotkey M11 (mapa tático 0x{:X}).", d.warMapHotkey);
                 logger::info("Debug hotkeys M14/M15 (guarnição 0x{:X}, melhoria 0x{:X}, ignorar custo: {}).",
                              d.garrisonHotkey, d.upgradeHotkey, d.upgradeIgnoreCost);
+                logger::info("Debug hotkeys M16/M17 (tick da IA 0x{:X}, diplomacia 0x{:X}).", d.aiHotkey,
+                             d.diplomacyHotkey);
             }
         }
     }

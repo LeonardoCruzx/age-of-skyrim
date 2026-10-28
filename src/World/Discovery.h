@@ -27,6 +27,9 @@ namespace AoS::Discovery
     // sub-locais de outro candidato (ex.: um acampamento dentro de um forte já listado).
     [[nodiscard]] std::vector<Found> Scan(const DiscoverySettings& a_settings);
 
+    // M16/ADR 0042: local com a keyword LocTypeMilitaryFort (fortes disputados pela Guerra Civil vanilla). O(1).
+    [[nodiscard]] bool IsMilitaryFort(const RE::BGSLocation* a_location);
+
     // Resumo PASS/FAIL no log (contagens mínimas esperadas num jogo vanilla).
     void LogSummary();
 

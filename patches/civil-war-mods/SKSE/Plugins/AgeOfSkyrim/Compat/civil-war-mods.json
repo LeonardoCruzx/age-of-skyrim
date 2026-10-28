@@ -26,6 +26,11 @@
     // enquanto este patch estiver ativo.
     "skipCivilWarForts": true
   },
+  // M16: a IA do Age of Skyrim também deixa esses fortes em paz (os excluídos da conquista já ficam de fora
+  // com ai.respectConquestExclusions, o padrão).
+  "ai": {
+    "skipCivilWarForts": true
+  },
   "discovery": {
     "exclude": []
   }

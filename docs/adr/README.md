@@ -54,4 +54,8 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0046 | [Ganchos do tick da economia: listeners por hora e multiplicador por território](0046-ganchos-do-tick-da-economia.md) | Técnica | Aceita |
 | 0040 | [Release em tag `v*` reaproveitando o artefato do build do mesmo commit](0040-pipeline-de-release.md) | Técnica | Aceita |
 | 0041 | [Instalador FOMOD: núcleo obrigatório + patches opcionais, idioma automático](0041-fomod-layout.md) | Técnica | Aceita |
-| 0042 | [Patches de compatibilidade como dados (`Compat/*.json`) e lista de mods de guerra civil](0042-patches-de-compatibilidade.md) | Técnica | Aceita (loader pendente) |
+| 0042 | [Patches de compatibilidade como dados (`Compat/*.json`) e lista de mods de guerra civil](0042-patches-de-compatibilidade.md) | Técnica | Aceita (loader na 0050) |
+| 0047 | [IA estratégica: avaliação a cada N horas, ataques numéricos (`WARS`)](0047-ia-estrategica-ataques-numericos.md) | Técnica | Aceita |
+| 0048 | [Contra-ataque: território do jogador perdido e sede ocupada](0048-contra-ataque-e-sede-ocupada.md) | Técnica | Aceita |
+| 0049 | [Diplomacia: guerra, paz, aliança e trégua entre facções (`DIPL`)](0049-diplomacia-relacoes-entre-faccoes.md) | Técnica | Aceita |
+| 0050 | [Loader de `Compat/*.json` e exclusões da IA](0050-loader-compat-e-exclusoes-da-ia.md) | Técnica | Aceita |

@@ -96,6 +96,7 @@ namespace AoS
         names_.clear();
 
         LoadSettings(kRoot / "settings.json");
+        LoadCompat();  // M16: depois do settings.json, antes da descoberta (usa discovery.exclude)
 
         const auto dir = kRoot / "Territories";
         std::error_code ec;
@@ -152,6 +153,8 @@ namespace AoS
             debug_.upgradeHotkey     = dbg->value("upgradeHotkey", 0x4D);
             debug_.upgradeIgnoreCost = dbg->value("upgradeIgnoreCost", false);
             // ---- fim M14/M15 ----
+            debug_.aiHotkey        = dbg->value("aiHotkey", debug_.aiHotkey);                // M16
+            debug_.diplomacyHotkey = dbg->value("diplomacyHotkey", debug_.diplomacyHotkey);  // M17
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
@@ -218,6 +221,7 @@ namespace AoS
             garrison_.spreadRadius  = g->value("spreadRadius", garrison_.spreadRadius);
         }
         // ---- fim M14 ----
+        LoadAiAndDiplomacy(*json);   // M16/M17
     }
 
     // ---- M5/M6: blocos "conquest" e "seat" ------------------------------------------------------
@@ -242,6 +246,10 @@ namespace AoS
             conquest_.requirePlayerInLocation = c->value("requirePlayerInLocation", conquest_.requirePlayerInLocation);
             conquest_.onlyFromNeutral         = c->value("onlyFromNeutral", conquest_.onlyFromNeutral);
             conquest_.defaultStyle            = c->value("defaultStyle", std::string{});
+            if (c->contains("skipCivilWarForts")) {  // M16: escalar do usuário vence o dos Compat/*.json
+                conquest_.skipCivilWarForts = c->value("skipCivilWarForts", false);
+                userSkipCwConquest_         = true;
+            }
             for (const auto& v : c->value("exclude", std::vector<std::string>{})) {
                 conquest_.exclude.insert(normalizeKey(v));
             }
@@ -283,6 +291,178 @@ namespace AoS
         }
     }
     // ---- fim M5/M6 ------------------------------------------------------------------------------
+
+    // ---- M16/M17: blocos "ai" e "diplomacy" -----------------------------------------------------
+    void Config::LoadAiAndDiplomacy(const nlohmann::json& a_json)
+    {
+        if (const auto a = a_json.find("ai"); a != a_json.end() && a->is_object()) {
+            ai_.enabled                   = a->value("enabled", ai_.enabled);
+            ai_.tickHours                 = std::max(1u, a->value("tickHours", ai_.tickHours));
+            ai_.maxEvaluationsPerTick     = a->value("maxEvaluationsPerTick", ai_.maxEvaluationsPerTick);
+            ai_.maxActiveAttacks          = a->value("maxActiveAttacks", ai_.maxActiveAttacks);
+            ai_.maxAttacksPerFaction      = a->value("maxAttacksPerFaction", ai_.maxAttacksPerFaction);
+            ai_.cooldownHours             = a->value("cooldownHours", ai_.cooldownHours);
+            ai_.attackBase                = a->value("attackBase", ai_.attackBase);
+            ai_.goldPerStrength           = std::max(0.01, a->value("goldPerStrength", ai_.goldPerStrength));
+            ai_.minGoldPerAttack          = a->value("minGoldPerAttack", ai_.minGoldPerAttack);
+            ai_.maxGoldPerAttack          = a->value("maxGoldPerAttack", ai_.maxGoldPerAttack);
+            ai_.minAdvantage              = a->value("minAdvantage", ai_.minAdvantage);
+            ai_.randomness                = std::clamp(a->value("randomness", ai_.randomness), 0.0, 0.9);
+            ai_.hoursPer10kUnits          = a->value("hoursPer10000Units", ai_.hoursPer10kUnits);
+            ai_.minTravelHours            = std::max(1u, a->value("minTravelHours", ai_.minTravelHours));
+            ai_.maxTravelHours            = std::max(ai_.minTravelHours, a->value("maxTravelHours", ai_.maxTravelHours));
+            ai_.nearPlayerRadius          = a->value("nearPlayerRadius", ai_.nearPlayerRadius);
+            ai_.attackPlayer              = a->value("attackPlayer", ai_.attackPlayer);
+            ai_.expandIntoNeutral         = a->value("expandIntoNeutral", ai_.expandIntoNeutral);
+            ai_.neutralDefenseMultiplier  = a->value("neutralDefenseMultiplier", ai_.neutralDefenseMultiplier);
+            ai_.declareWarRatio           = a->value("declareWarRatio", ai_.declareWarRatio);
+            ai_.respectConquestExclusions = a->value("respectConquestExclusions", ai_.respectConquestExclusions);
+            if (a->contains("skipCivilWarForts")) {  // escalar do usuário vence o dos Compat/*.json
+                ai_.skipCivilWarForts = a->value("skipCivilWarForts", false);
+                userSkipCwAi_         = true;
+            }
+            if (const auto types = a->find("expandTypes"); types != a->end() && types->is_array()) {
+                ai_.expandTypes.clear();
+                for (const auto& v : *types) {
+                    const auto type = v.is_string() ? ParseTerritoryType(v.get<std::string>()) : std::nullopt;
+                    if (type) {
+                        ai_.expandTypes.push_back(*type);
+                    } else {
+                        logger::warn("settings.json: ai.expandTypes com tipo inválido ignorado.");
+                    }
+                }
+            }
+            if (const auto d = a->find("defenseByType"); d != a->end() && d->is_object()) {
+                for (const auto& [key, value] : d->items()) {
+                    const auto type =
+                        key == "unknown" ? std::optional{ TerritoryType::kUnknown } : ParseTerritoryType(key);
+                    if (type && value.is_number()) {
+                        ai_.defenseByType[*type] = value.get<double>();
+                    } else {
+                        logger::warn("settings.json: ai.defenseByType '{}' inválido; ignorado.", key);
+                    }
+                }
+            }
+        }
+        if (const auto d = a_json.find("diplomacy"); d != a_json.end() && d->is_object()) {
+            diplomacy_.truceHours               = d->value("truceHours", diplomacy_.truceHours);
+            diplomacy_.peaceAcceptRatio         = d->value("peaceAcceptRatio", diplomacy_.peaceAcceptRatio);
+            diplomacy_.allianceAcceptRatio      = d->value("allianceAcceptRatio", diplomacy_.allianceAcceptRatio);
+            diplomacy_.allianceNeedsCommonEnemy = d->value("allianceNeedsCommonEnemy", diplomacy_.allianceNeedsCommonEnemy);
+            diplomacy_.warOnConquest            = d->value("warOnConquest", diplomacy_.warOnConquest);
+        }
+    }
+
+    // Compat/*.json (ADR 0042, formato em patches/README.md): exclusões condicionais trazidas por patches.
+    // Ativo se QUALQUER plugin de "whenLoaded" estiver carregado (vazio = sempre). Listas somam às do
+    // settings.json; escalares só valem se o settings.json não os definiu.
+    void Config::LoadCompat()
+    {
+        ScopedTimer           timer{ "Config::LoadCompat" };
+        std::error_code       ec;
+        std::vector<fs::path> files;
+        for (const auto& entry : fs::directory_iterator(kRoot / "Compat", ec)) {
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                files.push_back(entry.path());
+            }
+        }
+        std::sort(files.begin(), files.end());
+        const auto dh           = RE::TESDataHandler::GetSingleton();
+        const auto normalizeRef = [](const std::string& a_text) -> std::optional<Id> {
+            const auto ref = FormRef::Parse(a_text);
+            return ref ? std::optional{ MakeId(std::format("{}|0x{:06X}", ref->plugin, ref->localId)) } : std::nullopt;
+        };
+        const auto strings = [](const nlohmann::json& a_obj, const char* a_key) {
+            std::vector<std::string> out;
+            if (const auto it = a_obj.find(a_key); it != a_obj.end() && it->is_array()) {
+                for (const auto& v : *it) {
+                    if (v.is_string()) {
+                        out.push_back(v.get<std::string>());
+                    }
+                }
+            }
+            return out;
+        };
+
+        for (const auto& f : files) {
+            const auto json = ReadJson(f);
+            if (!json || !json->is_object()) {
+                continue;
+            }
+            const auto name = json->value("name", f.stem().string());
+            try {
+                const auto  when = strings(*json, "whenLoaded");
+                std::string trigger;
+                for (const auto& plugin : when) {
+                    if (dh && (dh->LookupLoadedModByName(plugin) || dh->LookupLoadedLightModByName(plugin))) {
+                        trigger = plugin;
+                        break;
+                    }
+                }
+                if (!when.empty() && trigger.empty()) {
+                    logger::info("Compat: {} inativo (nenhum plugin de whenLoaded carregado).", name);
+                    continue;
+                }
+                std::size_t count = 0;
+                if (const auto d = json->find("discovery"); d != json->end() && d->is_object()) {
+                    for (const auto& v : strings(*d, "exclude")) {
+                        if (const auto id = normalizeRef(v)) {
+                            discovery_.exclude.insert(*id);
+                            ++count;
+                        } else {
+                            logger::warn("Compat {}: discovery.exclude '{}' inválido (use \"Plugin.esp|0xID\").", name, v);
+                        }
+                    }
+                }
+                if (const auto c = json->find("conquest"); c != json->end() && c->is_object()) {
+                    for (const auto& v : strings(*c, "exclude")) {
+                        const auto id = normalizeRef(v);
+                        conquest_.exclude.insert(id ? *id : MakeId(v));  // sem '|' = id de território
+                        ++count;
+                    }
+                    // "excludePlugins" (nome do settings.json, M5) e "excludeFromPlugins" (nome do ADR 0042).
+                    for (const auto* key : { "excludePlugins", "excludeFromPlugins" }) {
+                        for (auto v : strings(*c, key)) {
+                            std::ranges::transform(v, v.begin(), [](char ch) { return static_cast<char>(std::tolower(ch)); });
+                            if (std::find(conquest_.excludePlugins.begin(), conquest_.excludePlugins.end(), v) ==
+                                conquest_.excludePlugins.end()) {
+                                conquest_.excludePlugins.push_back(std::move(v));
+                                ++count;
+                            }
+                        }
+                    }
+                    if (!userSkipCwConquest_ && c->contains("skipCivilWarForts")) {
+                        conquest_.skipCivilWarForts = c->value("skipCivilWarForts", false);
+                    }
+                }
+                if (const auto a = json->find("ai"); a != json->end() && a->is_object()) {
+                    if (!userSkipCwAi_ && a->contains("skipCivilWarForts")) {
+                        ai_.skipCivilWarForts = a->value("skipCivilWarForts", false);
+                    }
+                }
+                logger::info("Compat: {} ativo{} ({} exclusão(ões)).", name,
+                             trigger.empty() ? ""s : std::format(" por '{}'", trigger), count);
+            } catch (const std::exception& e) {
+                logger::error("Compat: erro em {}: {}", f.filename().string(), e.what());
+            }
+        }
+        logger::info("Compat: {} arquivo(s); conquista com {} exclusão(ões) e {} plugin(s) excluído(s); fortes da "
+                     "Guerra Civil {} (conquista) / {} (IA).",
+                     files.size(), conquest_.exclude.size(), conquest_.excludePlugins.size(),
+                     conquest_.skipCivilWarForts ? "excluídos" : "liberados",
+                     ai_.skipCivilWarForts ? "excluídos" : "liberados");
+    }
+
+    void Config::SetDefaultOwner(Id a_territory, Id a_owner)
+    {
+        if (const auto it = index_.find(a_territory); it != index_.end()) {
+            auto& t = territories_[it->second];
+            if (t.defaultOwner == kNeutral) {
+                t.defaultOwner = a_owner;
+            }
+        }
+    }
+    // ---- fim M16/M17 ------------------------------------------------------------------------------
 
     void Config::LoadTerritoryFile(const fs::path& a_file)
     {

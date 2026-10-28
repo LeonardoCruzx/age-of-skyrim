@@ -34,3 +34,8 @@ Duas camadas registradas em `kDataLoaded`, depois de `Garrison::Load`/`Upgrades:
 - `upgrades`: `defense`/`income`/`inConstruction` de `Upgrades::Get().Stat(...)`.
 
 Chaves de tradução `warmap.layer.garrison`/`warmap.layer.upgrades` (en/pt-br).
+
+## Atualização (merge com M16/M17)
+Terceira camada registrada em `kDataLoaded`, depois de `Ai::Load`: `threats` (`Ai::Threats(t.id)`), com
+`attacks` (quantidade) e `hoursLeft` (a mais próxima); sem ameaças, o provedor devolve `null` (convenção já
+usada pelo WarMap para "sem dado neste território", diferente de um objeto vazio).

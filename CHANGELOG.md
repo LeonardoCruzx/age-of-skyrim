@@ -49,8 +49,15 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
 - **M15 — Melhorias de territórios:** `Upgrades.json` (muralhas, quartel, torre de vigia, armazém, mercado,
   forja; I–III) com custo em itens do baú da sede e tempo de obra, status por território (defesa, renda,
   guarnição máx., capacidade, visão), objetos visuais por nível, cosave `UPGR` v1, debug NumPad6.
+- **M16 — Facções de IA e contra-ataques:** avaliação estratégica a cada N horas de jogo no tick da economia,
+  ataques numéricos pagos com o saldo de ouro (cosave `WARS` v1), contra-ataque com sede ocupada (depósito
+  suspenso), donos iniciais e agressão por facção, provedor de defesa para M14/M15, gancho da batalha real (M21),
+  loader de `Compat/*.json` com exclusões da IA e dos fortes da Guerra Civil, debug NumPad7.
+- **M17 — Diplomacia:** guerra/paz/aliança/trégua entre facções com padrões em `Factions/*.json` (cosave `DIPL` v1),
+  propostas de paz/aliança com aceitação por poder, guerra ao tomar território, rotas aceitam paz/aliança,
+  `AreHostile` para guardas, debug NumPad8.
 - **M28 — Infra de release:** workflow de release em tag `v*`, instalador FOMOD com patches opcionais, patch de
-  compatibilidade com mods de guerra civil (formato definido, leitura no DLL pendente), relatório de performance
+  compatibilidade com mods de guerra civil (lido pelo DLL desde a M16), relatório de performance
   do log (`tools/perf_report.py`).
 
 ### Observações

@@ -6,6 +6,7 @@
 #include "Core/I18n.h"
 #include "Core/State.h"
 #include "Core/Timer.h"
+#include "Sim/Diplomacy.h"  // M17
 
 namespace AoS
 {
@@ -53,9 +54,10 @@ namespace AoS
         }
     }
 
+    // M17: mesma facção, paz ou aliança (trégua e guerra não comerciam). ADR 0049.
     bool CanTrade(Id a_factionA, Id a_factionB)
     {
-        return a_factionA != kNeutral && a_factionA == a_factionB;
+        return Diplomacy::Get().CanTrade(a_factionA, a_factionB);
     }
 
     Routes& Routes::Get() noexcept
@@ -218,8 +220,8 @@ namespace AoS
                 continue;
             }
             const auto o = state.Owner(t.id);
-            if (o == kNeutral || CanTrade(o, s.owner)) {
-                continue;  // neutros e aliados não cortam
+            if (o == kNeutral || !Diplomacy::Get().AtWar(o, s.owner)) {
+                continue;  // M17: só território de facção em GUERRA com o dono corta (neutros, paz, trégua não)
             }
             if (PointSegment2D(t.position, ta->position, tb->position) < blockRadius_) {
                 s.blocked = true;

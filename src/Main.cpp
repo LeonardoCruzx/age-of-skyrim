@@ -4,6 +4,8 @@
 #include "Core/Factions.h"
 #include "Debug/SelfTest.h"
 #include "Events/Events.h"
+#include "Sim/Ai.h"       // M16
+#include "Sim/Diplomacy.h"  // M17
 #include "Sim/Economy.h"  // M12
 #include "Sim/Garrison.h"  // M14
 #include "Sim/Upgrades.h"  // M15
@@ -62,6 +64,10 @@ namespace
         AoS::Upgrades::Get().Save(a_intfc);
         AoS::Garrison::Get().Save(a_intfc);
         // ---- fim M14/M15 ----
+        // ---- M16/M17 (depois de FACT: facções validadas no load) ----
+        AoS::Diplomacy::Get().Save(a_intfc);
+        AoS::Ai::Get().Save(a_intfc);
+        // ---- fim M16/M17 ----
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -115,6 +121,14 @@ namespace
                 AoS::Garrison::Get().LoadRecord(a_intfc, version);
                 break;
             // ---- fim M14/M15 ----
+            // ---- M16/M17 ----
+            case AoS::Diplomacy::kRecord:
+                AoS::Diplomacy::Get().LoadRecord(a_intfc, version);
+                break;
+            case AoS::Ai::kRecord:
+                AoS::Ai::Get().LoadRecord(a_intfc, version);
+                break;
+            // ---- fim M16/M17 ----
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -141,6 +155,8 @@ namespace
         AoS::Upgrades::Get().Clear();
         AoS::Garrison::Get().Clear();
         // ---- fim M14/M15 ----
+        AoS::Diplomacy::Get().Clear();  // M17
+        AoS::Ai::Get().Clear();         // M16
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -152,6 +168,8 @@ namespace
                 logger::warn("Nenhum território carregado; verifique Data/SKSE/Plugins/AgeOfSkyrim/Territories/.");
             }
             AoS::Factions::Get().Load();  // depois da Config: valida estilos
+            AoS::Ai::Get().Load();         // M16: donos iniciais ("start") antes do ResetToDefaults
+            AoS::Diplomacy::Get().Load();  // M17: relações padrão (Factions/*.json)
             AoS::State::Get().ResetToDefaults();
             AoS::Stock::Get().Load();
             AoS::Economy::Get().Load();  // M12/M13: depois do Stock (categorias); configura as rotas
@@ -207,6 +225,18 @@ namespace
                     { "inConstruction", AoS::Upgrades::Get().InConstruction(t.id) },
                 };
             });
+            // Mapa tático (M11) <- IA (M16): ameaças/ataques em andamento contra o território.
+            AoS::WarMap::Get().AddProvider("threats", "warmap.layer.threats", [](const AoS::Territory& t) {
+                const auto threats = AoS::Ai::Get().Threats(t.id);
+                if (threats.empty()) {
+                    return nlohmann::json(nullptr);  // sem dado para este território (convenção do WarMap)
+                }
+                std::uint32_t soonest = threats.front().hoursLeft;
+                for (const auto& a : threats) {
+                    soonest = std::min(soonest, a.hoursLeft);
+                }
+                return nlohmann::json{ { "attacks", threats.size() }, { "hoursLeft", soonest } };
+            });
 
             AoS::Events::Register();
             break;
@@ -225,6 +255,7 @@ namespace
                 AoS::Api::Events::StateReady();  // outros mods: estado pronto para consulta
                 AoS::Upgrades::Get().OnPostLoad();  // M15: confere os objetos visuais
                 AoS::Garrison::Get().OnPostLoad();  // M14: apaga atores do save anterior e recria perto do jogador
+                AoS::Ai::Get().OnPostLoad();    // M16: sede ocupada -> depósito suspenso (depois do Seat)
             });
             break;
 

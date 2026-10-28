@@ -225,14 +225,34 @@ Plano original:
 
 ## Fase 3 — Mundo vivo
 
-### M16. ⬜ Facções de IA e contra-ataques
+### M16. ✅ Facções de IA e contra-ataques — implementada, aguardando teste no jogo — [ADR 0047](adr/0047-ia-estrategica-ataques-numericos.md), [0048](adr/0048-contra-ataque-e-sede-ocupada.md), [0050](adr/0050-loader-compat-e-exclusoes-da-ia.md)
 - Tick estratégico (a cada X horas de jogo): cada facção de IA avalia vizinhos (`neighbors`) e decide atacar,
   considerando guarnição e estoque.
 - Ataque fora da tela: resolução por força. Na tela: spawn de grupo atacante + evento de defesa.
 - Ameaças e ataques em andamento aparecem no mapa tático.
+- Feito: `src/Sim/Ai.*`. Avaliação a cada `ai.tickHours` pendurada no tick da economia (`Economy::AddTickListener`,
+  novo); alvo = vizinho de facção em guerra (M17) ou neutro (`expandIntoNeutral`); força paga com o saldo de ouro
+  (`Economy::Spend`, novo); lote com cursor, tetos por facção/global, espera entre ataques; `[tempo] Ai::Strategic`.
+- Feito: ataques no cosave `WARS` v1 (origem, alvo, força, horas restantes); resolução numérica ± sorteio;
+  `Ai::ActiveAttacks()` / `Ai::Threats(territory)` para o mapa (M11).
+- Feito: defesa por provedor registrável (`Ai::SetDefenseProvider`, padrão por tipo — ligar Garrison/Upgrades na M14/M15);
+  gancho `Ai::OnAttackArrivedNearPlayer` + `SetNearPlayerHandler`/`ResolveAttack` para a batalha real (M21).
+- Feito: contra-ataque — território do jogador tomado; sede ocupada mantém objetos e suspende o depósito até retomar.
+- Feito: donos iniciais (`"start"`) e agressão por facção em `Factions/*.json`.
+- Feito: loader de `Compat/*.json` (ADR 0042) + `ai.respectConquestExclusions` / `skipCivilWarForts`.
+- Debug NumPad7 (`debug.aiHotkey`): força a avaliação e mostra os ataques ativos.
+- Falta (outras missões): grupo atacante na tela (M21), ameaças no mapa (M11), defesa real (M14/M15).
 
-### M17. ⬜ Diplomacia básica
+### M17. ✅ Diplomacia básica — implementada, aguardando teste no jogo — [ADR 0049](adr/0049-diplomacia-relacoes-entre-faccoes.md)
 - Relações entre facções (guerra/paz/aliança) no cosave; afeta IA, rotas de comércio e hostilidade dos guardas.
+- Feito: `src/Sim/Diplomacy.*` — guerra/paz/aliança/trégua por par, padrões em `Factions/*.json` (Legião × Mantos
+  em guerra; jogador × todos em paz), cosave `DIPL` v1 só com o que mudou em jogo.
+- Feito: `DeclareWar` / `ProposePeace` (aceitação por poder/déficit → trégua → paz) / `ProposeAlliance` para MCM/mapa;
+  tomar território de uma IA em paz = guerra (`warOnConquest`).
+- Feito: IA só ataca em guerra; `Routes::CanTrade` aceita paz/aliança e só guerra corta rota; `Diplomacy::AreHostile`
+  para M14/M21.
+- Debug NumPad8 (`debug.diplomacyHotkey`): alterna a relação com o dono do território atual.
+- Falta (outras missões): menu no MCM (M10) e no mapa (M11); aliados chamados à guerra (M20).
 - Na Fase 4, a IA (M16) e a diplomacia passam a usar exércitos (M20) e batalhas (M21) no lugar da resolução por força simples.
 
 ## Fase 4 — Reino e exército ([ADR 0031](adr/0031-exercito-governo-populacao-titulos.md))

@@ -28,7 +28,7 @@ de guerra, posição + rotação) entra no mesmo território.
 ] }
 ```
 
-## `Compat/<nome>.json` (formato definido; leitura no DLL ainda é TODO)
+## `Compat/<nome>.json` (lido pelo DLL desde a M16, `Config::LoadCompat`)
 
 ```jsonc
 {
@@ -44,8 +44,10 @@ de guerra, posição + rotação) entra no mesmo território.
   "conquest":  {
     "exclude": ["Plugin.esp|0xID"],                            // locais que não podem ser conquistados
     "excludeFromPlugins": ["Algum Mod.esp"],                   // todo BGSLocation definido por estes plugins
-    "skipCivilWarForts": true                                  // fortes disputados pela Guerra Civil
-  }
+                                                               // (sinônimo: "excludePlugins", como no settings.json)
+    "skipCivilWarForts": true                                  // fortes LocTypeMilitaryFort (Guerra Civil)
+  },
+  "ai": { "skipCivilWarForts": true }                          // M16: a IA também não ataca esses fortes
 }
 ```
 
@@ -53,7 +55,9 @@ Regras:
 - **Nada de FormID de mod de terceiros sem conferir no xEdit.** Prefira `excludeFromPlugins` (só o nome do
   plugin) e marque `"verified": false` até alguém conferir.
 - IDs sempre no formato curto `Plugin.esp|0xID` (ID local, sem o byte de load order), como no resto do mod.
-- O DLL lê `Compat/*.json` em ordem alfabética, depois do `settings.json`.
+- O DLL lê `Compat/*.json` em ordem alfabética, depois do `settings.json` e antes da descoberta. O log mostra
+  `Compat: <nome> ativo por '<plugin>' (N exclusões)` ou `inativo (nenhum plugin de whenLoaded carregado)`.
+- A IA (M16) respeita as exclusões de conquista (`ai.respectConquestExclusions`, padrão ligado).
 
 ## Patches incluídos
 

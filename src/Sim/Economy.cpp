@@ -412,6 +412,24 @@ namespace AoS
         return it != ledgers_.end() && idx && *idx < it->second.balance.size() ? it->second.balance[*idx] : 0.0;
     }
 
+    // ---- M16: gasto numérico da IA/diplomacia (AddTickListener já existe, acima) ---------------------------
+
+
+    bool Economy::Spend(Id a_faction, Id a_resource, double a_amount)
+    {
+        std::scoped_lock l{ lock_ };
+        const auto       idx = IndexOf(a_resource);
+        if (!idx || a_amount < 0.0) {
+            return false;
+        }
+        auto& ledger = LedgerOf(a_faction);
+        if (ledger.balance[*idx] + 1e-9 < a_amount) {
+            return false;
+        }
+        ledger.balance[*idx] -= a_amount;
+        return true;
+    }
+
     Economy::Report Economy::LastReport() const
     {
         std::scoped_lock l{ lock_ };
@@ -468,7 +486,8 @@ namespace AoS
                 processed = hours;
             }
         }
-        NotifyTick(processed);  // M14/M15: obras e guarnição, fora do lock
+        // Fora do lock: obras/guarnição (M14/M15) e IA/diplomacia (M16/M17) consultam/chamam a Economy.
+        NotifyTick(processed);
         return processed;
     }
 
