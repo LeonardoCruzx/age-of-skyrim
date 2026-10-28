@@ -94,8 +94,17 @@ jobs:
       - name: Configure
         run: cmake --preset windows-msvc
 
+      # Erros do compilador viram anotações (visíveis sem login, na aba Summary).
       - name: Build
-        run: cmake --build --preset release
+        shell: pwsh
+        run: |
+          cmake --build --preset release 2>&1 | Tee-Object -FilePath build/build.log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            Select-String -Path build/build.log -Pattern 'error C\d+|error LNK\d+|fatal error' |
+              Select-Object -First 30 | ForEach-Object { Write-Output "::error title=MSVC::$($_.Line.Trim())" }
+            exit $code
+          }
 
       # Expõe o fim dos logs do vcpkg/CMake como anotações (visíveis sem login, na aba Summary).
       - name: Diagnóstico de falha
