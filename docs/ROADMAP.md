@@ -382,6 +382,64 @@ capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
 - ⬜ Perfil de performance num save grande (todos os territórios, guarnições, exércitos, IA, rotas, batalhas).
 - ⬜ Primeiro release (tag `v0.1.0`) e upload no Nexus.
 
+## Pacote de imersão — alto impacto e baixo risco
+
+Estas features priorizam a sensação de um reino vivo sem introduzir um novo simulador
+ou depender de dublagem, navmesh editada, quests vanilla ou grandes quantidades de
+atores. Devem reutilizar os eventos, objetos runtime, traduções e camadas já existentes.
+
+### I1. 🔲 Estado visual dos territórios
+
+Tornar visível o estado já calculado pelo mod:
+
+- territórios prósperos mostram mais atividade, guardas, iluminação e estandartes;
+- territórios instáveis mostram barricadas, fumaça, objetos danificados e menor atividade;
+- territórios em construção mostram materiais, trabalhadores e objetos correspondentes à melhoria;
+- melhorias concluídas mantêm seus visuais enquanto o território pertencer à facção.
+
+Implementação esperada: objetos leves criados em runtime e ativados/desativados quando
+o estado mudar, aproveitando `Upgrades.json`, `Stability`, `Garrison` e os marcadores
+existentes. O fallback para locais sem coordenadas específicas deve ser apenas numérico,
+sem impedir a melhoria.
+
+### I2. 🔲 Boletins e crônica do reino
+
+Criar uma camada de eventos narrativos para conquistas, perdas, rebeliões, fome,
+tratados, rotas interrompidas, promoções e invasões:
+
+- notificação curta e traduzida no momento do evento;
+- histórico compacto consultável na mesa de guerra;
+- resumo por território e por facção, sem registrar texto excessivo no cosave;
+- eventos emitidos pelos ganchos existentes, nunca por polling contínuo.
+
+O histórico pode começar em memória e manter apenas as últimas entradas; a persistência
+deve ser adicionada somente quando houver uma necessidade clara de sobreviver ao reload.
+
+### I3. 🔲 NPCs dos cargos na sede
+
+Materializar na sede os cargos já definidos em `Realm/Government`:
+
+- mordomo: estoque, produção e renda;
+- comandante: guarnição, recrutamento e ameaças;
+- ferreiro: equipamento e melhorias;
+- governador: situação da província;
+- mensageiro: notícias recentes do reino.
+
+Os NPCs devem usar bases vanilla com FaceGen e outfit aplicados pelo DLL, serem criados
+apenas quando a célula estiver próxima e desaparecerem com segurança ao perder ou mudar
+a sede. A interação inicial será textual, por `MessageBox` ou menu existente, sem
+diálogo com voz.
+
+### Ordem de entrega e critérios
+
+1. Implementar I2, pois ela conecta os sistemas atuais com pouco risco técnico.
+2. Implementar I1, usando os visuais de melhoria já previstos.
+3. Implementar I3, depois que os objetos e coordenadas da sede estiverem estáveis.
+
+Cada feature deve manter o teto global de atores, ser compatível com a ausência de SkyUI
+e PrismaUI, reutilizar as traduções `en`/`pt-br`, adicionar autoteste ou roteiro no
+`TESTES.md` quando exigir validação no jogo e registrar timings no log.
+
 ---
 
 ## Verificação
