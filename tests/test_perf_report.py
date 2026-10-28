@@ -22,6 +22,17 @@ class PerfReportTest(unittest.TestCase):
         self.assertEqual(sum(len(v) for v in self.samples.values()), 12)
         self.assertEqual(self.samples["Stock::CountByCategory"], [0.21, 0.33, 1.42])
 
+    def test_detalhes_entre_parenteses_agrupam(self):
+        lines = [
+            "[tempo] Economy::Tick (3 h, 40 território(s), 1 rota(s) ativa(s), 0 cortada(s)): 0.420 ms",
+            "[tempo] Economy::Tick (24 h, 40 território(s), 1 rota(s) ativa(s), 0 cortada(s)): 6.100 ms",
+            "[tempo] Realm::OnHoursPassed: 0.300 ms",
+        ]
+        samples = perf_report.parse(lines)
+        self.assertEqual(samples["Economy::Tick"], [0.42, 6.1])
+        self.assertEqual(perf_report.categorize("Economy::Tick"), "tick")
+        self.assertEqual(perf_report.categorize("Realm::OnHoursPassed"), "tick")
+
     def test_estatisticas(self):
         r = self.rows["Stock::CountByCategory"]
         self.assertEqual((r["n"], r["min"], r["max"]), (3, 0.21, 1.42))

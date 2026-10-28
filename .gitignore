@@ -6,6 +6,7 @@ vcpkg_installed/
 CMakeUserPresets.json
 *.user
 *.aps
-.claude/
+.claude/*
+!.claude/skills/
 __pycache__/
 dist/

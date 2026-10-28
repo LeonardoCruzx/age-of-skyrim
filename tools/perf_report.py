@@ -13,6 +13,7 @@ import re
 import sys
 
 LINE_RE = re.compile(r"\[tempo\]\s+(?P<op>.+?):\s+(?P<ms>\d+(?:\.\d+)?)\s*ms")
+DETAIL_RE = re.compile(r"\s*\(.*\)\s*$")
 
 EVENT_MS = 1.0
 TICK_MS = 5.0
@@ -35,7 +36,7 @@ def categorize(op):
     if op in KNOWN:
         return KNOWN[op]
     name = op.split("::")[-1].lower()
-    if "tick" in name or "hourly" in name:
+    if "tick" in name or "hourly" in name or "hourspassed" in name:
         return "tick"
     if name.startswith(("load", "scan", "merge", "compute", "build", "init")):
         return "load"
@@ -50,7 +51,9 @@ def parse(lines):
     for line in lines:
         m = LINE_RE.search(line)
         if m:
-            samples.setdefault(m.group("op").strip(), []).append(float(m.group("ms")))
+            # "Economy::Tick (3 h, 40 território(s), ...)": os detalhes entre parênteses não fazem parte do nome.
+            op = DETAIL_RE.sub("", m.group("op")).strip()
+            samples.setdefault(op, []).append(float(m.group("ms")))
     return samples
 
 
