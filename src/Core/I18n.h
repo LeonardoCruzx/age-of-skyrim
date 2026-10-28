@@ -27,6 +27,9 @@ namespace AoS::I18n
         }
     }
 
+    // Converte para a codificação configurada do HUD (utf8 ou cp1252). Para MessageBox e outros textos do jogo.
+    [[nodiscard]] std::string ToHud(const std::string& a_utf8);
+
     // Mostra uma notificação no canto da tela (convertendo para a codificação configurada).
     void Notify(const std::string& a_utf8);
 

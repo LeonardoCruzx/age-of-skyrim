@@ -26,9 +26,9 @@ Não pegue nenhum objeto criado pelo mod.
      "AoS: Torre de teste -> ...". Termine apertando **F11** de novo (volta ao sweetroll).
 3. Aperte **F8** (estoque): aparece uma linha por categoria do seu inventário ("Ouro: ...", "Comida: ...", ...).
    Confira se o ouro bate com o do inventário.
-4. Aperte **F9** (fincar estandarte) olhando para o chão à frente: surge uma **espada de ferro** parada no chão.
-   Aperte **F9** de novo no mesmo lugar → **"muito perto de outro claim"**.
-   Ande uns 30 m até uma **ladeira** e aperte **F9**: repare se a espada **inclina acompanhando o chão**
+4. Aperte **F3** (fincar estandarte) olhando para o chão à frente: surge uma **espada de ferro** parada no chão.
+   Aperte **F3** de novo no mesmo lugar → **"muito perto de outro claim"**.
+   Ande uns 30 m até uma **ladeira** e aperte **F3**: repare se a espada **inclina acompanhando o chão**
    (para o lado certo ou ao contrário).
 5. **Salve** (save novo), **carregue esse save** → deve aparecer **"AoS persistência OK. Teste concluído!"**
    e as espadas continuam lá. Feche o jogo e me envie os 2 arquivos + diga:

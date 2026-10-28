@@ -55,6 +55,7 @@ namespace AoS
         case TerritoryType::kCamp:    return "camp";
         case TerritoryType::kVillage: return "village";
         case TerritoryType::kCity:    return "city";
+        case TerritoryType::kClaim:   return "claim";
         default:                      return "unknown";
         }
     }
@@ -62,7 +63,7 @@ namespace AoS
     std::optional<TerritoryType> ParseTerritoryType(std::string_view a_text) noexcept
     {
         for (const auto t : { TerritoryType::kFort, TerritoryType::kTower, TerritoryType::kCamp,
-                              TerritoryType::kVillage, TerritoryType::kCity }) {
+                              TerritoryType::kVillage, TerritoryType::kCity, TerritoryType::kClaim }) {
             if (_strnicmp(a_text.data(), ToString(t).data(), a_text.size()) == 0 && a_text.size() == ToString(t).size()) {
                 return t;
             }
@@ -132,12 +133,13 @@ namespace AoS
             debug_.hotkey         = dbg->value("hotkey", 0x44);
             debug_.selfTestHotkey = dbg->value("selfTestHotkey", 0x57);
             debug_.stockHotkey    = dbg->value("stockHotkey", 0x42);
-            debug_.claimHotkey    = dbg->value("claimHotkey", 0x43);
+            debug_.claimHotkey    = dbg->value("claimHotkey", 0x3D);
             // ---- M12/M13: economia e rotas ----
             debug_.economyHotkey = dbg->value("economyHotkey", 0x40);
             debug_.routeHotkey   = dbg->value("routeHotkey", 0x41);
             debug_.economyHours  = dbg->value("economyHours", 24u);
             // ---- fim M12/M13 ----
+            debug_.conquestHotkey = dbg->value("conquestHotkey", 0x3E);
             if (const auto t = dbg->value("territory", std::string{}); !t.empty()) {
                 debug_.territory = MakeId(t);
             }
@@ -175,7 +177,72 @@ namespace AoS
                 }
             }
         }
+        LoadConquestAndSeat(*json);  // M5/M6
     }
+
+    // ---- M5/M6: blocos "conquest" e "seat" ------------------------------------------------------
+    void Config::LoadConquestAndSeat(const nlohmann::json& a_json)
+    {
+        // "Plugin.esp|0xID" no mesmo formato de Discovery::KeyOf; texto sem '|' = id de território do JSON.
+        const auto normalizeKey = [](const std::string& a_text) {
+            const auto ref = FormRef::Parse(a_text);
+            return ref ? MakeId(std::format("{}|0x{:06X}", ref->plugin, ref->localId)) : MakeId(a_text);
+        };
+        const auto readOffset = [](const nlohmann::json& a_obj, const char* a_name, RE::NiPoint3& a_out) {
+            const auto v = a_obj.value(a_name, std::vector<float>{});
+            if (v.size() == 3) {
+                a_out = { v[0], v[1], v[2] };
+            } else if (!v.empty()) {
+                logger::warn("settings.json: '{}' precisa de 3 números [direita, frente, cima].", a_name);
+            }
+        };
+
+        if (const auto c = a_json.find("conquest"); c != a_json.end() && c->is_object()) {
+            conquest_.enabled                 = c->value("enabled", conquest_.enabled);
+            conquest_.requirePlayerInLocation = c->value("requirePlayerInLocation", conquest_.requirePlayerInLocation);
+            conquest_.onlyFromNeutral         = c->value("onlyFromNeutral", conquest_.onlyFromNeutral);
+            conquest_.defaultStyle            = c->value("defaultStyle", std::string{});
+            for (const auto& v : c->value("exclude", std::vector<std::string>{})) {
+                conquest_.exclude.insert(normalizeKey(v));
+            }
+            for (auto v : c->value("excludePlugins", std::vector<std::string>{})) {
+                std::ranges::transform(v, v.begin(), [](char ch) { return static_cast<char>(std::tolower(ch)); });
+                conquest_.excludePlugins.push_back(std::move(v));
+            }
+            if (auto color = c->value("defaultColor", std::string{}); !color.empty()) {
+                std::string_view text{ color };
+                if (text.starts_with('#')) {
+                    text.remove_prefix(1);
+                }
+                std::uint32_t value{};
+                const auto [ptr, ec] = std::from_chars(text.data(), text.data() + text.size(), value, 16);
+                if (ec == std::errc{} && ptr == text.data() + text.size() && text.size() == 6) {
+                    conquest_.defaultColor = value;
+                } else {
+                    logger::warn("settings.json: conquest.defaultColor inválida (use \"#RRGGBB\").");
+                }
+            }
+        }
+        if (const auto s = a_json.find("seat"); s != a_json.end() && s->is_object()) {
+            seat_.askBeforeFounding = s->value("askBeforeFounding", seat_.askBeforeFounding);
+            // "auto" (ou ausente) = o DLL escolhe um objeto vanilla adequado (ver Seat::Load).
+            if (const auto b = s->value("chest", "auto"s); b != "auto") {
+                seat_.chest = FormRef::Parse(b);
+                if (!seat_.chest) {
+                    logger::warn("settings.json: seat.chest inválido; usando escolha automática.");
+                }
+            }
+            if (const auto b = s->value("warTable", "auto"s); b != "auto") {
+                seat_.warTable = FormRef::Parse(b);
+                if (!seat_.warTable) {
+                    logger::warn("settings.json: seat.warTable inválido; usando escolha automática.");
+                }
+            }
+            readOffset(*s, "chestOffset", seat_.chestOffset);
+            readOffset(*s, "warTableOffset", seat_.warTableOffset);
+        }
+    }
+    // ---- fim M5/M6 ------------------------------------------------------------------------------
 
     void Config::LoadTerritoryFile(const fs::path& a_file)
     {
@@ -381,8 +448,57 @@ namespace AoS
 
     const Territory* Config::Find(Id a_territory) const
     {
-        const auto it = index_.find(a_territory);
-        return it == index_.end() ? nullptr : &territories_[it->second];
+        if (const auto it = index_.find(a_territory); it != index_.end()) {
+            return &territories_[it->second];
+        }
+        std::shared_lock l{ dynamicLock_ };  // M8: claims
+        const auto       it = dynamicIndex_.find(a_territory);
+        return it == dynamicIndex_.end() ? nullptr : it->second;
+    }
+
+    // ---- M8: territórios dinâmicos ----------------------------------------------------------------
+
+    const Territory* Config::AddDynamic(Territory a_t)
+    {
+        if (index_.contains(a_t.id)) {
+            logger::error("Config::AddDynamic: '{}' colide com um território do JSON/descoberta.", a_t.key);
+            return nullptr;
+        }
+        // Província e vizinhos a partir dos territórios estáticos (O(n) uma vez por claim).
+        if (a_t.hasPosition) {
+            std::vector<std::pair<float, const Territory*>> dist;
+            for (const auto& o : territories_) {
+                if (o.hasPosition && o.worldspace == a_t.worldspace) {
+                    dist.emplace_back(a_t.position.GetSquaredDistance(o.position), &o);
+                }
+            }
+            const auto n = std::min(discovery_.neighbors, dist.size());
+            std::partial_sort(dist.begin(), dist.begin() + static_cast<std::ptrdiff_t>(n), dist.end());
+            a_t.neighbors.clear();
+            for (std::size_t i = 0; i < n; ++i) {
+                a_t.neighbors.push_back(dist[i].second->id);
+            }
+            for (std::size_t i = 0; i < n && a_t.province == kNeutral; ++i) {
+                if (dist[i].second->province != kNeutral) {
+                    a_t.province     = dist[i].second->province;
+                    a_t.provinceName = dist[i].second->provinceName;
+                }
+            }
+        }
+        std::unique_lock l{ dynamicLock_ };
+        if (const auto it = dynamicIndex_.find(a_t.id); it != dynamicIndex_.end()) {
+            return it->second;  // já registrado (ex.: load repetido)
+        }
+        auto& stored = dynamic_.emplace_back(std::move(a_t));
+        dynamicIndex_.emplace(stored.id, &stored);
+        return &stored;
+    }
+
+    void Config::ClearDynamic()
+    {
+        std::unique_lock l{ dynamicLock_ };
+        dynamicIndex_.clear();
+        dynamic_.clear();
     }
 
     std::string_view Config::NameOf(Id a_id) const

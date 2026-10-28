@@ -6,7 +6,9 @@
 #include "Sim/Routes.h"   // M13
 #include "Stock/Stock.h"
 #include "World/Claims.h"
+#include "World/Conquest.h"
 #include "World/Placement.h"
+#include "World/Seat.h"
 
 namespace
 {
@@ -31,15 +33,17 @@ namespace
     // ---- Cosave ------------------------------------------------------------------------------------
     void OnSave(SKSE::SerializationInterface* a_intfc)
     {
+        // Ordem importa no load: FACT (facções) -> CLAM (claims viram territórios dinâmicos) -> TERR (donos).
         AoS::Factions::Get().Save(a_intfc);
+        AoS::Claims::Get().Save(a_intfc);
         AoS::State::Get().Save(a_intfc);
         AoS::Placement::Get().Save(a_intfc);
         AoS::SelfTest::Save(a_intfc);
-        AoS::Claims::Get().Save(a_intfc);
         // ---- M12/M13 ----
         AoS::Economy::Get().Save(a_intfc);
         AoS::Routes::Get().Save(a_intfc);
         // ---- fim M12/M13 ----
+        AoS::Seat::Get().Save(a_intfc);  // M6
     }
 
     // Um único laço lê todos os registros e despacha por tipo (cada módulo só lê o seu).
@@ -71,6 +75,9 @@ namespace
                 AoS::Routes::Get().LoadRecord(a_intfc, version);
                 break;
             // ---- fim M12/M13 ----
+            case AoS::Seat::kRecord:  // M6
+                AoS::Seat::Get().LoadRecord(a_intfc, version);
+                break;
             default:
                 logger::warn("Cosave: registro desconhecido 0x{:08X} ({} bytes) ignorado.", type, length);
                 break;
@@ -80,11 +87,12 @@ namespace
 
     void OnRevert(SKSE::SerializationInterface*)
     {
+        AoS::Claims::Get().Clear();  // antes do State: remove os territórios dinâmicos (M8)
+        AoS::Seat::Get().Clear();    // M6
         AoS::Factions::Get().ClearPlayerFactions();
         AoS::State::Get().ResetToDefaults();
         AoS::Placement::Get().Clear();
         AoS::SelfTest::Clear();
-        AoS::Claims::Get().Clear();
         // ---- M12/M13 ----
         AoS::Economy::Get().Clear();
         AoS::Routes::Get().Clear();
@@ -103,21 +111,22 @@ namespace
             AoS::State::Get().ResetToDefaults();
             AoS::Stock::Get().Load();
             AoS::Economy::Get().Load();  // M12/M13: depois do Stock (categorias); configura as rotas
+            AoS::Conquest::Get().Register();  // M5
+            AoS::Seat::Get().Load();          // M6: depois de Config/Factions/Stock
             AoS::Events::Register();
             break;
 
         case SKSE::MessagingInterface::kNewGame:
         case SKSE::MessagingInterface::kPostLoadGame:
-            // ---- M12/M13: jogo novo não passa pelo revert; zera economia/rotas da sessão anterior ----
+            // Jogo novo pode não passar pelo revert: zera todo o estado da sessão anterior (sede, claims, economia...).
             if (a_msg->type == SKSE::MessagingInterface::kNewGame) {
-                AoS::Economy::Get().Clear();
-                AoS::Routes::Get().Clear();
+                OnRevert(nullptr);
             }
-            // ---- fim M12/M13 ----
             // Estado (padrão ou do cosave) -> mundo. Só altera refs cujo estado difere.
             SKSE::GetTaskInterface()->AddTask([] {
                 AoS::BannerController::Get().ApplyAll();
                 AoS::SelfTest::OnPostLoad();  // só age se o save tem registro do autoteste
+                AoS::Seat::Get().OnPostLoad();  // M6: observa e reconta o baú da sede
             });
             break;
 

@@ -1,7 +1,9 @@
 #include "World/Claims.h"
 
+#include "Banner/BannerController.h"
 #include "Core/I18n.h"
 #include "Core/Timer.h"
+#include "World/Conquest.h"
 #include "World/Placement.h"
 
 namespace AoS
@@ -115,6 +117,13 @@ namespace AoS
             return;
         }
 
+        // M8: o claim vira território da facção do jogador (cria a padrão se ainda não existe).
+        const auto faction = Conquest::Get().EnsurePlayerFaction();
+        if (!faction) {
+            I18n::NotifyTr("claim.failed");
+            return;
+        }
+
         const auto base = cfg.banner.Resolve<RE::TESBoundObject>();
         if (!base) {
             logger::error("Claims: objeto do estandarte {}|0x{:X} não encontrado.", cfg.banner.plugin, cfg.banner.localId);
@@ -129,11 +138,15 @@ namespace AoS
         }
 
         Claim c;
-        c.id         = MakeId(std::format("claim/{}", nextSerial_++));
+        c.serial     = nextSerial_++;
+        c.id         = MakeId(std::format("claim/{}", c.serial));
         c.worldspace = wsId;
         c.position   = hit.point;
         c.ref        = ref->GetFormID();
+        c.founder    = *faction;
         claims_.push_back(c);
+        RegisterTerritory(c);
+        SetTerritoryOwner(c.id, *faction);  // valida, loga e fica no TERR
 
         logger::info("Claims: #{} (0x{:08X}) em ({:.0f}, {:.0f}, {:.0f}) ws 0x{:08X}, normal ({:.2f}, {:.2f}, {:.2f}), "
                      "inclinação {:.1f}°, ângulos ({:.3f}, {:.3f}, {:.3f}), base '{}', ref 0x{:08X}",
@@ -142,14 +155,34 @@ namespace AoS
         I18n::NotifyTr("claim.created", claims_.size(), cfg.maxClaims, static_cast<int>(slope));
     }
 
+    void Claims::RegisterTerritory(const Claim& a_claim)
+    {
+        Territory t;
+        t.key         = std::format("claim/{}", a_claim.serial);
+        t.id          = a_claim.id;
+        t.name        = I18n::Tr("claim.territoryName", a_claim.serial);
+        t.type        = TerritoryType::kClaim;
+        t.hasPosition = true;
+        t.position    = a_claim.position;
+        t.worldspace  = a_claim.worldspace;
+        if (!Config::Get().AddDynamic(std::move(t))) {
+            return;
+        }
+        // Dono inicial; se o save tem TERR (gravado depois do CLAM), o valor salvo sobrescreve ao carregar.
+        State::Get().SetOwner(a_claim.id, Factions::Get().IsValidOwner(a_claim.founder) ? a_claim.founder : kNeutral);
+    }
+
     void Claims::Clear()
     {
         claims_.clear();
         nextSerial_ = 1;
+        Config::Get().ClearDynamic();
     }
 
-    // Formato do registro 'CLAM' v1:
-    //   u32 nextSerial, u32 count, count × { u32 id, u32 worldspace, f32 x, f32 y, f32 z, u32 refFormId }.
+    // Formato do registro 'CLAM' v2:
+    //   u32 nextSerial, u32 count, count × { u32 id, u32 worldspace, f32 x, f32 y, f32 z, u32 refFormId,
+    //                                         u32 serial, u32 founderFaction }.
+    // v1: igual, sem serial/founder (serial recuperado pelo hash; founder = facção do jogador).
     void Claims::Save(SKSE::SerializationInterface* a_intfc) const
     {
         if (claims_.empty()) {
@@ -168,15 +201,18 @@ namespace AoS
             a_intfc->WriteRecordData(c.position.y);
             a_intfc->WriteRecordData(c.position.z);
             a_intfc->WriteRecordData(c.ref);
+            a_intfc->WriteRecordData(c.serial);
+            a_intfc->WriteRecordData(c.founder);
         }
     }
 
     void Claims::LoadRecord(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version)
     {
-        if (a_version != kRecordVersion) {
+        if (a_version != 1 && a_version != kRecordVersion) {
             logger::warn("Cosave: versão {} do registro CLAM não suportada; claims descartados.", a_version);
             return;
         }
+        const auto playerFaction = Factions::Get().PlayerFaction();  // FACT é gravado antes do CLAM
         std::uint32_t count{};
         a_intfc->ReadRecordData(nextSerial_);
         a_intfc->ReadRecordData(count);
@@ -189,6 +225,17 @@ namespace AoS
             a_intfc->ReadRecordData(c.position.y);
             a_intfc->ReadRecordData(c.position.z);
             a_intfc->ReadRecordData(ref);
+            if (a_version >= 2) {
+                a_intfc->ReadRecordData(c.serial);
+                a_intfc->ReadRecordData(c.founder);
+            } else {
+                for (std::uint32_t n = 1; n < nextSerial_ && c.serial == 0; ++n) {  // v1: serial pelo hash do Id
+                    if (MakeId(std::format("claim/{}", n)) == c.id) {
+                        c.serial = n;
+                    }
+                }
+                c.founder = playerFaction ? playerFaction->id : kNeutral;
+            }
             if (!a_intfc->ResolveFormID(ref, c.ref)) {
                 logger::warn("Cosave: estandarte do claim 0x{:08X} não existe mais; descartado.", c.id);
                 continue;
@@ -198,7 +245,8 @@ namespace AoS
                 continue;
             }
             claims_.push_back(c);
+            RegisterTerritory(c);
         }
-        logger::info("Cosave: {} claim(s) carregado(s).", claims_.size());
+        logger::info("Cosave: {} claim(s) carregado(s) (CLAM v{}), registrados como territórios.", claims_.size(), a_version);
     }
 }

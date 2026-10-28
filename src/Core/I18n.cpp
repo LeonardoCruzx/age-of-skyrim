@@ -100,10 +100,12 @@ namespace AoS::I18n
         return a_key;
     }
 
+    std::string ToHud(const std::string& a_utf8) { return cp1252_ ? ToCp1252(a_utf8) : a_utf8; }
+
     void Notify(const std::string& a_utf8)
     {
         logger::info("[tela] {}", a_utf8);
-        const auto text = cp1252_ ? ToCp1252(a_utf8) : a_utf8;
+        const auto text = ToHud(a_utf8);
         RE::DebugNotification(text.c_str());
     }
 }

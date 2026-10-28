@@ -37,5 +37,26 @@
   "route.debugInterior":    "AoS route: go outdoors to create a test route",
   "route.debugNone":        "AoS route: no territories nearby to connect",
   "route.debugCreated":     "AoS route: {} <-> {} ({} m, {} gold/h)",
-  "route.blocked":          "AoS route cut by enemy territory: {}"
+  "route.blocked":          "AoS route cut by enemy territory: {}",
+  // ---- M5/M6/M8 (conquista, sede, claims como territórios) ----
+  "claim.territoryName":    "Banner #{}",
+  "conquest.conquered":     "AoS: {} conquered by {}",
+  "conquest.factionCreated": "AoS: your faction '{}' was founded",
+  "conquest.defaultFactionName": "Free Company",
+  "conquest.excluded":      "AoS: {} is excluded from conquest (settings)",
+  "conquest.alreadyYours":  "AoS: {} already belongs to you",
+  "conquest.ownedByOther":  "AoS: {} belongs to {} (onlyFromNeutral is on)",
+  "conquest.noTerritoryHere": "AoS: no territory at your current location",
+  "seat.askFound":          "{} is yours.\nFound your faction's seat here?",
+  "seat.askMove":           "Move your seat from {} to {}?\nThe stockpile chest will be carried over.",
+  "seat.yes":               "Yes",
+  "seat.no":                "No",
+  "seat.founded":           "AoS: seat founded at {}",
+  "seat.moved":             "AoS: seat moved to {} ({} items carried)",
+  "seat.failed":            "AoS: could not create the seat objects. Send the log.",
+  "seat.notOwned":          "AoS: {} must belong to your faction to become the seat",
+  "seat.already":           "AoS: {} is already your seat",
+  "seat.warTable":          "AoS: war table of {} (tactical map coming soon)",
+  "seat.stockTitle":        "AoS stockpile of the seat ({}):",
+  "seat.chestMissing":      "AoS: the seat chest is missing. Send the log."
 }

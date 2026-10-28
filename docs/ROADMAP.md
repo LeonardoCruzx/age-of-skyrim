@@ -77,19 +77,23 @@ Regras para todas as missões:
 - JSON com `"location"` sobrescreve/complementa; `settings.json` → `discovery` (tipos, exclusões, vizinhos).
 - Verificação: resumo PASS/FAIL no log + `SKSE/AgeOfSkyrim_territories.json` (debug).
 
-### M5. ⬜ 🎮 Conquista por "local limpo"
-- Sink `TESLocationClearedEvent` → lookup O(1) `BGSLocation` → território → `SetTerritoryOwner(território, facção do jogador)`.
-- Notificação na tela + log. Opção em `settings.json` para exigir que o jogador esteja no local.
-- Re-spawn de inimigos não reverte o dono; só a guerra (M16) reverte.
+### M5. ✅🎮 Conquista por "local limpo" — implementada, aguardando teste no jogo ([ADR 0022](adr/0022-conquista-implementacao.md))
+- ✅ `World/Conquest`: sink de `LocationCleared::Event` (a CommonLib não tem `TESLocationClearedEvent`; o evento não
+  traz o local) → cadeia de locais do jogador, primeiro local limpo com território (O(1)) → `SetTerritoryOwner`.
+- ✅ Facção padrão criada na 1ª conquista se o jogador não tem uma (nome traduzido, estilo/cor de settings).
+- ✅ `settings.json → conquest`: `enabled`, `requirePlayerInLocation`, `onlyFromNeutral`, `exclude`, `excludePlugins`,
+  `defaultStyle`, `defaultColor`. Notificação + log; re-spawn não reverte.
+- ✅ Ganchos `Conquest::AddListener` / `ConquerForPlayer` (sede usa; M9 expõe). Debug F4 (`conquestHotkey`) simula.
 
-### M6. ⬜ 🎮 Sede da facção (capital)
-- No JSON, territórios candidatos marcados com `"seat": { ... }` (1–2 por província, fortes/torres); outros mods podem
-  adicionar candidatos com o mesmo formato.
-- Ao conquistar um candidato sem ter sede: prompt "Fundar sede aqui?" → registro de cosave `SEAT` v1.
-- **Baú de estoque e mesa de guerra colocados em runtime** (`PlaceObjectAtMe` em `seat.chest` / `seat.warTable`:
-  posição + rotação no JSON), FormIDs criados salvos no cosave. Zero edição de célula vanilla no ESP.
-- Base objects (baú, mesa) definidos no `AgeOfSkyrim.esp` (ESL), sem tocar nos vanilla.
-- Mudar de sede: remove os objetos antigos (transferindo o conteúdo do baú) e cria na nova.
+### M6. ✅🎮 Sede da facção (capital) — implementada, aguardando teste no jogo ([ADR 0023](adr/0023-sede-implementacao.md), [0025](adr/0025-objetos-base-da-sede.md))
+- ✅ Candidatas em `Seats/*.json` (extensível): regra `auto` (N fortes/torres por província, mais próximos da cidade)
+  + lista explícita (`territory`/`location`, offsets) + `exclude`.
+- ✅ Ao conquistar uma candidata: MessageBox vanilla "Fundar sede aqui?" / "Mudar a sede?" (`UI/Prompt`) → `SEAT` v1.
+- ✅ Baú (CONT vanilla sem respawn, escolhido em runtime) e mesa de guerra (ACTI vanilla) criados com
+  `Placement::PlaceAt` relativos ao jogador (sem coordenadas curadas ainda); FormIDs no cosave.
+- ✅ Mudar de sede move o inventário do baú antigo (com ExtraDataList) e apaga os objetos antigos.
+- ✅ Gancho M11: ativar a mesa (sink `TESActivateEvent` filtrado pelo ref) → `Seat::OnWarTableActivated()` (só notifica).
+- ⬜ Base objects próprios no `AgeOfSkyrim.esp` (ESL) e coordenadas curadas por local (M18).
 
 ### M7. 🔄 🎮 Estoque por categoria — núcleo pronto (na main), ligação ao baú na M6
 - ✅ `Stock/`: `Resources.json` com categorias localizadas (ouro, comida, metais, materiais, alquimia, valiosos,
@@ -97,14 +101,17 @@ Regras para todas as missões:
 - ✅ `CountByCategory(container)`: uma passada em `GetInventoryCounts()`, classificação memorizada por objeto base.
 - ✅ Sink de `ContainerMenu`: reconta ao fechar só containers observados (custo zero sem observados).
 - ✅ Debug F8: inventário do jogador por categoria na tela + log (EditorID de cada keyword no log).
-- ⬜ M6: `Stock::Observe(baú da sede)`; M9: evento `OnStockChanged`; M11: totais no mapa.
+- ✅ M6: `Stock::Observe(baú da sede)` + recontagem ao fundar/carregar; `Seat::StockTotals()`; F8 mostra o estoque da sede.
+- ⬜ M9: evento `OnStockChanged`; M11: totais no mapa.
 
 ### M8. 🔄 🎮 Free Claim (estandarte em local genérico) — núcleo pronto (na main)
-- ✅ Debug F9: raycast vertical (`bhkWorld::PickObject`) à frente do jogador → ponto + normal do terreno;
+- ✅ Debug F3 (era F9, que é o quickload do jogo): raycast vertical (`bhkWorld::PickObject`) à frente do jogador → ponto + normal do terreno;
   estandarte criado com `Placement::PlaceAt`, alinhado à normal e sem física ([ADR 0018](adr/0018-free-claim-raycast.md)).
 - ✅ Cosave `CLAM` v1 (serial, Id estável, worldspace, posição, FormID do ref); limites em `settings.json → claim`
   (distância mínima, máximo, inclinação máxima, sem interiores).
-- ⬜ Depois de M3/M4: claim vira território dinâmico da facção do jogador; item/power "Fincar Estandarte" no lugar da hotkey.
+- ✅ Claim vira território dinâmico (tipo `claim`) da facção do jogador: `Config::AddDynamic`, `CLAM` v2, ordem
+  `FACT → CLAM → TERR` no cosave ([ADR 0024](adr/0024-claims-como-territorios.md)).
+- ⬜ Item/power "Fincar Estandarte" no lugar da hotkey.
 
 ## Fase 2 — Interface e gestão
 
