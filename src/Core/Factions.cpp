@@ -1,5 +1,6 @@
 #include "Core/Factions.h"
 
+#include "Api/Events.h"
 #include "Core/Config.h"
 #include "Core/I18n.h"
 
@@ -203,6 +204,7 @@ namespace AoS
         f.player = true;
         logger::info("Facção do jogador criada: '{}' ({}).", f.name, f.key);
         player_.push_back(std::move(f));
+        Api::Events::FactionCreated(player_.back().id);  // só enfileira: seguro sob o lock
         return player_.back().id;
     }
 
@@ -214,6 +216,7 @@ namespace AoS
             return false;
         }
         f->name = std::move(a_name);
+        Api::Events::FactionChanged(a_id);
         return true;
     }
 
@@ -229,6 +232,7 @@ namespace AoS
             return false;
         }
         f->style = a_style;
+        Api::Events::FactionChanged(a_id);
         return true;
     }
 
@@ -240,6 +244,7 @@ namespace AoS
             return false;
         }
         f->color = a_color & 0xFFFFFF;
+        Api::Events::FactionChanged(a_id);
         return true;
     }
 

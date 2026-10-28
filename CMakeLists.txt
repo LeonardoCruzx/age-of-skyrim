@@ -21,14 +21,16 @@ include(extern/CommonLibSSE-NG/cmake/CommonLibSSE.cmake)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 # --- Plugin -------------------------------------------------------------------
-file(GLOB_RECURSE AOS_SOURCES CONFIGURE_DEPENDS src/*.cpp src/*.h)
+file(GLOB_RECURSE AOS_SOURCES CONFIGURE_DEPENDS src/*.cpp src/*.h include/*.h)
 
 add_commonlibsse_plugin(${PROJECT_NAME}
     AUTHOR "Leonardo"
     USE_ADDRESS_LIBRARY
     SOURCES ${AOS_SOURCES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE src)
+# include/ = API pública para outros plugins (AgeOfSkyrimAPI.h); o próprio mod usa o mesmo header.
+target_include_directories(${PROJECT_NAME} PRIVATE src include)
+target_compile_definitions(${PROJECT_NAME} PRIVATE AOS_VERSION="${PROJECT_VERSION}")
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/PCH.h)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 

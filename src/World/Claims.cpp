@@ -1,5 +1,6 @@
 #include "World/Claims.h"
 
+#include "Api/Events.h"
 #include "Core/I18n.h"
 #include "Core/Timer.h"
 #include "World/Placement.h"
@@ -140,6 +141,7 @@ namespace AoS
                      claims_.size(), c.id, hit.point.x, hit.point.y, hit.point.z, wsId, hit.normal.x, hit.normal.y,
                      hit.normal.z, slope, angle.x, angle.y, angle.z, base->GetName(), c.ref);
         I18n::NotifyTr("claim.created", claims_.size(), cfg.maxClaims, static_cast<int>(slope));
+        Api::Events::ClaimCreated(c.ref, claims_.size());
     }
 
     void Claims::Clear()

@@ -1,5 +1,6 @@
 #include "Banner/BannerController.h"
 
+#include "Api/Events.h"
 #include "Core/Timer.h"
 
 namespace AoS
@@ -88,8 +89,12 @@ namespace AoS
             return false;
         }
 
-        State::Get().SetOwner(a_territory, a_owner);
+        const Id previous = State::Get().Owner(a_territory);
+        const bool changed = State::Get().SetOwner(a_territory, a_owner);
         logger::info("Território '{}' -> {}", t->key, Factions::Get().NameOf(a_owner));
+        if (changed) {
+            Api::Events::TerritoryChanged(a_territory, a_owner, previous);  // outros mods (C++ e Papyrus)
+        }
 
         SKSE::GetTaskInterface()->AddTask([a_territory] { BannerController::Get().ApplyTerritory(a_territory); });
         return true;

@@ -1,5 +1,6 @@
 #include "Stock/Stock.h"
 
+#include "Api/Events.h"
 #include "Core/I18n.h"
 #include "Core/Timer.h"
 
@@ -211,8 +212,9 @@ namespace AoS
             return;
         }
         last_[a_container] = CountByCategory(ref);
-        // TODO(M6/M9): disparar OnStockChanged para a API e atualizar o mapa tático.
         logger::info("Stock: container 0x{:08X} recontado.", a_container);
+        Api::Events::StockChanged(a_container);  // TODO(M11): atualizar o mapa tático
+
     }
 
     void Stock::ReportPlayerInventory()

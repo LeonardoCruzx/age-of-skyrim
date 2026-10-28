@@ -103,6 +103,13 @@ namespace AoS
         float   forwardDistance{ 150.0f };         // à frente do jogador
     };
 
+    // settings.json -> "api": integração com outros mods (ADR 0032).
+    struct ApiSettings
+    {
+        bool papyrusEvents{ true };      // ModEvents "AoS_*" para scripts Papyrus
+        bool allowOwnerChanges{ true };  // outros mods (C++/Papyrus) podem trocar o dono de territórios
+    };
+
     class Config
     {
     public:
@@ -119,6 +126,7 @@ namespace AoS
         [[nodiscard]] const DebugSettings&          Debug() const noexcept { return debug_; }
         [[nodiscard]] const ClaimSettings&          Claim() const noexcept { return claim_; }
         [[nodiscard]] const DiscoverySettings&      Discovery() const noexcept { return discovery_; }
+        [[nodiscard]] const ApiSettings&            Api() const noexcept { return api_; }
 
     private:
         void LoadSettings(const fs::path& a_file);
@@ -134,6 +142,7 @@ namespace AoS
         DebugSettings                           debug_;
         ClaimSettings                           claim_;
         DiscoverySettings                       discovery_;
+        ApiSettings                             api_;
         std::unordered_map<const RE::BGSLocation*, std::size_t> byLocation_;
     };
 }

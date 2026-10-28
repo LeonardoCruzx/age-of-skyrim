@@ -28,3 +28,7 @@ Decisões novas recebem o próximo número; uma decisão revista ganha um ADR no
 | 0021 | [Implementar as missões restantes sem esperar testes; teste único no fim](0021-implementar-tudo-teste-unico-no-fim.md) | Decisão do usuário | Aceita |
 | 0030 | [Dogfish / Conquest of Skyrim como referência de design (sem copiar conteúdo)](0030-referencias-externas-dogfish.md) | Decisão do usuário | Aceita |
 | 0031 | [Fase 4: governo e doutrina, população, exército, batalhas em tempo real, títulos](0031-exercito-governo-populacao-titulos.md) | Decisão do usuário | Aceita |
+| 0032 | [API pública para outros mods: interface C++ versionada, eventos e natives Papyrus](0032-api-publica-para-outros-mods.md) | Técnica | Aceita |
+| 0033 | [MCM do SkyUI como casca fina, com textos vindos do DLL](0033-mcm-skyui-casca-fina.md) | Técnica | Aceita |
+| 0034 | [AgeOfSkyrim.esp gerado por script (sem Creation Kit)](0034-esp-gerado-sem-creation-kit.md) | Técnica | Aceita |
+| 0035 | [Scripts Papyrus compilados no CI com Caprica e stubs próprios](0035-papyrus-compilado-no-ci-caprica.md) | Técnica | Aceita |

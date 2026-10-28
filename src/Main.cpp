@@ -1,7 +1,10 @@
+#include "Api/Events.h"
+#include "Api/ModApi.h"
 #include "Banner/BannerController.h"
 #include "Core/Factions.h"
 #include "Debug/SelfTest.h"
 #include "Events/Events.h"
+#include "Papyrus/Api.h"
 #include "Stock/Stock.h"
 #include "World/Claims.h"
 #include "World/Placement.h"
@@ -71,6 +74,7 @@ namespace
         AoS::Placement::Get().Clear();
         AoS::SelfTest::Clear();
         AoS::Claims::Get().Clear();
+        AoS::Api::Events::ClearSession();
     }
 
     // ---- Mensagens do SKSE ---------------------------------------------------------------------------
@@ -93,6 +97,7 @@ namespace
             SKSE::GetTaskInterface()->AddTask([] {
                 AoS::BannerController::Get().ApplyAll();
                 AoS::SelfTest::OnPostLoad();  // só age se o save tem registro do autoteste
+                AoS::Api::Events::StateReady();  // outros mods: estado pronto para consulta
             });
             break;
 
@@ -109,6 +114,8 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
     logger::info("Age of Skyrim iniciando.");
 
     SKSE::GetMessagingInterface()->RegisterListener(OnMessage);
+    AoS::Api::RegisterMessaging();  // outros plugins pedem a interface (include/AgeOfSkyrimAPI.h)
+    AoS::Papyrus::Register();       // natives do AgeOfSkyrim.psc (MCM e mods só-script)
 
     const auto ser = SKSE::GetSerializationInterface();
     ser->SetUniqueID(kCosaveUniqueId);

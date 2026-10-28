@@ -11,9 +11,12 @@
 #include <charconv>
 #include <chrono>
 #include <cmath>
+#include <cstring>
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <functional>
+#include <limits>
 #include <mutex>
 #include <optional>
 #include <string>

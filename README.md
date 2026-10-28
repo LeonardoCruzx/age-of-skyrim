@@ -38,7 +38,11 @@ setx AOS_DEPLOY_DIR "D:\MO2\mods\AgeOfSkyrim"
 
 Cada push em `main` compila o DLL no GitHub Actions (`.github/workflows/build.yml`, runner `windows-2022`).
 Em *Actions → Build → (run) → Artifacts*, baixe `AgeOfSkyrim-<sha>`: o zip já está no layout do mod
-(`SKSE/Plugins/AgeOfSkyrim.dll` + JSONs) e pode ser instalado direto no MO2/Vortex.
+(`SKSE/Plugins/AgeOfSkyrim.dll` + JSONs, `AgeOfSkyrim.esp`, `Scripts/*.pex`, `Interface/Translations/`) e pode ser
+instalado direto no MO2/Vortex. **Ative o `AgeOfSkyrim.esp`** (ESL: não ocupa slot normal) para ter o MCM.
+O CI também compila os scripts Papyrus com o [Caprica](https://github.com/Orvid/Caprica) (sem Creation Kit,
+[ADR 0035](docs/adr/0035-papyrus-compilado-no-ci-caprica.md)), gera o ESP (`tools/build_esp.py`,
+[ADR 0034](docs/adr/0034-esp-gerado-sem-creation-kit.md)) e roda `python -m unittest discover -s tests`.
 Se o build falhar, o fim dos logs do vcpkg/CMake aparece como anotações no *Summary* do run.
 
 O log fica em `Documents\My Games\Skyrim Special Edition\SKSE\AgeOfSkyrim.log`.
@@ -76,6 +80,58 @@ Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/00
 `banner` (objeto base, padrão provisório Iron Sword), `minDistance` (unidades; 70 ≈ 1 m), `maxClaims`,
 `maxSlopeDegrees`, `forwardDistance`. Claims ficam no cosave (registro `CLAM`). Ver [ADR 0018](docs/adr/0018-free-claim-raycast.md).
 
+### MCM (SkyUI, opcional)
+Com SkyUI 5.x instalado aparece **Age of Skyrim** no menu de configuração: Facção (criar/renomear, estilo, cor),
+Territórios (lista paginada + dono; com `debug.enabled` dá para trocar o dono), Sede e Estoque, Economia e Governo
+(em breve) e Depuração (atalhos e ações). Os textos seguem o `language` do `settings.json`
+([ADR 0033](docs/adr/0033-mcm-skyui-casca-fina.md)). Sem SkyUI o mod funciona igual, só sem o menu.
+
+### API para outros mods (`settings.json` → `api`)
+`papyrusEvents` (ModEvents `AoS_*`) e `allowOwnerChanges` (outros mods podem trocar donos).
+Detalhes e eventos reservados na [ADR 0032](docs/adr/0032-api-publica-para-outros-mods.md).
+
+**Plugin SKSE (C++)** — copie [`include/AgeOfSkyrimAPI.h`](include/AgeOfSkyrimAPI.h):
+
+```cpp
+#include "AgeOfSkyrimAPI.h"
+
+AgeOfSkyrimAPI::IAgeOfSkyrim* g_aos = nullptr;
+
+void OnAoSEvent(const AgeOfSkyrimAPI::Event& e, void*)  // sempre na thread principal
+{
+    char name[128];
+    g_aos->GetTerritoryName(e.territory, name, sizeof(name));
+    SKSE::log::info("{} agora é da facção 0x{:08X}", name, e.faction);
+}
+
+void OnMessage(SKSE::MessagingInterface::Message* a_msg)
+{
+    if (a_msg->type == SKSE::MessagingInterface::kPostLoad) {  // ou kPostPostLoad
+        g_aos = AgeOfSkyrimAPI::RequestInterface();            // nullptr = Age of Skyrim ausente/antigo
+        if (g_aos) {
+            g_aos->AddListener(AgeOfSkyrimAPI::EventType::kTerritoryChanged, OnAoSEvent, nullptr);
+        }
+    }
+}
+```
+
+Sem CommonLib: envie `kMessageRequestInterface` com um `InterfaceRequest` para `"AgeOfSkyrim"` via
+`MessagingInterface::Dispatch`, ou chame o export `AoS_GetInterface(versão)` do `AgeOfSkyrim.dll`.
+
+**Papyrus** — natives em [`AgeOfSkyrim.psc`](data/Scripts/Source/AgeOfSkyrim.psc) (facções e territórios por chave
+de texto, `""` = neutro):
+
+```papyrus
+Event OnInit()
+    RegisterForModEvent("AoS_TerritoryChanged", "OnAoSTerritoryChanged")
+EndEvent
+
+Event OnAoSTerritoryChanged(String asEventName, String asTerritory, Float afValue, Form akSender)
+    String owner = AgeOfSkyrim.GetTerritoryOwner(asTerritory)
+    Debug.Trace(AgeOfSkyrim.GetTerritoryName(asTerritory) + " -> " + AgeOfSkyrim.GetFactionName(owner))
+EndEvent
+```
+
 ## Estrutura
 
 | Arquivo | Responsabilidade |
@@ -93,6 +149,14 @@ Contagem só ao fechar o baú observado (M6). Detalhes na [ADR 0017](docs/adr/00
 | `src/World/Claims.*` | Free Claim: raycast + alinhamento à normal, limites, registro `CLAM` v1, debug F9 |
 | `src/Banner/BannerController.*` | Único ponto que chama `Enable()/Disable()`; `SetTerritoryOwner()` |
 | `src/Events/Events.*` | Retentativa ao carregar células; hotkeys de debug (F10/F11) |
+| `include/AgeOfSkyrimAPI.h` | API pública C++ versionada (interface, eventos, pedido por mensagem SKSE) |
+| `src/Api/ModApi.*` | Implementação da interface, mensagem 'AOSI', export `AoS_GetInterface`, ganchos para M6/M12/M13/M18 |
+| `src/Api/Events.*` | Registro central de eventos: callbacks C++ + ModEvents `AoS_*`, sempre na thread principal |
+| `src/Papyrus/Api.*` | Natives do `AgeOfSkyrim.psc` (MCM e mods só-script) |
+| `data/Scripts/Source/*.psc` | `AgeOfSkyrim.psc` (natives) e `AgeOfSkyrimMCM.psc` (MCM do SkyUI) |
+| `tools/papyrus/` | Stubs de compilação próprios + flags (Caprica no CI); não vão no pacote |
+| `tools/build_esp.py` | Gera o `AgeOfSkyrim.esp` (ESL, quest do MCM) — testado em `tests/test_build_esp.py` |
+| `tools/gen_skyui_translations.py` | `Interface/Translations/AgeOfSkyrim_*.txt` a partir dos JSON de tradução |
 | `src/Main.cpp` | Entrada SKSE, log, mensagens; um laço lê o cosave e despacha cada registro ao seu módulo |
 
 ## Pendências conhecidas da Fase 1

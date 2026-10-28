@@ -108,7 +108,15 @@ Regras para todas as missões:
 
 ## Fase 2 — Interface e gestão
 
-### M9. ⬜ Camada de API (Papyrus + SKSE para outros mods)
+### M9. ✅ Camada de API (Papyrus + SKSE para outros mods) — implementada, aguardando teste no jogo ([ADR 0032](adr/0032-api-publica-para-outros-mods.md), [0035](adr/0035-papyrus-compilado-no-ci-caprica.md))
+- ✅ `include/AgeOfSkyrimAPI.h` (`IAgeOfSkyrim` v1, ABI só com POD) pedido por mensagem SKSE 'AOSI' ou export
+  `AoS_GetInterface`; `src/Api/ModApi` implementa e expõe ganchos (`Set*Provider`) para sede/tesouro/rotas/governo.
+- ✅ `src/Api/Events`: `Emit` de qualquer thread → thread principal → callbacks C++ + ModEvent `AoS_*`. Emissores hoje:
+  StateReady, TerritoryChanged, FactionCreated/Changed, ClaimCreated, StockChanged; demais reservados (M6/M12/M13/M18/M19/M22).
+- ✅ `src/Papyrus/Api` + `data/Scripts/Source/AgeOfSkyrim.psc` (natives por chave de texto); compilado no CI com Caprica
+  e stubs próprios (`tools/papyrus/`). `settings.json` → `api` (`papyrusEvents`, `allowOwnerChanges`).
+
+Plano original:
 - `src/Api/ModApi.{h,cpp}` + `include/AgeOfSkyrimAPI.h` público: interface versionada via
   `SKSE::GetMessagingInterface()` (outros DLLs pedem a interface em `kPostLoad`), eventos `OnTerritoryChanged`,
   `OnFactionCreated`, `OnSeatFounded`, `OnStockChanged`.
@@ -117,7 +125,15 @@ Regras para todas as missões:
 - `data/Scripts/Source/AgeOfSkyrim.psc` + script compilado no CI (Caprica, fora do CK).
 - Base do MCM (M10) **e** do mapa PrismaUI (M11).
 
-### M10. ⬜ 🎮 MCM (SkyUI)
+### M10. ✅ 🎮 MCM (SkyUI) — implementada, aguardando teste no jogo ([ADR 0033](adr/0033-mcm-skyui-casca-fina.md), [0034](adr/0034-esp-gerado-sem-creation-kit.md))
+- ✅ `AgeOfSkyrimMCM.psc`: Facção (criar/renomear/estilo/cor), Territórios (40 por página + dono; menu de dono com debug),
+  Sede e Estoque ("sem sede" até a M6 + inventário por categoria), Economia e Governo (em breve), Depuração.
+- ✅ Textos pelo DLL (`AgeOfSkyrim.Tr`, idioma do `settings.json`); tokens do SkyUI só para nome do mod e "DLL ausente",
+  gerados por `tools/gen_skyui_translations.py`; `check_translations.py` confere as chaves usadas nos `.psc`.
+- ✅ `AgeOfSkyrim.esp` (ESL) gerado sem CK por `tools/build_esp.py` (quest + VMAD + alias do jogador), validado por
+  `tests/test_build_esp.py`. SkyUI opcional (caixa de texto exige SkyUI 5.x).
+
+Plano original:
 - `AgeOfSkyrimMCM.psc` (quest + `SKI_ConfigBase`): "Facção" (criar/renomear/estilo/cor), "Territórios" (lista + dono),
   "Sede & Estoque" (totais por categoria), "Debug".
 - Quest do MCM adicionada ao ESP (passo a passo do CK).
