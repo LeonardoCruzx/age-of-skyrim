@@ -88,6 +88,10 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
 ### Corrigido
 - `docs/adr/0042`/`docs/ROADMAP.md`: marcavam a leitura de `Compat/*.json` no DLL como pendente; já foi feita
   junto da M16 (`Config::LoadCompat`) — só a documentação estava desatualizada.
+- **Crash ao abrir o jogo em Skyrim ≥ 1.7.x** (`REL/ID.h(219): failed to open address library file`): bug do
+  CommonLibSSE-NG vendorizado, que classificava qualquer versão do jogo fora de `1.6.x`/`1.4.x` como SE
+  pré-Anniversary Edition, tentando abrir o arquivo errado do Address Library. Corrigido por patch aplicado no
+  CI (`tools/vendor-patches/`), sem alterar o pin do submódulo (ADR 0066).
 
 ### Observações
 - Roteiro de teste único e consolidado para as 28 missões em [TESTES.md](TESTES.md) (ADR 0021); ainda não
