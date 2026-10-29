@@ -16,11 +16,23 @@ namespace AoS
         [[nodiscard]] static std::optional<FormRef> Parse(std::string_view a_text);
 
         // nullptr se o plugin não está carregado ou o form não é do tipo pedido.
+        //
+        // RE::TESDataHandler::LookupForm<T>() filtra por form->Is(T::FORMTYPE); para T = RE::TESForm,
+        // FORMTYPE é FormType::None, que nenhum form real tem — o template sempre retornaria nullptr.
+        // Por isso, só para TESForm (tipo "aceita qualquer form"), usamos o overload sem template
+        // (sem esse filtro); para os demais T (tipo concreto), o filtro é o comportamento certo.
         template <class T = RE::TESObjectREFR>
         [[nodiscard]] T* Resolve() const
         {
             const auto dh = RE::TESDataHandler::GetSingleton();
-            return dh ? dh->LookupForm<T>(localId, plugin) : nullptr;
+            if (!dh) {
+                return nullptr;
+            }
+            if constexpr (std::is_same_v<T, RE::TESForm>) {
+                return dh->LookupForm(localId, plugin);
+            } else {
+                return dh->LookupForm<T>(localId, plugin);
+            }
         }
     };
 
