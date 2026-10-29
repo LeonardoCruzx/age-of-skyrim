@@ -29,12 +29,12 @@ jobs:
       # CommonLibSSE-NG (pin atual) classifica como "SE" qualquer runtime.exe cuja minor version não seja
       # 4 (VR) ou 6 (AE) — quebra em versões do jogo >= 1.7.x (ADR 0064). Até o upstream corrigir, aplicamos
       # o fix aqui; "patch --check" já valida que ainda se aplica de forma limpa (senão falha cedo e visível).
-      - name: Patch do CommonLibSSE-NG (detecção de runtime AE + fallback de formato do address library)
+      - name: Patch do CommonLibSSE-NG (detecção de runtime AE + leitura do address library formato 5)
         run: |
           git apply --check tools/vendor-patches/commonlibsse-ng-ae-version-detect.patch --directory=extern/CommonLibSSE-NG
           git apply tools/vendor-patches/commonlibsse-ng-ae-version-detect.patch --directory=extern/CommonLibSSE-NG
-          git apply --check tools/vendor-patches/commonlibsse-ng-ae-address-library-format-fallback.patch --directory=extern/CommonLibSSE-NG
-          git apply tools/vendor-patches/commonlibsse-ng-ae-address-library-format-fallback.patch --directory=extern/CommonLibSSE-NG
+          git apply --check tools/vendor-patches/commonlibsse-ng-address-library-format5.patch --directory=extern/CommonLibSSE-NG
+          git apply tools/vendor-patches/commonlibsse-ng-address-library-format5.patch --directory=extern/CommonLibSSE-NG
 
       - name: Conferir traduções (en / pt-br + chaves usadas no Papyrus)
         run: python tools/check_translations.py
