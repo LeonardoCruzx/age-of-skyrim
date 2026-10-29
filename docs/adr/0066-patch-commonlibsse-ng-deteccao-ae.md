@@ -1,4 +1,4 @@
-# 0066. Patch no CommonLibSSE-NG para detecção de runtime AE (versões do jogo ≥ 1.7.x)
+# 0066. Patch no CommonLibSSE-NG para Skyrim ≥ 1.7.x: detecção de runtime AE e formato do address library
 
 - **Status:** Aceita
 - **Data:** 2026-10-29
@@ -32,18 +32,36 @@ do submódulo).
 runtime detection and address library fallback"), com descrição do problema idêntica (mesmo arquivo, mesma
 linha, mesmo sintoma em `1.7.99`/`1.7.104+`) — fechada pelo próprio autor em 2026-10-12, sem revisão nem
 merge. Valida o diagnóstico, mas não foi adotada tal qual: ela só adiciona `case 7:` (quebraria de novo em
-`1.8.x`) e inclui um fallback especulativo e não revisado para um suposto formato `versionl2b-*.bin`
-("Format 5") que não existe na instalação do usuário (só há arquivos `versionlib-*.bin`, o formato que o
-`ID.h` já monta corretamente assim que `IsAE()` retornar certo). Por isso o patch adotado aqui só muda
-`Module.h` (qualquer minor `>= 6` vira AE por `default`, não só o `7`) e não mexe em `ID.h`.
+`1.8.x`) e inclui um fallback para um suposto formato `versionl2b-*.bin` ("Format 5") que, na primeira
+rodada desta ADR, avaliei como especulativo e não copiei por não haver esse arquivo confirmado na instalação
+do usuário.
+
+**Segunda camada do problema (achada só depois, com o DLL já carregando):** corrigido o `Module.h`, o jogo
+chegou a abrir, mas travou de novo com `REL/ID.h(257): Unsupported address library format: 5` — o Address
+Library do usuário (`Address Library All in One` v13) já gera `versionlib-1-7-104-0.bin` num **formato 5**
+novo, que `IDDatabase::header_t::read()` não reconhece (só lê formato `2`, hardcoded em `IDDatabase::load()`
+via `Module::IsAE() ? 2 : 1`). A parte da PR #113 que eu tinha descartado por "especulativa" era exatamente
+sobre isso — a mudança de formato é real, só a composição do nome do arquivo que a PR chutou
+(`versionl2b-*.bin`) não pôde ser confirmada no caso do usuário. Em vez de pedir mais uma rodada de
+verificação manual, o segundo patch
+(`tools/vendor-patches/commonlibsse-ng-ae-address-library-format-fallback.patch`) faz o próprio código
+decidir em runtime: se existir `versionl2b-{versão}.bin` (companheiro legado em formato `2`, que esta cópia
+já sabe ler) ao lado do `versionlib-{versão}.bin`, usa o legado; senão, mantém o comportamento atual. Sem
+suporte a ler o formato `5` de verdade — não há documentação pública do layout binário novo para
+implementar isso com segurança (um parser errado leria offsets/ids corrompidos silenciosamente, pior que
+travar com uma mensagem clara).
 
 ## Decisão
-**Patch aplicado no CI, não no pin do submódulo.** `tools/vendor-patches/commonlibsse-ng-ae-version-detect.patch`
-corrige o `switch`: minor `5` vira o único caso explícito de SE (foi a única minor version que a SE pré-AE
-teve, `1.5.97`); qualquer minor `>= 6` (6, 7, e qualquer futura) vira AE por `default`. `.github/workflows/build.yml`
-aplica esse patch com `git apply --directory=extern/CommonLibSSE-NG` logo após o checkout, antes de qualquer
-outra etapa (`git apply --check` primeiro, pra falhar cedo e visível se o patch parar de bater quando o
-submódulo for atualizado no futuro).
+**Dois patches aplicados no CI, não no pin do submódulo.** `.github/workflows/build.yml` aplica ambos com
+`git apply --directory=extern/CommonLibSSE-NG` logo após o checkout, antes de qualquer outra etapa
+(`git apply --check` primeiro em cada um, pra falhar cedo e visível se algum parar de bater quando o
+submódulo for atualizado no futuro):
+1. `tools/vendor-patches/commonlibsse-ng-ae-version-detect.patch` — corrige o `switch` de `Module.h`: minor
+   `5` vira o único caso explícito de SE (foi a única minor version que a SE pré-AE teve, `1.5.97`); qualquer
+   minor `>= 6` (6, 7, e qualquer futura) vira AE por `default`.
+2. `tools/vendor-patches/commonlibsse-ng-ae-address-library-format-fallback.patch` — em `ID.h`, antes de
+   montar o nome do arquivo AE, checa se `versionl2b-{versão}.bin` existe; se sim, usa ele (formato `2`,
+   legado, lido normalmente); senão, mantém `versionlib-{versão}.bin` como antes.
 
 Alternativas descartadas:
 - **Fazer fork do CommonLibSSE-NG e apontar o submódulo pra lá:** resolveria de forma mais "permanente", mas
@@ -58,9 +76,13 @@ Alternativas descartadas:
   executável procurado, não o tipo de runtime classificado).
 
 ## Consequências
-- Quando o CommonLibSSE-NG upstream corrigir isso (ou simplesmente adicionar mais `case`s pros minors
-  seguintes), o `git apply --check` vai falhar no CI assim que o submódulo for atualizado — aviso explícito pra
-  remover o patch, não um bug silencioso reintroduzido.
-- O patch é específico desse pin do submódulo (`b93280e8`); se o submódulo for atualizado por qualquer motivo
-  antes do upstream corrigir isso, reconferir se a função/linhas ainda batem.
+- Quando o CommonLibSSE-NG upstream corrigir isso (ou simplesmente adicionar mais `case`s/formatos), o
+  `git apply --check` vai falhar no CI assim que o submódulo for atualizado — aviso explícito pra remover o(s)
+  patch(es), não um bug silencioso reintroduzido.
+- Os patches são específicos desse pin do submódulo (`b93280e8`); se o submódulo for atualizado por qualquer
+  motivo antes do upstream corrigir isso, reconferir se as funções/linhas ainda batem.
+- **Se o usuário não tiver `versionl2b-*.bin`** (Address Library mais antigo, ou uma versão do jogo onde esse
+  companheiro legado não é gerado), o patch 2 não muda nada e o erro de formato 5 continua — nesse caso não
+  há solução no nosso lado até o CommonLibSSE-NG ganhar um parser de verdade pro formato novo, ou o usuário
+  trocar de versão do Address Library/jogo.
 - Nenhum impacto em save/cosave/gameplay — é puramente sobre o DLL conseguir carregar.
