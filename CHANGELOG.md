@@ -93,8 +93,8 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   1. `REL/ID.h(219): failed to open address library file` — classificava qualquer versão do jogo fora de
      `1.6.x`/`1.4.x` como SE pré-Anniversary Edition, abrindo o arquivo errado do Address Library.
   2. `REL/ID.h(257): Unsupported address library format: 5` — o Address Library mais recente gera o
-     `versionlib-*.bin` num formato novo que esta cópia não lê; agora prefere o companheiro legado
-     `versionl2b-*.bin` (formato antigo) quando ele existe.
+     `versionlib-*.bin` num formato novo (array denso, não a lista esparsa do formato antigo) que esta
+     cópia não sabia ler; implementada leitura real do formato 5.
 
 ### Observações
 - Roteiro de teste único e consolidado para as 28 missões em [TESTES.md](TESTES.md) (ADR 0021); ainda não

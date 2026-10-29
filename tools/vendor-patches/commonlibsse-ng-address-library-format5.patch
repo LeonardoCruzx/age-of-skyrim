@@ -1,0 +1,176 @@
+diff --git a/include/REL/ID.h b/include/REL/ID.h
+index 8d7f2be2..89a9c618 100644
+--- a/include/REL/ID.h
++++ b/include/REL/ID.h
+@@ -187,6 +187,10 @@ namespace REL
+                 if (it->id != a_id) {
+                     failed = true;
+                 }
++            } else if (_isDenseFormat5 && it->offset == 0) {
++                // Formato 5 grava todo id de 0 a denseCount-1; offset 0 e "sem mapeamento"
++                // (equivalente a um id ausente nos formatos esparsos), nao um endereco real.
++                failed = true;
+             }
+             if (failed) {
+                 stl::report_and_fail(
+@@ -262,7 +266,13 @@ namespace REL
+                                     "support it."sv,
+                                     format));
+                 }
++                read_body(a_in);
++            }
+ 
++            // Mesma leitura, sem o campo de formato: usada quando load_file ja o espiou
++            // antes (precisa decidir entre esse layout e o do header_v5_t).
++            void read_body(istream_t &a_in)
++            {
+                 std::int32_t version[4]{};
+                 std::int32_t nameLen{};
+                 a_in.readin(version);
+@@ -289,6 +299,42 @@ namespace REL
+             std::int32_t _addressCount{0};
+         };
+ 
++        // Formato 5 (Skyrim >= 1.7.99 AE): nome do modulo num campo fixo de 64 bytes (sem
++        // prefixo de tamanho) e um array DENSO de offsets logo em seguida, indexado direto
++        // pelo id (0 = sem mapeamento) — não a lista esparsa com delta-encoding como o
++        // formato 1/2. Layout decodificado byte a byte a partir de um arquivo real (ver
++        // ADR 0066); o autor do Address Library nao publicou documentacao do formato.
++        class header_v5_t
++        {
++        public:
++            void read(istream_t &a_in)
++            {
++                std::uint32_t version[4]{};
++                a_in.readin(version);
++
++                char name[64]{};
++                a_in.readin(name);
++
++                a_in.readin(_pointerSize);
++                a_in.readin(_dataFormat);
++                a_in.readin(_offsetCount);
++
++                for (std::size_t i = 0; i < std::extent_v<decltype(version)>; ++i) {
++                    _version[i] = static_cast<std::uint16_t>(version[i]);
++                }
++            }
++
++            [[nodiscard]] std::size_t offset_count() const noexcept { return static_cast<std::size_t>(_offsetCount); }
++
++            [[nodiscard]] Version version() const noexcept { return _version; }
++
++        private:
++            Version      _version;
++            std::int32_t _pointerSize{0};
++            std::int32_t _dataFormat{0};
++            std::int32_t _offsetCount{0};
++        };
++
+         IDDatabase() = default;
+         IDDatabase(const IDDatabase&) = delete;
+         IDDatabase(IDDatabase&&) = delete;
+@@ -324,6 +370,8 @@ namespace REL
+ 
+         bool load_file(stl::zwstring a_filename, Version a_version, std::uint8_t a_formatVersion, bool a_failOnError);
+ 
++        bool load_v5(istream_t &a_in, header_v5_t a_header, Version a_version, bool a_failOnError);
++
+ #ifdef ENABLE_SKYRIM_VR
+         bool load_csv(stl::zwstring a_filename, Version a_version, bool a_failOnError);
+ #endif
+@@ -417,6 +465,7 @@ namespace REL
+         {
+             _mmap.close();
+             _id2offset = {};
++            _isDenseFormat5 = false;
+         }
+ 
+         static IDDatabase              _instance;
+@@ -424,6 +473,7 @@ namespace REL
+         static inline std::mutex       _initLock;
+         detail::memory_map             _mmap;
+         std::span<mapping_t>           _id2offset;
++        bool                           _isDenseFormat5{false};
+     };
+ 
+     class ID
+diff --git a/src/REL/ID.cpp b/src/REL/ID.cpp
+index 8d6104a0..d15210f6 100644
+--- a/src/REL/ID.cpp
++++ b/src/REL/ID.cpp
+@@ -97,8 +97,28 @@ namespace REL
+ 	{
+ 		try {
+ 			istream_t in(a_filename.data(), std::ios::in | std::ios::binary);
++
++			// Formato 5 (Skyrim >= 1.7.99 AE) tem layout diferente do 1/2 (ver ADR 0066);
++			// espia o campo antes de assumir que e sempre o que o chamador pediu.
++			std::int32_t peekedFormat{};
++			in.readin(peekedFormat);
++			if (peekedFormat == 5) {
++				header_v5_t header5;
++				header5.read(in);
++				return load_v5(in, header5, a_version, a_failOnError);
++			}
++			if (peekedFormat != static_cast<std::int32_t>(a_formatVersion)) {
++				return stl::report_and_error(
++						std::format(
++								"Unsupported address library format: {}\n"
++								"This means this script extender plugin is incompatible with the address "
++								"library available for this version of the game, and thus does not "
++								"support it."sv,
++								peekedFormat), a_failOnError);
++			}
++
+ 			header_t header;
+-			header.read(in, a_formatVersion);
++			header.read_body(in);
+ 			if (header.version() != a_version) {
+ 				return stl::report_and_error("version mismatch"sv, a_failOnError);
+ 			}
+@@ -132,6 +152,44 @@ namespace REL
+ 		return true;
+ 	}
+ 
++	bool IDDatabase::load_v5(istream_t &a_in, header_v5_t a_header, Version a_version, bool a_failOnError)
++	{
++		if (a_header.version() != a_version) {
++			return stl::report_and_error("version mismatch"sv, a_failOnError);
++		}
++
++		// O arquivo guarda um array denso (indice = id, 0 = sem mapeamento). Gravamos
++		// {id, offset} indexado pelo proprio id (slots[id] = {id, ...}) em vez de pular
++		// os zeros: assim o span tem sempre exatamente denseCount entradas, ja ordenado
++		// por id (indice crescente = id crescente, sem precisar reordenar), e o tamanho
++		// bate tanto na primeira carga quanto ao reabrir essa mesma memoria compartilhada
++		// de outro plugin que ja tenha processado o mesmo arquivo. offset 0 continua
++		// significando "sem mapeamento" — tratado em id2offset() via _isDenseFormat5, nao
++		// filtrado aqui.
++		const auto denseCount = a_header.offset_count();
++
++		auto mapname = L"CommonLibSSEOffsetsV5-"s;
++		mapname += a_version.wstring();
++		const auto byteSize = static_cast<std::size_t>(denseCount) * sizeof(mapping_t);
++		if (_mmap.open(mapname, byteSize)) {
++			_id2offset = { static_cast<mapping_t*>(_mmap.data()), denseCount };
++			_isDenseFormat5 = true;
++			return true;
++		}
++		if (!_mmap.create(mapname, byteSize)) {
++			return stl::report_and_error("failed to create shared mapping"sv, a_failOnError);
++		}
++
++		auto* slots = static_cast<mapping_t*>(_mmap.data());
++		for (std::uint64_t id = 0; id < denseCount; ++id) {
++			slots[id] = { id, static_cast<std::uint64_t>(a_in.readout<std::uint32_t>()) };
++		}
++		_id2offset = { slots, denseCount };
++		_isDenseFormat5 = true;
++
++		return true;
++	}
++
+ #ifdef ENABLE_SKYRIM_VR
+ 	bool IDDatabase::load_csv(stl::zwstring a_filename, Version a_version, bool a_failOnError)
+ 	{
