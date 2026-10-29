@@ -1,0 +1,19 @@
+diff --git a/include/REL/Module.h b/include/REL/Module.h
+index 54a484c7..524db4a7 100644
+--- a/include/REL/Module.h
++++ b/include/REL/Module.h
+@@ -339,11 +339,11 @@ namespace REL
+ 					case 4:
+ 						_runtime = Runtime::VR;
+ 						break;
+-					case 6:
+-						_runtime = Runtime::AE;
++					case 5:
++						_runtime = Runtime::SE;
+ 						break;
+ 					default:
+-						_runtime = Runtime::SE;
++						_runtime = Runtime::AE;
+ 				}
+ 				return true;
+ 			}
