@@ -101,6 +101,11 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   do CommonLibSSE-NG (`form->Is(FormType::None)` nunca é verdade para um form real, e nenhum dos dois tipos
   tem `FormType` próprio); corrigido em `Config.h` (ADR 0067).
 
+### Modificado
+- Hotkeys de debug do teclado numérico (NumPad1-9/./-/+/\*) trocadas por teclas presentes em qualquer
+  teclado (`-`, `=`, `[`, `]`, `;`, `'`, `,`, `.`, `\`, `/`, Home, End, Insert, Delete) — teclado 70%/TKL
+  não tem NumPad. `settings.json` e [TESTES.md](TESTES.md) atualizados.
+
 ### Observações
 - Roteiro de teste único e consolidado para as 28 missões em [TESTES.md](TESTES.md) (ADR 0021); ainda não
   executado no jogo.
