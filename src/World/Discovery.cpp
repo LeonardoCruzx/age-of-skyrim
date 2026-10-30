@@ -27,6 +27,9 @@ namespace AoS::Discovery
             TypeKeyword{ "LocTypeBanditCamp", TerritoryType::kCamp },
             TypeKeyword{ "LocTypeForswornCamp", TerritoryType::kCamp },
             TypeKeyword{ "LocTypeGiantCamp", TerritoryType::kCamp },
+            // M29: casas do jogador (vanilla e de outros mods que seguem a convenção). As que ficam dentro de
+            // uma cidade saem sozinhas pela remoção de sub-locais abaixo (a cidade já é candidata do tipo "city").
+            TypeKeyword{ "LocTypePlayerHouse", TerritoryType::kHouse },
         };
         constexpr std::string_view kHoldKeyword = "LocTypeHold";
 
@@ -192,9 +195,10 @@ namespace AoS::Discovery
             withNeighbors += !t.neighbors.empty();
         }
         logger::info("[descoberta] {} território(s) do jogo: {} cidade(s), {} vila(s), {} forte(s), {} torre(s), "
-                     "{} acampamento(s).",
+                     "{} acampamento(s), {} casa(s).",
                      discovered, byType[TerritoryType::kCity], byType[TerritoryType::kVillage],
-                     byType[TerritoryType::kFort], byType[TerritoryType::kTower], byType[TerritoryType::kCamp]);
+                     byType[TerritoryType::kFort], byType[TerritoryType::kTower], byType[TerritoryType::kCamp],
+                     byType[TerritoryType::kHouse]);
 
         // Mínimos de um Skyrim vanilla (5 capitais grandes, dezenas de fortes e acampamentos).
         const auto check = [](bool a_ok, std::string_view a_what) {

@@ -84,6 +84,11 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   `realm.dominationThreshold` (padrão 1.0 = todas) das províncias existentes; avaliado dentro do mesmo
   `Realm::Reevaluate` que já reavalia títulos, sem polling; vitória suave — sem travar nada. Cosave `DOMN` v1,
   exposto por `Realm::HasDominated`, native Papyrus e a página "Reino" do MCM.
+- **M29 — Casas do jogador como sede:** territórios tipo `"house"` (keyword vanilla `LocTypePlayerHouse`,
+  cobre Lakeview Manor/Windstad Manor/Heljarchen Hall e casas de outros mods que seguem a mesma convenção;
+  as de dentro de uma cidade saem sozinhas pela descoberta, M4); entrar numa casa neutra passa ela pra sua
+  facção direto (sem precisar limpar nada) e oferece fundar a sede ali (M6); nunca é alvo da IA (M16).
+  [ADR 0068](docs/adr/0068-casas-do-jogador-como-sede.md).
 
 ### Corrigido
 - `docs/adr/0042`/`docs/ROADMAP.md`: marcavam a leitura de `Compat/*.json` no DLL como pendente; já foi feita

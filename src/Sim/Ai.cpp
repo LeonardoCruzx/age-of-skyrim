@@ -244,6 +244,9 @@ namespace AoS
         if (excluded_.contains(a_territory.id)) {
             return false;
         }
+        if (a_territory.type == TerritoryType::kHouse) {  // M29: casa do jogador, nunca alvo da IA
+            return false;
+        }
         if (a_territory.type == TerritoryType::kClaim) {  // dinâmico: só a lista por id
             return !(Config::Get().Ai().respectConquestExclusions && Conquest::Get().IsExcluded(a_territory));
         }

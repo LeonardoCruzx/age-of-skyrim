@@ -212,10 +212,15 @@ namespace AoS
         if (!SetTerritoryOwner(a_territory.id, *faction)) {
             return false;
         }
+        const auto originText = a_source == Source::kCleared ? "local limpo" :
+                                a_source == Source::kHome    ? "casa do jogador" :
+                                debug                        ? "debug" :
+                                                                "api";
         logger::info("Conquista: '{}' ({}) tomado de '{}' por '{}' (origem: {}).", a_territory.key, a_territory.name,
-                     factions.NameOf(previous), factions.NameOf(*faction),
-                     a_source == Source::kCleared ? "local limpo" : debug ? "debug" : "api");
-        I18n::NotifyTr("conquest.conquered", a_territory.name, factions.NameOf(*faction));
+                     factions.NameOf(previous), factions.NameOf(*faction), originText);
+        // M29: casa do jogador não foi "conquistada" (nunca teve inimigo nenhum) — mensagem própria.
+        I18n::NotifyTr(a_source == Source::kHome ? "conquest.home" : "conquest.conquered", a_territory.name,
+                       factions.NameOf(*faction));
         for (const auto& l : listeners_) {
             l(a_territory, previous, a_source);
         }
@@ -268,5 +273,19 @@ namespace AoS
         ConquerForPlayer(*t, Source::kCleared);
     }
 
-    void Conquest::OnPlayerLocationChanged(RE::BGSLocation* a_old, RE::BGSLocation*) { previous_ = a_old; }
+    void Conquest::OnPlayerLocationChanged(RE::BGSLocation* a_old, RE::BGSLocation* a_new)
+    {
+        previous_ = a_old;
+        // M29: casas do jogador (LocTypePlayerHouse, exceto as de dentro de uma cidade — ver Discovery) não têm
+        // inimigo pra limpar, então nunca disparariam LocationCleared; a casa já é sua desde que você entrou, então
+        // ao entrar ela já passa pra sua facção direto (ainda respeitando conquest.enabled/exclude, caso o jogador
+        // queira desligar isso ou excluir uma casa específica).
+        if (!Config::Get().Conquest().enabled) {
+            return;
+        }
+        if (const auto t = FindInChain(a_new, /*onlyCleared*/ false);
+            t && t->type == TerritoryType::kHouse && State::Get().Owner(t->id) == kNeutral) {
+            ConquerForPlayer(*t, Source::kHome);
+        }
+    }
 }

@@ -68,6 +68,7 @@ namespace AoS
         kVillage,
         kCity,
         kClaim,  // M8: estandarte do Free Claim (território dinâmico, criado em runtime)
+        kHouse,  // M29: casa do jogador (LocTypePlayerHouse), exceto as que ficam dentro de uma cidade
     };
 
     [[nodiscard]] std::string_view             ToString(TerritoryType a_type) noexcept;
@@ -99,7 +100,7 @@ namespace AoS
     {
         bool                       enabled{ true };
         std::vector<TerritoryType> types{ TerritoryType::kFort, TerritoryType::kCamp, TerritoryType::kVillage,
-                                          TerritoryType::kCity };
+                                          TerritoryType::kCity, TerritoryType::kHouse };
         std::unordered_set<Id>     exclude;             // MakeId("Plugin.esp|0x00ABCD")
         std::size_t                neighbors{ 4 };
     };

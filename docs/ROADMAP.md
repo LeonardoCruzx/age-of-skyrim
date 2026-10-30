@@ -397,6 +397,13 @@ capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
 - ⬜ Perfil de performance num save grande (todos os territórios, guarnições, exércitos, IA, rotas, batalhas).
 - ⬜ Primeiro release (tag `v0.1.0`) e upload no Nexus.
 
+### M29. ✅ Casas do jogador como sede — [ADR 0068](adr/0068-casas-do-jogador-como-sede.md)
+- ✅ Descoberta por `LocTypePlayerHouse` (tipo novo `"house"`); as de dentro de uma cidade saem sozinhas pela
+  remoção de sub-locais que já existia (M4).
+- ✅ Entrar numa casa neutra passa ela pra facção do jogador direto (sem precisar "limpar" nada) e oferece
+  fundar a sede ali (M6); nunca é alvo da IA (M16).
+- ✅ `Seats/vanilla.json → auto.types` inclui `"house"`, sem concorrer pelo teto `perProvince` dos fortes/torres.
+
 ## Pacote de imersão — alto impacto e baixo risco
 
 Estas features priorizam a sensação de um reino vivo sem introduzir um novo simulador
