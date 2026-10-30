@@ -1,7 +1,8 @@
 {
   // População numérica por território (M19), sem atores. Outros mods podem soltar mais *.json nesta pasta.
   "population": {
-    // Inicial por tipo de território ("unknown" = sem tipo). Teto = inicial × capacityFactor.
+    // Inicial por tipo de território ("unknown" = sem tipo; "claim" e "house" também aceitos, padrão 5/20).
+    // Teto = inicial × capacityFactor.
     "initial": { "camp": 25, "fort": 60, "tower": 15, "village": 120, "city": 800, "unknown": 10 },
     // Por território (id do território): { "whiterun_city": 1200 }
     "territories": {},

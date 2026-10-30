@@ -61,7 +61,9 @@ namespace AoS
         void LoadRecord(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);
 
     private:
-        static constexpr std::size_t kTypeCount = static_cast<std::size_t>(TerritoryType::kClaim) + 1;
+        // Precisa cobrir TODO TerritoryType: Garrison.json pode ter "initial"/"max" por tipo pra qualquer um
+        // (LoadFile indexa initial_[tipo]/max_[tipo] direto, sem checar limite).
+        static constexpr std::size_t kTypeCount = static_cast<std::size_t>(TerritoryType::kHouse) + 1;
 
         struct Troop
         {

@@ -108,7 +108,9 @@ namespace AoS
         void LoadRecord(SKSE::SerializationInterface* a_intfc, std::uint32_t a_version);
 
     private:
-        static constexpr std::size_t kTypeCount = static_cast<std::size_t>(TerritoryType::kCity) + 1;
+        // Precisa cobrir TODO TerritoryType (não só os que o Economy.json usa hoje) — production_[t.type] em
+        // Process() indexa direto por qualquer território existente, claim (M8) e house (M29) inclusive.
+        static constexpr std::size_t kTypeCount = static_cast<std::size_t>(TerritoryType::kHouse) + 1;
         static constexpr double      kUnset     = -1.0;
 
         struct Ledger

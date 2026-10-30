@@ -105,6 +105,11 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   `FormRef::Resolve<RE::TESForm>()` e `Resolve<RE::TESBoundObject>()` sempre devolviam nulo por um detalhe
   do CommonLibSSE-NG (`form->Is(FormType::None)` nunca é verdade para um form real, e nenhum dos dois tipos
   tem `FormType` próprio); corrigido em `Config.h` (ADR 0067).
+- **Jogo fechava sozinho ao apertar F6 (economia) com um território "claim" (M8) ou "house" (M29) dono** —
+  três arrays fixos indexados por `TerritoryType` (`Economy::production_`, `Garrison::initial_`/`max_`,
+  `Realm::PopulationDef::initial`) não cobriam todo o enum; ler/escrever fora do limite é comportamento
+  indefinido (sem exceção, sem mensagem — só o processo caindo). Bug antigo (já valia pra "claim"; só não
+  travava por sorte), exposto de vez pela M29. Corrigido (ADR 0069).
 
 ### Modificado
 - Hotkeys de debug do teclado numérico (NumPad1-9/./-/+/\*) trocadas por teclas presentes em qualquer

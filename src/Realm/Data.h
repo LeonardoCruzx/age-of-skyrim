@@ -49,7 +49,9 @@ namespace AoS::Realm
 
     struct PopulationDef
     {
-        std::array<float, 6> initial{ 10.0f, 60.0f, 15.0f, 25.0f, 120.0f, 800.0f };  // por TerritoryType (ordem do enum)
+        // Por TerritoryType, na ordem do enum (kUnknown..kHouse) — TEM que cobrir todo o enum: população_.initial[tipo]
+        // indexa direto, sem checar limite (Data.cpp). claim (M8) e house (M29) são os dois últimos.
+        std::array<float, 8> initial{ 10.0f, 60.0f, 15.0f, 25.0f, 120.0f, 800.0f, 5.0f, 20.0f };
         std::unordered_map<Id, float> overrides;  // por território ("territories": { "whiterun": 1200 })
         float capacityFactor{ 2.0f };     // teto = inicial × fator
         float growthPerDay{ 0.03f };      // crescimento logístico com comida (fração/dia)
