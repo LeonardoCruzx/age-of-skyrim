@@ -132,28 +132,28 @@ namespace AoS
             return;  // settings.json é opcional
         }
         if (const auto dbg = json->find("debug"); dbg != json->end() && dbg->is_object()) {
-            debug_.enabled = dbg->value("enabled", false);
-            debug_.hotkey         = dbg->value("hotkey", 0x44);
-            debug_.selfTestHotkey = dbg->value("selfTestHotkey", 0x57);
-            debug_.stockHotkey    = dbg->value("stockHotkey", 0x42);
-            debug_.claimHotkey    = dbg->value("claimHotkey", 0x3D);
+            debug_.enabled        = dbg->value("enabled", false);
+            debug_.hotkey         = dbg->value("hotkey", debug_.hotkey);
+            debug_.menuHotkey     = dbg->value("menuHotkey", debug_.menuHotkey);  // M30
+            debug_.selfTestHotkey = dbg->value("selfTestHotkey", debug_.selfTestHotkey);
+            debug_.stockHotkey    = dbg->value("stockHotkey", debug_.stockHotkey);
+            debug_.claimHotkey    = dbg->value("claimHotkey", debug_.claimHotkey);
             // ---- M12/M13: economia e rotas ----
-            debug_.economyHotkey = dbg->value("economyHotkey", 0x40);
-            debug_.routeHotkey   = dbg->value("routeHotkey", 0x41);
-            debug_.economyHours  = dbg->value("economyHours", 24u);
+            debug_.economyHotkey = dbg->value("economyHotkey", debug_.economyHotkey);
+            debug_.routeHotkey   = dbg->value("routeHotkey", debug_.routeHotkey);
+            debug_.economyHours  = dbg->value("economyHours", debug_.economyHours);
             // ---- fim M12/M13 ----
-            debug_.conquestHotkey = dbg->value("conquestHotkey", 0x3E);
             debug_.realmHotkey         = dbg->value("realmHotkey", debug_.realmHotkey);
             debug_.realmHoursHotkey    = dbg->value("realmHoursHotkey", debug_.realmHoursHotkey);
             debug_.realmDoctrineHotkey = dbg->value("realmDoctrineHotkey", debug_.realmDoctrineHotkey);
             debug_.realmConquerHotkey  = dbg->value("realmConquerHotkey", debug_.realmConquerHotkey);
             debug_.realmDebugHours     = dbg->value("realmDebugHours", debug_.realmDebugHours);
             debug_.realmConquerCount   = dbg->value("realmConquerCount", debug_.realmConquerCount);
-            debug_.warMapHotkey   = dbg->value("warMapHotkey", 0x49);  // M11
+            debug_.warMapHotkey   = dbg->value("warMapHotkey", debug_.warMapHotkey);  // M11
             // ---- M14/M15: guarnição e melhorias ----
-            debug_.garrisonHotkey    = dbg->value("garrisonHotkey", 0x4C);
-            debug_.upgradeHotkey     = dbg->value("upgradeHotkey", 0x4D);
-            debug_.upgradeIgnoreCost = dbg->value("upgradeIgnoreCost", false);
+            debug_.garrisonHotkey    = dbg->value("garrisonHotkey", debug_.garrisonHotkey);
+            debug_.upgradeHotkey     = dbg->value("upgradeHotkey", debug_.upgradeHotkey);
+            debug_.upgradeIgnoreCost = dbg->value("upgradeIgnoreCost", debug_.upgradeIgnoreCost);
             // ---- fim M14/M15 ----
             debug_.aiHotkey        = dbg->value("aiHotkey", debug_.aiHotkey);                // M16
             debug_.diplomacyHotkey = dbg->value("diplomacyHotkey", debug_.diplomacyHotkey);  // M17

@@ -1,23 +1,8 @@
 #include "Events/Events.h"
 
 #include "Banner/BannerController.h"
-#include "Core/I18n.h"
-#include "Debug/SelfTest.h"
-#include "Sim/Economy.h"  // M12/M13
-#include "Sim/Routes.h"   // M12/M13
-#include "Sim/Garrison.h"  // M14
-#include "Sim/Upgrades.h"  // M15
-#include "Sim/Ai.h"        // M16
-#include "Sim/Diplomacy.h" // M17
-#include "Sim/Law.h"       // M25
-#include "Sim/Stability.h" // M26
-#include "Sim/Army.h"      // M20
-#include "Sim/Battle.h"    // M21
-#include "Stock/Stock.h"
-#include "UI/WarMap.h"  // M11
-#include "World/Claims.h"
-#include "World/Conquest.h"
-#include "World/Seat.h"
+#include "Debug/DebugActions.h"  // M30: cada ação de debug mora aqui, não mais inline neste arquivo
+#include "UI/DebugMenu.h"        // M30
 
 namespace AoS::Events
 {
@@ -69,133 +54,48 @@ namespace AoS::Events
                         continue;
                     }
                     const auto key = static_cast<int>(b->GetIDCode());
-                    // ---- M12/M13: economia e rotas ----
-                    if (key == dbg.economyHotkey || key == dbg.routeHotkey) {
+                    // M30: cada tecla chama a MESMA função que o item de menu equivalente usa (DebugActions);
+                    // uma tabela em vez do if-chain antigo, pra tecla e menu nunca desalinharem.
+                    using Action = void (*)();
+                    static const std::pair<int, Action> kActions[] = {
+                        { dbg.hotkey, +[] { DebugActions::CycleOwner(); } },
+                        { dbg.selfTestHotkey, +[] { DebugActions::SelfTest(); } },
+                        { dbg.stockHotkey, +[] { DebugActions::ReportStock(); } },
+                        { dbg.claimHotkey, +[] { DebugActions::TryClaimHere(); } },
+                        { dbg.economyHotkey, +[] { DebugActions::EconomyHours(); } },
+                        { dbg.routeHotkey, +[] { DebugActions::CreateRoute(); } },
+                        { dbg.warMapHotkey, +[] { DebugActions::OpenWarMap(); } },
+                        { dbg.garrisonHotkey, +[] { DebugActions::GarrisonHere(); } },
+                        { dbg.upgradeHotkey, +[] { DebugActions::UpgradeHere(); } },
+                        { dbg.aiHotkey, +[] { DebugActions::AiTick(); } },
+                        { dbg.diplomacyHotkey, +[] { DebugActions::DiplomacyCycle(); } },
+                        { dbg.lawCaptureHotkey, +[] { DebugActions::LawCapture(); } },
+                        { dbg.lawRansomHotkey, +[] { DebugActions::LawRansom(); } },
+                        { dbg.lawExecuteHotkey, +[] { DebugActions::LawExecute(); } },
+                        { dbg.stabilityHotkey, +[] { DebugActions::StabilityHere(); } },
+                        { dbg.armyRecruitHotkey, +[] { DebugActions::ArmyRecruit(); } },
+                        { dbg.armyListHotkey, +[] { DebugActions::ArmyList(); } },
+                        { dbg.battleTestHotkey, +[] { DebugActions::BattleTest(); } },
+                    };
+                    if (key == dbg.menuHotkey) {
                         if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
                             continue;
                         }
-                        if (key == dbg.economyHotkey) {
-                            SKSE::GetTaskInterface()->AddTask([h = dbg.economyHours] { Economy::Get().DebugForceHours(h); });
-                        } else {
-                            SKSE::GetTaskInterface()->AddTask([] { Routes::Get().DebugCreateNearest(); });
-                        }
+                        SKSE::GetTaskInterface()->AddTask([] { DebugMenu::Open(); });
                         continue;
                     }
-                    // ---- fim M12/M13 ----
-                    // ---- M11: abre o mapa tático sem a mesa ----
-                    if (key == dbg.warMapHotkey) {
-                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
+                    for (const auto& [hk, run] : kActions) {
+                        if (key != hk) {
                             continue;
                         }
-                        SKSE::GetTaskInterface()->AddTask([] { WarMap::Get().Open(); });
-                        continue;
-                    }
-                    // ---- fim M11 ----
-                    // ---- M14/M15: guarnição e melhorias ----
-                    if (key == dbg.garrisonHotkey || key == dbg.upgradeHotkey) {
                         if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
-                            continue;
+                            break;
                         }
-                        if (key == dbg.garrisonHotkey) {
-                            SKSE::GetTaskInterface()->AddTask([] { Garrison::Get().DebugHere(); });
-                        } else {
-                            SKSE::GetTaskInterface()->AddTask([] { Upgrades::Get().DebugHere(); });
-                        }
-                        continue;
-                    }
-                    // ---- fim M14/M15 ----
-                    // ---- M16/M17: IA e diplomacia ----
-                    if (key == dbg.aiHotkey || key == dbg.diplomacyHotkey) {
-                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
-                            continue;
-                        }
-                        if (key == dbg.aiHotkey) {
-                            SKSE::GetTaskInterface()->AddTask([] { Ai::Get().DebugForceTick(); });
-                        } else {
-                            SKSE::GetTaskInterface()->AddTask([] { Diplomacy::Get().DebugCycleHere(); });
-                        }
-                        continue;
-                    }
-                    // ---- fim M16/M17 ----
-                    // ---- M25/M26: lei/prisioneiros e ordem pública/rebeliões ----
-                    if (key == dbg.lawCaptureHotkey || key == dbg.lawRansomHotkey || key == dbg.lawExecuteHotkey ||
-                        key == dbg.stabilityHotkey) {
-                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
-                            continue;
-                        }
-                        if (key == dbg.lawCaptureHotkey) {
-                            SKSE::GetTaskInterface()->AddTask([] { Law::Get().DebugCapture(); });
-                        } else if (key == dbg.lawRansomHotkey) {
-                            SKSE::GetTaskInterface()->AddTask([] { Law::Get().DebugRansomFirst(); });
-                        } else if (key == dbg.lawExecuteHotkey) {
-                            SKSE::GetTaskInterface()->AddTask([] { Law::Get().DebugExecuteFirst(); });
-                        } else {
-                            SKSE::GetTaskInterface()->AddTask([] { Stability::Get().DebugHere(); });
-                        }
-                        continue;
-                    }
-                    // ---- fim M25/M26 ----
-                    // ---- M20/M21: exército e batalhas ----
-                    if (key == dbg.armyRecruitHotkey || key == dbg.armyListHotkey || key == dbg.battleTestHotkey) {
-                        if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
-                            continue;
-                        }
-                        if (key == dbg.armyRecruitHotkey) {
-                            SKSE::GetTaskInterface()->AddTask([] { Army::Get().DebugRecruitHere(); });
-                        } else if (key == dbg.armyListHotkey) {
-                            SKSE::GetTaskInterface()->AddTask([] { Army::Get().DebugListArmies(); });
-                        } else {
-                            SKSE::GetTaskInterface()->AddTask([] { Battle::Get().DebugTestBattle(); });
-                        }
-                        continue;
-                    }
-                    // ---- fim M20/M21 ----
-                    if (key != dbg.hotkey && key != dbg.selfTestHotkey && key != dbg.stockHotkey &&
-                        key != dbg.claimHotkey && key != dbg.conquestHotkey) {
-                        continue;
-                    }
-                    if (const auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) {
-                        continue;
-                    }
-                    if (key == dbg.selfTestHotkey) {
-                        SKSE::GetTaskInterface()->AddTask([] { SelfTest::Run(); });
-                    } else if (key == dbg.stockHotkey) {
-                        SKSE::GetTaskInterface()->AddTask([] {
-                            Stock::Get().ReportPlayerInventory();
-                            Seat::Get().ReportStock();  // M6: estoque da sede, se existir
-                        });
-                    } else if (key == dbg.claimHotkey) {
-                        SKSE::GetTaskInterface()->AddTask([] { Claims::Get().TryClaimHere(); });
-                    } else if (key == dbg.conquestHotkey) {
-                        SKSE::GetTaskInterface()->AddTask([] { Conquest::Get().SimulateHere(); });  // M5
-                    } else {
-                        SKSE::GetTaskInterface()->AddTask([t = dbg.territory] { CycleOwner(t); });
+                        SKSE::GetTaskInterface()->AddTask([run] { run(); });
+                        break;
                     }
                 }
                 return RE::BSEventNotifyControl::kContinue;
-            }
-
-        private:
-            static void CycleOwner(Id a_territory)
-            {
-                const auto& cfg = Config::Get();
-                const auto* t = cfg.Find(a_territory);
-                if (!t) {
-                    logger::warn("Debug hotkey: configure 'debug.territory' em settings.json.");
-                    return;
-                }
-                Placement::Get().EnsurePlaced(*t);  // objetos de teste nascem na primeira vez
-                std::vector<Id> order{ kNeutral };
-                const auto factions = Factions::Get().Ids();
-                order.insert(order.end(), factions.begin(), factions.end());
-
-                const auto cur  = State::Get().Owner(a_territory);
-                const auto it   = std::find(order.begin(), order.end(), cur);
-                const auto next = order[(static_cast<std::size_t>(it - order.begin()) + 1) % order.size()];
-
-                if (SetTerritoryOwner(a_territory, next)) {
-                    I18n::NotifyTr("debug.ownerChanged", t->name, Factions::Get().NameOf(next));
-                }
             }
         };
     }
@@ -209,9 +109,9 @@ namespace AoS::Events
             if (const auto input = RE::BSInputDeviceManager::GetSingleton()) {
                 input->AddEventSink(DebugHotkeySink::Get());
                 const auto& d = Config::Get().Debug();
-                logger::info("Debug hotkeys ativas (alternar 0x{:X}, autoteste 0x{:X}, estoque 0x{:X}, claim 0x{:X}, "
-                             "conquista 0x{:X}).",
-                             d.hotkey, d.selfTestHotkey, d.stockHotkey, d.claimHotkey, d.conquestHotkey);
+                logger::info("Debug hotkeys ativas (alternar 0x{:X}, menu 0x{:X}, autoteste 0x{:X}, estoque 0x{:X}, "
+                             "claim 0x{:X}).",
+                             d.hotkey, d.menuHotkey, d.selfTestHotkey, d.stockHotkey, d.claimHotkey);
                 logger::info("Debug hotkeys M12/M13 (economia 0x{:X} = {} h, rota 0x{:X}).", d.economyHotkey,
                              d.economyHours, d.routeHotkey);
                 logger::info("Debug hotkey M11 (mapa tático 0x{:X}).", d.warMapHotkey);

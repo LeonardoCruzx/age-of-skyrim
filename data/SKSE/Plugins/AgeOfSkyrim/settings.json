@@ -217,15 +217,19 @@
   "debug": {
     "enabled": true,
     "hotkey": 68,
+    // M30: F4 abre um menu (listas vanilla) com todas as ações de debug por nome, em categorias — útil pra
+    // não precisar decorar/alcançar tecla por tecla (ex.: teclado sem numpad); as teclas abaixo continuam
+    // funcionando normalmente, o menu só reaproveita as mesmas funções. "Simular conquista" (M5) não tem
+    // mais tecla própria (F4 virou o menu) — está na categoria D do menu.
+    "menuHotkey": 62,
     "selfTestHotkey": 87,
     "stockHotkey": 66,
-    // Teclas (DIK): F10 alterna dono, F11 autoteste, F8 estoque, F3 claim, F4 simula conquista (F5/F9 são do jogo).
+    // Teclas (DIK): F10 alterna dono, F11 autoteste, F8 estoque, F3 claim (F5/F9 são do jogo).
     "claimHotkey": 61,
     // M12/M13: F6 força economyHours horas de economia e mostra o resumo; F7 cria uma rota de teste.
     "economyHotkey": 64,
     "routeHotkey": 65,
     "economyHours": 24,
-    "conquestHotkey": 62,
     // Reino (DIK): "-" resumo, "=" simula realmDebugHours horas, "[" próxima doutrina,
     // "]" entrega os realmConquerCount territórios mais próximos à facção do jogador.
     // (Antes eram NumPad1-4; trocado pra teclado sem teclado numérico — qualquer teclado tem essas teclas.)

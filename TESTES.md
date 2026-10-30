@@ -32,7 +32,7 @@ num território de verdade — é por isso que dá para testar tudo parado no me
 | **F11** | autoteste (bandeiras + facções + acentos + persistência) | M2/M3 |
 | **F8** | mostra seu inventário por categoria (e o da sede, se houver) | M7 |
 | **F3** | fincar estandarte (Free Claim) | M8 |
-| **F4** | simula a conquista do local atual (ou de `debug.territory`) | M5/M6 |
+| **F4** | abre o **menu de debug** (lista por nome, em categorias — veja abaixo) | M30 |
 | **F6** | avança `economyHours` horas de economia | M12 |
 | **F7** | cria uma rota de comércio de teste | M13 |
 | **;** | guarnição do território atual + força o aparecimento dos soldados | M14 |
@@ -56,6 +56,10 @@ num território de verdade — é por isso que dá para testar tudo parado no me
 M27 (Domínio de Skyrim) não tem hotkey própria — ela acontece sozinha quando as condições são atingidas;
 tem um passo opcional no fim para forçar isso. M9 (API) não tem UI própria; M10 (MCM) é testada à parte,
 no bloco opcional "MCM/SkyUI".
+
+**Menu de debug (M30, F4):** além de cada tecla acima, F4 abre um menu com as mesmas ações organizadas em
+categorias A-M (o mesmo agrupamento deste roteiro) — útil se alguma tecla for difícil de alcançar/lembrar.
+"Simular conquista" (passo D abaixo) só existe no menu agora, sem tecla própria.
 
 ---
 
@@ -81,9 +85,9 @@ A partir daqui você tem uma facção própria, **"Minha Facção (teste)"**, qu
 
 ### D. Conquista e sede (M5, M6)
 
-5. Aperte **F4**: `test_tower` é conquistada ("AoS: Torre de teste conquistado por Minha Facção (teste)") e
-   aparece a pergunta **"Fundar a sede da sua facção aqui?"** → responda **Sim**. Um baú e uma mesa de guerra
-   devem nascer perto de você.
+5. Aperte **F4** → categoria **"D. Conquista e sede"** → **"Simular conquista aqui"**: `test_tower` é
+   conquistada ("AoS: Torre de teste conquistado por Minha Facção (teste)") e aparece a pergunta **"Fundar a
+   sede da sua facção aqui?"** → responda **Sim**. Um baú e uma mesa de guerra devem nascer perto de você.
 6. Aperte **F8** de novo: agora, além do seu inventário, deve aparecer **"AoS estoque da sede"**.
 
 ### E. Economia e rotas (M12, M13)
