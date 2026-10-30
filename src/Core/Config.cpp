@@ -56,6 +56,7 @@ namespace AoS
         case TerritoryType::kVillage: return "village";
         case TerritoryType::kCity:    return "city";
         case TerritoryType::kClaim:   return "claim";
+        case TerritoryType::kHouse:   return "house";
         default:                      return "unknown";
         }
     }
@@ -63,7 +64,8 @@ namespace AoS
     std::optional<TerritoryType> ParseTerritoryType(std::string_view a_text) noexcept
     {
         for (const auto t : { TerritoryType::kFort, TerritoryType::kTower, TerritoryType::kCamp,
-                              TerritoryType::kVillage, TerritoryType::kCity, TerritoryType::kClaim }) {
+                              TerritoryType::kVillage, TerritoryType::kCity, TerritoryType::kClaim,
+                              TerritoryType::kHouse }) {
             if (_strnicmp(a_text.data(), ToString(t).data(), a_text.size()) == 0 && a_text.size() == ToString(t).size()) {
                 return t;
             }

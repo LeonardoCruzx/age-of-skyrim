@@ -160,6 +160,14 @@ A partir daqui você tem uma facção própria, **"Minha Facção (teste)"**, qu
     rotas, prisioneiros, relações, estabilidade). Confira no log que não aparece nenhuma linha
     **"registro desconhecido"**.
 
+### O. Casas do jogador como sede (M29)
+
+24. Entre numa casa sua que **não** fique dentro de uma cidade (ex.: Lakeview Manor, Windstad Manor, Heljarchen
+    Hall) — pode ser em qualquer ponto do teste, não depende dos passos anteriores. Deve aparecer **"AoS: ... é
+    sua casa — agora pertence a ..."** e, se você ainda não tem sede, a pergunta **"Fundar a sede da sua facção
+    aqui?"**. Se tiver uma casa **dentro** de uma cidade (Breezehome, Hjerim, Honeyside, Vlindrel Hall, Proudspire
+    Manor), entre nela também e confirme que **não** aparece nada — ela não deve virar território.
+
 ---
 
 ## Opcional: Domínio de Skyrim (M27)

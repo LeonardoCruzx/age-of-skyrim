@@ -19,6 +19,7 @@ namespace AoS
             kCleared,  // evento do jogo
             kDebug,    // hotkey de debug (simula sem limpar)
             kApi,      // outro módulo / outro mod (M9)
+            kHome,     // M29: casa do jogador (LocTypePlayerHouse), ao entrar nela
         };
 
         // Chamado depois de cada conquista pelo jogador, na thread principal (ex.: Seat oferece fundar a sede).

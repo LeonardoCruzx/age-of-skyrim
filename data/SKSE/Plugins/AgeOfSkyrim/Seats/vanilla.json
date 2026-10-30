@@ -8,7 +8,9 @@
   //   { "location": "Skyrim.esm|0x0ABCDE", "chestOffset": [-100, 150, 0], "warTableOffset": [120, 220, 0] }
   // "exclude": tira candidatos (de qualquer arquivo já lido): [ "Skyrim.esm|0x0ABCDE", "meu_forte" ].
   // A lista completa de territórios (com os IDs de location) sai em SKSE/AgeOfSkyrim_territories.json (debug ligado).
-  "auto": { "types": ["fort", "tower"], "perProvince": 2 },
+  // "house" (M29): toda casa do jogador descoberta entra, sem concorrer com fortes/torres pelo teto perProvince
+  // (exceto as que ficam dentro de uma cidade — essas nunca chegam a ser descobertas, ver Discovery).
+  "auto": { "types": ["fort", "tower", "house"], "perProvince": 2 },
   "candidates": [
     { "territory": "test_tower" }
   ],

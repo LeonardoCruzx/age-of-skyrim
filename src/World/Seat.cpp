@@ -306,11 +306,18 @@ namespace AoS
         std::unordered_map<Id, Candidate> found;
 
         // 1. Regra automática: por província, os N fortes/torres mais próximos da cidade da província.
+        //    M29: "house" é tratado fora do teto perProvince — toda casa do jogador descoberta (exceto as de
+        //    dentro de uma cidade, já removidas na descoberta) entra, sem concorrer por posição com fortes/torres.
         if (const auto rule = json.find("auto"); rule != json.end() && rule->is_object()) {
             std::vector<TerritoryType> types;
+            bool                       includeHouses = false;
             for (const auto& v : rule->value("types", std::vector<std::string>{ "fort", "tower" })) {
                 if (const auto type = ParseTerritoryType(v)) {
-                    types.push_back(*type);
+                    if (*type == TerritoryType::kHouse) {
+                        includeHouses = true;
+                    } else {
+                        types.push_back(*type);
+                    }
                 } else {
                     logger::warn("{}: tipo '{}' inválido na regra automática.", file, v);
                 }
@@ -320,6 +327,9 @@ namespace AoS
             std::map<Id, std::vector<const Territory*>> byProvince;  // ordem determinística
             std::unordered_map<Id, const Territory*>    anchor;      // cidade da província
             for (const auto& t : cfg.Territories()) {
+                if (includeHouses && t.type == TerritoryType::kHouse) {
+                    found.try_emplace(t.id, Candidate{ t.id });
+                }
                 if (t.province == kNeutral || !t.hasPosition) {
                     continue;
                 }

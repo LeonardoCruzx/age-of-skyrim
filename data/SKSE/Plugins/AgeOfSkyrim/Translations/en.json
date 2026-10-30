@@ -41,6 +41,7 @@
   // ---- M5/M6/M8 (conquista, sede, claims como territórios) ----
   "claim.territoryName":    "Banner #{}",
   "conquest.conquered":     "AoS: {} conquered by {}",
+  "conquest.home":          "AoS: {} is your home — it now belongs to {}",
   "conquest.factionCreated": "AoS: your faction '{}' was founded",
   "conquest.defaultFactionName": "Free Company",
   "conquest.excluded":      "AoS: {} is excluded from conquest (settings)",

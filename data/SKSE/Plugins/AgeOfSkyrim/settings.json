@@ -12,10 +12,12 @@
     "forwardDistance": 150
   },
   // Territórios descobertos dos locais do jogo (vanilla + mods) pelas keywords LocType*.
-  // types: "fort", "camp", "village", "city" ("tower" só via JSON). exclude: ["Plugin.esp|0xID", ...].
+  // types: "fort", "camp", "village", "city", "house" ("tower" só via JSON). exclude: ["Plugin.esp|0xID", ...].
+  // "house" (M29, LocTypePlayerHouse): casas do jogador (ex.: Lakeview Manor); as que ficam dentro de uma
+  // cidade saem sozinhas (a cidade já é candidata do tipo "city" — ver Discovery::Scan, remoção de sub-locais).
   "discovery": {
     "enabled": true,
-    "types": ["fort", "camp", "village", "city"],
+    "types": ["fort", "camp", "village", "city", "house"],
     "exclude": [],
     "neighbors": 4
   },
