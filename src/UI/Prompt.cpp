@@ -9,18 +9,20 @@ namespace AoS::Prompt
         class Callback final : public RE::IMessageBoxCallback
         {
         public:
-            explicit Callback(std::function<void(std::size_t)> a_fn) :
-                fn_(std::move(a_fn))
+            Callback(std::function<void(std::size_t)> a_fn, std::size_t a_buttons) :
+                fn_(std::move(a_fn)), buttons_(a_buttons)
             {}
             ~Callback() override = default;
 
-            // O jogo passa 4 + índice do botão (padrão usado por outros plugins CommonLibSSE-NG); o valor bruto
-            // vai para o log para conferir no teste. A ação roda numa task (fora do processamento da UI).
+            // O valor bruto é o próprio índice do botão (0 = primeiro) — confirmado no jogo (ADR 0071); a
+            // suposição antiga de "4 + índice" fazia "Sim" virar recusa e "Fechar" abrir outra opção. Fora da
+            // faixa = sem escolha. A ação roda numa task (fora do processamento da UI).
             void Run(Message a_msg) override
             {
                 const auto raw   = static_cast<std::int32_t>(a_msg);
-                const auto index = raw >= 4 ? static_cast<std::size_t>(raw - 4) : kNoChoice;
-                logger::info("Prompt: resposta bruta {} -> botão {}.", raw, raw >= 4 ? raw - 4 : -1);
+                const bool valid = raw >= 0 && static_cast<std::size_t>(raw) < buttons_;
+                const auto index = valid ? static_cast<std::size_t>(raw) : kNoChoice;
+                logger::info("Prompt: resposta bruta {} -> botão {}.", raw, valid ? raw : -1);
                 if (fn_) {
                     SKSE::GetTaskInterface()->AddTask([fn = std::exchange(fn_, nullptr), index] { fn(index); });
                 }
@@ -28,6 +30,7 @@ namespace AoS::Prompt
 
         private:
             std::function<void(std::size_t)> fn_;
+            std::size_t                      buttons_;
         };
     }
 
@@ -50,7 +53,7 @@ namespace AoS::Prompt
             const auto text = I18n::ToHud(b);
             box->buttonText.push_back(RE::BSString{ text.c_str() });
         }
-        box->callback = RE::make_smart<Callback>(std::move(a_onChoice));
+        box->callback = RE::make_smart<Callback>(std::move(a_onChoice), a_buttons.size());
         box->QueueMessage();
         logger::info("[tela] (pergunta) {}", a_body);
         return true;

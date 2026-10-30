@@ -106,12 +106,15 @@ namespace AoS::DebugMenu
             buttons.push_back(I18n::Tr("warmap.menu.back"));
 
             // Captura o índice, não a referência "cat" (local — não existe mais quando o Prompt chama de volta).
+            // Ação escolhida: roda e fecha o menu (várias abrem a própria caixa — sede, governador, mapa tático —
+            // e reabrir o menu junto colocaria duas caixas na fila). "Voltar" volta pras categorias.
             Ask(I18n::Tr(cat.labelKey), buttons, [a_category, a_backPage](std::size_t a_choice) {
                 const auto& cat = kCategories[a_category];
                 if (a_choice < cat.actions.size()) {
                     cat.actions[a_choice].run();
+                } else if (a_choice == cat.actions.size()) {
+                    ShowCategories(a_backPage);
                 }
-                ShowCategories(a_backPage);  // volta pras categorias (já com o resultado na tela, se rodou algo)
             });
         }
     }

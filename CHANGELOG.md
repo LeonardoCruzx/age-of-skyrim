@@ -114,6 +114,10 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   `Realm::PopulationDef::initial`) não cobriam todo o enum; ler/escrever fora do limite é comportamento
   indefinido (sem exceção, sem mensagem — só o processo caindo). Bug antigo (já valia pra "claim"; só não
   travava por sorte), exposto de vez pela M29. Corrigido (ADR 0069).
+- **Caixas de diálogo respondiam ao botão errado** (sede nunca fundada — "Sim" virava recusa; menu de debug
+  abria a opção errada e "Fechar" não fechava; idem governador e mapa tático sem PrismaUI) — `UI/Prompt`
+  assumia "4 + índice" na resposta da MessageBox vanilla; o valor é o próprio índice. Corrigido; o menu de
+  debug também passa a fechar depois de rodar uma ação (ADR 0071).
 
 ### Modificado
 - Hotkeys de debug do teclado numérico (NumPad1-9/./-/+/\*) trocadas por teclas presentes em qualquer
