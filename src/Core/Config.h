@@ -17,10 +17,12 @@ namespace AoS
 
         // nullptr se o plugin não está carregado ou o form não é do tipo pedido.
         //
-        // RE::TESDataHandler::LookupForm<T>() filtra por form->Is(T::FORMTYPE); para T = RE::TESForm,
-        // FORMTYPE é FormType::None, que nenhum form real tem — o template sempre retornaria nullptr.
-        // Por isso, só para TESForm (tipo "aceita qualquer form"), usamos o overload sem template
-        // (sem esse filtro); para os demais T (tipo concreto), o filtro é o comportamento certo.
+        // RE::TESDataHandler::LookupForm<T>() filtra por form->Is(T::FORMTYPE). TESForm e TESBoundObject
+        // são bases abstratas sem FormType próprio (herdam FormType::None de TESForm) — nenhum form real
+        // tem esse tipo, então o template sempre retornaria nullptr pra eles. Por isso usamos o overload
+        // sem template (sem esse filtro) nesses dois casos, com o equivalente certo pra cada um: nenhum
+        // filtro extra pra TESForm ("aceita qualquer form"), IsBoundObject() pra TESBoundObject. Pra
+        // qualquer outro T (tipo concreto, com FORMTYPE próprio), o filtro do template é o certo.
         template <class T = RE::TESObjectREFR>
         [[nodiscard]] T* Resolve() const
         {
@@ -30,6 +32,9 @@ namespace AoS
             }
             if constexpr (std::is_same_v<T, RE::TESForm>) {
                 return dh->LookupForm(localId, plugin);
+            } else if constexpr (std::is_same_v<T, RE::TESBoundObject>) {
+                const auto form = dh->LookupForm(localId, plugin);
+                return (form && form->IsBoundObject()) ? static_cast<RE::TESBoundObject*>(form) : nullptr;
             } else {
                 return dh->LookupForm<T>(localId, plugin);
             }

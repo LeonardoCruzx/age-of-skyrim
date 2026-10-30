@@ -95,9 +95,11 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   2. `REL/ID.h(257): Unsupported address library format: 5` — o Address Library mais recente gera o
      `versionlib-*.bin` num formato novo (array denso, não a lista esparsa do formato antigo) que esta
      cópia não sabia ler; implementada leitura real do formato 5.
-- **Economia (M12) nunca produzia nada e `Stock`/`Garrison`/`Troops` nunca resolviam overrides por
-  EditorID** — `FormRef::Resolve<RE::TESForm>()` sempre devolvia nulo por um detalhe do CommonLibSSE-NG
-  (`form->Is(FormType::None)` nunca é verdade para um form real); corrigido em `Config.h` (ADR 0067).
+- **Economia (M12) nunca produzia nada, `Stock`/`Garrison`/`Troops` nunca resolviam overrides por
+  EditorID, e o autoteste (F11)/Free Claim (M8) nunca criavam os objetos de teste/estandarte** —
+  `FormRef::Resolve<RE::TESForm>()` e `Resolve<RE::TESBoundObject>()` sempre devolviam nulo por um detalhe
+  do CommonLibSSE-NG (`form->Is(FormType::None)` nunca é verdade para um form real, e nenhum dos dois tipos
+  tem `FormType` próprio); corrigido em `Config.h` (ADR 0067).
 
 ### Observações
 - Roteiro de teste único e consolidado para as 28 missões em [TESTES.md](TESTES.md) (ADR 0021); ainda não
