@@ -404,6 +404,13 @@ capitais, pesquisa militar ou diplomacia de corte — esses continuam fora.
   fundar a sede ali (M6); nunca é alvo da IA (M16).
 - ✅ `Seats/vanilla.json → auto.types` inclui `"house"`, sem concorrer pelo teto `perProvince` dos fortes/torres.
 
+### M30. ✅ Menu de debug — [ADR 0070](adr/0070-menu-de-debug.md)
+- ✅ `Debug/DebugActions.{h,cpp}`: as 24 ações de debug (antes só inline em `Events.cpp`) viram funções com
+  nome, chamadas tanto pela tecla quanto pelo menu — nunca desalinham.
+- ✅ `UI/DebugMenu.{h,cpp}`: menu vanilla (F4) por categorias (A-M, mesmo agrupamento do `TESTES.md`), igual
+  ao padrão do mapa tático sem PrismaUI (`UI/WarMapMenus.cpp`).
+- ✅ `debug.conquestHotkey` removido (F4 virou o menu); "simular conquista" só pelo menu agora (categoria D).
+
 ## Pacote de imersão — alto impacto e baixo risco
 
 Estas features priorizam a sensação de um reino vivo sem introduzir um novo simulador

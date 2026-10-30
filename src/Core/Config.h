@@ -109,6 +109,10 @@ namespace AoS
     {
         bool enabled{ false };
         int  hotkey{ 0x44 };          // DIK_F10: alterna o dono
+        // M30: abre um menu (listas vanilla) com todas as ações de debug por nome, em categorias — útil pra
+        // não precisar decorar/alcançar tecla por tecla. "Simular conquista" (M5) não tem mais tecla própria:
+        // só pelo menu agora (categoria D), pra liberar o F4 pro menu.
+        int  menuHotkey{ 0x3E };       // DIK_F4
         int  selfTestHotkey{ 0x57 };  // DIK_F11: autoteste
         int  stockHotkey{ 0x42 };     // DIK_F8: estoque do inventário do jogador por categoria
         int  claimHotkey{ 0x3D };     // DIK_F3: Free Claim (fincar estandarte); F9 é o quickload do jogo
@@ -117,47 +121,42 @@ namespace AoS
         int           routeHotkey{ 0x41 };    // DIK_F7: rota entre os 2 territórios mais próximos do jogador
         std::uint32_t economyHours{ 24 };     // horas forçadas pelo economyHotkey
         // ---- fim M12/M13 ----
-        int  conquestHotkey{ 0x3E };  // DIK_F4: simula a conquista do local atual (M5)
-        int  warMapHotkey{ 0x49 };    // DIK_NUMPAD9: abre a mesa de guerra de qualquer lugar (M11)
+        int  warMapHotkey{ 0x35 };    // DIK_SLASH ("/"): abre a mesa de guerra de qualquer lugar (M11)
         // ---- M14/M15: guarnição e melhorias ----
-        int  garrisonHotkey{ 0x4C };    // DIK_NUMPAD5: guarnição do território atual + spawn forçado perto do jogador
-        int  upgradeHotkey{ 0x4D };     // DIK_NUMPAD6: inicia a próxima melhoria disponível no território atual/sede
+        int  garrisonHotkey{ 0x27 };    // DIK_SEMICOLON (";"): guarnição do território atual + spawn forçado perto do jogador
+        int  upgradeHotkey{ 0x28 };     // DIK_APOSTROPHE ("'"): inicia a próxima melhoria disponível no território atual/sede
         bool upgradeIgnoreCost{ false };  // true: a hotkey de melhoria não cobra itens (só para testar)
         // ---- fim M14/M15 ----
         // ---- M16/M17: IA e diplomacia ----
-        int aiHotkey{ 0x47 };          // DIK_NUMPAD7: força o tick estratégico e mostra os ataques ativos
-        int diplomacyHotkey{ 0x48 };   // DIK_NUMPAD8: alterna a relação do jogador com o dono do território atual
+        int aiHotkey{ 0x33 };          // DIK_COMMA (","): força o tick estratégico e mostra os ataques ativos
+        int diplomacyHotkey{ 0x34 };   // DIK_PERIOD ("."): alterna a relação do jogador com o dono do território atual
         // ---- fim M16/M17 ----
         // ---- M24: governo local (jarl) ----
-        // DIK_NUMPADMINUS (NumPad0 fica reservado para a API, ver src/Events/Events.*): força a oferta de
-        // governador na capital da província atual.
-        int jarlHotkey{ 0x4A };
+        // DIK_BACKSLASH ("\"): força a oferta de governador na capital da província atual.
+        int jarlHotkey{ 0x2B };
         // ---- fim M24 ----
         // ---- M25/M26: lei/prisioneiros e ordem pública/rebeliões ----
         int lawCaptureHotkey{ 0x3B };   // DIK_F1: simula lawDebugCaptureCount capturas no território atual
         int lawRansomHotkey{ 0x3C };    // DIK_F2: resgata (ouro) o 1º prisioneiro da facção do jogador
         int lawExecuteHotkey{ 0x58 };   // DIK_F12: executa o 1º prisioneiro da facção do jogador
-        int stabilityHotkey{ 0x53 };    // DIK_DECIMAL (NumPad .): estabilidade do território atual + checagem de
-                                         // rebelião (NumPad0 evitado: reservado para debug de API noutro lugar)
+        int stabilityHotkey{ 0xD3 };    // DIK_DELETE: estabilidade do território atual + checagem de rebelião
         // ---- fim M25/M26 ----
         Id   territory{ kNeutral };
 
         // M18/M19/M22 (src/Realm): resumo do reino, simular horas, ciclar doutrina, conquistar locais próximos.
-        int   realmHotkey{ 0x4F };          // DIK_NUMPAD1: resumo do reino na tela
-        int   realmHoursHotkey{ 0x50 };     // DIK_NUMPAD2: simula realmDebugHours horas (Realm::OnHoursPassed)
-        int   realmDoctrineHotkey{ 0x51 };  // DIK_NUMPAD3: troca para a próxima doutrina (custo/espera valem)
-        int   realmConquerHotkey{ 0x4B };   // DIK_NUMPAD4: dá à facção do jogador os N locais mais próximos
+        int   realmHotkey{ 0xC };           // DIK_MINUS ("-"): resumo do reino na tela
+        int   realmHoursHotkey{ 0xD };       // DIK_EQUALS ("="): simula realmDebugHours horas (Realm::OnHoursPassed)
+        int   realmDoctrineHotkey{ 0x1A };  // DIK_LBRACKET ("["): troca para a próxima doutrina (custo/espera valem)
+        int   realmConquerHotkey{ 0x1B };   // DIK_RBRACKET ("]"): dá à facção do jogador os N locais mais próximos
         float realmDebugHours{ 24.0f };
         int   realmConquerCount{ 5 };
 
         // ---- M20/M21: exército, recrutamento e batalhas ----
-        // Teclas fora da faixa NumPad1-9 já usada (M11/M14-M18), sem colidir: NumPad0, NumPad. (Decimal) e
-        // NumPad+ (Add). Confirmadas em REX/W32/DINPUT.h (extern/CommonLibSSE-NG).
-        int           armyRecruitHotkey{ 0xB5 };  // DIK_DIVIDE (NumPad/): recruta no território atual
-                                                   // (NumPad0 segue reservado para a API; corrigido na mescla)
-        int           armyListHotkey{ 0x37 };     // DIK_MULTIPLY (NumPad *): mostra os exércitos da sua facção
-                                                   // (NumPad . é stabilityHotkey, M26; corrigido na mescla)
-        int           battleTestHotkey{ 0x4E };   // DIK_ADD (NumPad +): força uma batalha de teste perto do jogador
+        // Teclas fora da faixa de pontuação já usada acima: Home/End/Insert (coluna de navegação, qualquer
+        // teclado tem). Confirmadas em REX/W32/DINPUT.h (extern/CommonLibSSE-NG).
+        int           armyRecruitHotkey{ 0xC7 };  // DIK_HOME: recruta no território atual
+        int           armyListHotkey{ 0xCF };     // DIK_END: mostra os exércitos da sua facção
+        int           battleTestHotkey{ 0xD2 };   // DIK_INSERT: força uma batalha de teste perto do jogador
         std::uint32_t armyRecruitCount{ 10 };      // soldados recrutados pela hotkey de teste
         std::uint32_t battleTestSize{ 6 };         // soldados por lado na batalha de teste
         // ---- fim M20/M21 ----

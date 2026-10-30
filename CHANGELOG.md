@@ -89,6 +89,10 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
   as de dentro de uma cidade saem sozinhas pela descoberta, M4); entrar numa casa neutra passa ela pra sua
   facção direto (sem precisar limpar nada) e oferece fundar a sede ali (M6); nunca é alvo da IA (M16).
   [ADR 0068](docs/adr/0068-casas-do-jogador-como-sede.md).
+- **M30 — Menu de debug:** F4 abre um menu vanilla (listas, sem PrismaUI) com as 24 ações de debug por nome,
+  organizadas em categorias A-M (mesmo agrupamento do [TESTES.md](TESTES.md)); cada ação agora é uma função
+  nomeada (`Debug/DebugActions.{h,cpp}`) chamada tanto pela tecla quanto pelo item de menu, nunca desalinham.
+  [ADR 0070](docs/adr/0070-menu-de-debug.md).
 
 ### Corrigido
 - `docs/adr/0042`/`docs/ROADMAP.md`: marcavam a leitura de `Compat/*.json` no DLL como pendente; já foi feita
@@ -115,6 +119,8 @@ O CI de release usa a seção `## [X.Y.Z]` da tag `vX.Y.Z` como notas do GitHub 
 - Hotkeys de debug do teclado numérico (NumPad1-9/./-/+/\*) trocadas por teclas presentes em qualquer
   teclado (`-`, `=`, `[`, `]`, `;`, `'`, `,`, `.`, `\`, `/`, Home, End, Insert, Delete) — teclado 70%/TKL
   não tem NumPad. `settings.json` e [TESTES.md](TESTES.md) atualizados.
+- F4 (antes "simular conquista") virou o menu de debug (M30); "simular conquista" só pelo menu agora,
+  sem tecla própria.
 
 ### Observações
 - Roteiro de teste único e consolidado para as 28 missões em [TESTES.md](TESTES.md) (ADR 0021); ainda não
