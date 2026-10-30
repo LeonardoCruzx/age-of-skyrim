@@ -105,10 +105,12 @@ jobs:
         run: cmake --preset windows-msvc
 
       # Erros do compilador viram anotações (visíveis sem login, na aba Summary).
+      # --parallel: /maxcpucount no MSBuild (projetos ao mesmo tempo); /MP no CMakeLists.txt cobre os
+      # arquivos dentro de cada projeto — as duas camadas de paralelismo juntas é que encurtam o build.
       - name: Build
         shell: pwsh
         run: |
-          cmake --build --preset release 2>&1 | Tee-Object -FilePath build/build.log
+          cmake --build --preset release --parallel 2>&1 | Tee-Object -FilePath build/build.log
           $code = $LASTEXITCODE
           if ($code -ne 0) {
             Select-String -Path build/build.log -Pattern 'error C\d+|error LNK\d+|fatal error' |

@@ -9,6 +9,14 @@ if(NOT WIN32)
     message(FATAL_ERROR "Age of Skyrim só compila no Windows (MSVC), assim como todo plugin SKSE.")
 endif()
 
+# Compilação paralela por arquivo (cl.exe /MP) pra TODO alvo configurado a partir daqui, inclusive o
+# CommonLibSSE-NG vendorizado (sem precisar patchear o CMakeLists dele) — maior tempo de build é ele
+# recompilando do zero a cada run do CI (não é um pacote vcpkg, o cache binário do vcpkg não cobre).
+# /FS: evita contenção de escrita no .pdb compartilhado quando várias cl.exe do mesmo projeto rodam juntas.
+if(MSVC)
+    add_compile_options(/MP /FS)
+endif()
+
 # --- CommonLibSSE-NG (submódulo) --------------------------------------------
 # Um único DLL para SE + AE. VR desligado; testes da lib desligados.
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
