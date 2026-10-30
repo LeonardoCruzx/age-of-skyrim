@@ -19,9 +19,10 @@ services:
       - claude-config:/home/vscode/.claude
       # Logs/cosave do SKSE (Documents\My Games\Skyrim Special Edition\SKSE no Windows) — só leitura,
       # pra eu ler AgeOfSkyrim.log/AgeOfSkyrim_territories.json direto, sem você precisar colar no chat.
-      # Ajuste "source" se o caminho for diferente no seu Windows (usuário/OneDrive).
+      # Caminho vem de SKSE_LOGS_PATH no .env (não versionado — é específico da sua máquina/usuário
+      # Windows); veja .env.example.
       - type: bind
-        source: 'C:\Users\leosi\OneDrive\Documentos\My Games\Skyrim Special Edition\SKSE'
+        source: ${SKSE_LOGS_PATH}
         target: /workspaces/skyrim-logs
         read_only: true
 

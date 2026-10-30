@@ -10,3 +10,4 @@ CMakeUserPresets.json
 !.claude/skills/
 __pycache__/
 dist/
+.env
