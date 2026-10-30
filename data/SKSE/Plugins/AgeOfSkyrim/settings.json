@@ -224,42 +224,42 @@
     "routeHotkey": 65,
     "economyHours": 24,
     "conquestHotkey": 62,
-    // Reino (DIK): NumPad1 resumo, NumPad2 simula realmDebugHours horas, NumPad3 próxima doutrina,
-    // NumPad4 entrega os realmConquerCount territórios mais próximos à facção do jogador.
-    "realmHotkey": 79,
-    "realmHoursHotkey": 80,
-    "realmDoctrineHotkey": 81,
-    "realmConquerHotkey": 75,
+    // Reino (DIK): "-" resumo, "=" simula realmDebugHours horas, "[" próxima doutrina,
+    // "]" entrega os realmConquerCount territórios mais próximos à facção do jogador.
+    // (Antes eram NumPad1-4; trocado pra teclado sem teclado numérico — qualquer teclado tem essas teclas.)
+    "realmHotkey": 12,
+    "realmHoursHotkey": 13,
+    "realmDoctrineHotkey": 26,
+    "realmConquerHotkey": 27,
     "realmDebugHours": 24,
     "realmConquerCount": 5,
-    // M11: NumPad9 abre o mapa tático sem precisar da mesa de guerra.
-    "warMapHotkey": 73,
-    // M14/M15: NumPad5 mostra a guarnição do território atual e força o spawn perto do jogador;
-    // NumPad6 inicia a próxima melhoria do território atual (ou da sede). upgradeIgnoreCost: true = obra grátis.
-    "garrisonHotkey": 76,
-    "upgradeHotkey": 77,
+    // M11: "/" abre o mapa tático sem precisar da mesa de guerra (era NumPad9).
+    "warMapHotkey": 53,
+    // M14/M15: ";" mostra a guarnição do território atual e força o spawn perto do jogador (era NumPad5);
+    // "'" inicia a próxima melhoria do território atual, ou da sede (era NumPad6). upgradeIgnoreCost: true = obra grátis.
+    "garrisonHotkey": 39,
+    "upgradeHotkey": 40,
     "upgradeIgnoreCost": false,
-    // M16/M17: NumPad7 força o tick estratégico da IA e mostra os ataques; NumPad8 alterna a relação da sua facção
-    // com o dono do território atual (paz -> guerra -> trégua -> aliança).
-    "aiHotkey": 71,
-    "diplomacyHotkey": 72,
-    // M24: NumPad- força a oferta de governador na capital da província do território atual
-    // (NumPad0 fica reservado para a API, ver src/Events/Events.*).
-    "jarlHotkey": 74,
+    // M16/M17: "," força o tick estratégico da IA e mostra os ataques (era NumPad7); "." alterna a relação da
+    // sua facção com o dono do território atual — paz -> guerra -> trégua -> aliança (era NumPad8).
+    "aiHotkey": 51,
+    "diplomacyHotkey": 52,
+    // M24: "\" força a oferta de governador na capital da província do território atual (era NumPad-).
+    "jarlHotkey": 43,
     // M25/M26: F1 simula debugCaptureCount capturas no território atual; F2 resgata (ouro) o 1º prisioneiro
-    // da sua facção; F12 executa o 1º prisioneiro; NumPad. (decimal) mostra a estabilidade do território atual
-    // e força uma checagem de rebelião imediata (NumPad0 evitado de propósito, ver README).
+    // da sua facção; F12 executa o 1º prisioneiro; Delete mostra a estabilidade do território atual e força
+    // uma checagem de rebelião imediata (era NumPad., decimal).
     "lawCaptureHotkey": 59,
     "lawRansomHotkey": 60,
     "lawExecuteHotkey": 88,
-    "stabilityHotkey": 83,
-    // M20/M21: NumPad/ (Divide) recruta armyRecruitCount soldados no território atual da sua facção (NumPad0
-    // segue reservado para a API); NumPad* (Multiply) lista os seus exércitos (NumPad. já é stabilityHotkey,
-    // M26); NumPad+ (Add) força uma batalha de teste (battleTestSize x battleTestSize) perto do jogador.
-    // Teclas confirmadas em REX/W32/DINPUT.h (extern/CommonLibSSE-NG), sem colidir com NumPad0-9/./-.
-    "armyRecruitHotkey": 181,
-    "armyListHotkey": 55,
-    "battleTestHotkey": 78,
+    "stabilityHotkey": 211,
+    // M20/M21: Home recruta armyRecruitCount soldados no território atual da sua facção (era NumPad/); End
+    // lista os seus exércitos (era NumPad*); Insert força uma batalha de teste (battleTestSize x
+    // battleTestSize) perto do jogador (era NumPad+).
+    // Teclas confirmadas em REX/W32/DINPUT.h (extern/CommonLibSSE-NG).
+    "armyRecruitHotkey": 199,
+    "armyListHotkey": 207,
+    "battleTestHotkey": 210,
     "armyRecruitCount": 10,
     "battleTestSize": 6,
     "territory": "test_tower"

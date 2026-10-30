@@ -35,23 +35,23 @@ num território de verdade — é por isso que dá para testar tudo parado no me
 | **F4** | simula a conquista do local atual (ou de `debug.territory`) | M5/M6 |
 | **F6** | avança `economyHours` horas de economia | M12 |
 | **F7** | cria uma rota de comércio de teste | M13 |
-| **NumPad5** | guarnição do território atual + força o aparecimento dos soldados | M14 |
-| **NumPad6** | inicia a próxima melhoria disponível | M15 |
-| **NumPad1** | resumo do reino (doutrina, população, cargos, modificadores) | M18/M19/M22 |
-| **NumPad2** | simula `realmDebugHours` horas do reino | M18/M19/M22 |
-| **NumPad3** | troca para a próxima doutrina | M18 |
-| **NumPad4** | entrega os territórios mais próximos à sua facção | M18 (ajuda a testar M24/M27) |
-| **NumPad7** | força a avaliação da IA e lista os ataques | M16 |
-| **NumPad8** | alterna a relação com o dono do território atual | M17 |
-| **NumPad-** | oferece um governador seu na capital da província atual | M24 |
+| **;** | guarnição do território atual + força o aparecimento dos soldados | M14 |
+| **'** | inicia a próxima melhoria disponível | M15 |
+| **-** | resumo do reino (doutrina, população, cargos, modificadores) | M18/M19/M22 |
+| **=** | simula `realmDebugHours` horas do reino | M18/M19/M22 |
+| **[** | troca para a próxima doutrina | M18 |
+| **]** | entrega os territórios mais próximos à sua facção | M18 (ajuda a testar M24/M27) |
+| **,** | força a avaliação da IA e lista os ataques | M16 |
+| **.** | alterna a relação com o dono do território atual | M17 |
+| **\\** | oferece um governador seu na capital da província atual | M24 |
 | **F1** | simula uma captura de prisioneiros | M25 |
 | **F2** | resgata (ouro) o seu 1º prisioneiro | M25 |
 | **F12** | executa o seu 1º prisioneiro | M25 |
-| **NumPad.** | estabilidade do território atual + sorteio de rebelião | M26 |
-| **NumPad/** | recruta soldados de campo no território atual | M20 |
-| **NumPad\*** | lista os seus exércitos | M20 |
-| **NumPad+** | força uma batalha de teste perto de você | M21 |
-| **NumPad9** | abre o mapa tático (sem precisar da mesa de guerra) | M11 |
+| **Delete** | estabilidade do território atual + sorteio de rebelião | M26 |
+| **Home** | recruta soldados de campo no território atual | M20 |
+| **End** | lista os seus exércitos | M20 |
+| **Insert** | força uma batalha de teste perto de você | M21 |
+| **/** | abre o mapa tático (sem precisar da mesa de guerra) | M11 |
 
 M27 (Domínio de Skyrim) não tem hotkey própria — ela acontece sozinha quando as condições são atingidas;
 tem um passo opcional no fim para forçar isso. M9 (API) não tem UI própria; M10 (MCM) é testada à parte,
@@ -94,35 +94,35 @@ A partir daqui você tem uma facção própria, **"Minha Facção (teste)"**, qu
 
 ### F. Guarnição e melhorias (M14, M15)
 
-9. Aperte **NumPad5** perto de `test_tower`: mostra o tamanho da guarnição e chama os soldados — eles devem
+9. Aperte **;** perto de `test_tower`: mostra o tamanho da guarnição e chama os soldados — eles devem
    aparecer com roupa (não "pelados").
-10. Aperte **NumPad6**: inicia a próxima melhoria (muralhas). Se faltar material, a mensagem diz o quanto falta
+10. Aperte **'**: inicia a próxima melhoria (muralhas). Se faltar material, a mensagem diz o quanto falta
     — coloque esses itens direto no baú da sede (é um baú normal) e aperte de novo. Depois, aperte **F6**
     várias vezes (24h cada) até a obra terminar ("AoS: Muralhas nível I concluída...").
 
 ### G. Reino: doutrina, população e títulos (M18, M19, M22)
 
-11. Aperte **NumPad1**: mostra a doutrina atual, a população, os cargos e os modificadores.
-12. Aperte **NumPad3**: troca de doutrina (a 1ª é grátis). Aperte de novo → deve dizer que só pode trocar de
+11. Aperte **-**: mostra a doutrina atual, a população, os cargos e os modificadores.
+12. Aperte **[**: troca de doutrina (a 1ª é grátis). Aperte de novo → deve dizer que só pode trocar de
     novo depois de um tempo.
-13. Aperte **NumPad2** algumas vezes: avança horas do reino (população deve crescer se houver comida) e conta
+13. Aperte **=** algumas vezes: avança horas do reino (população deve crescer se houver comida) e conta
     a espera da doutrina.
-14. Aperte **NumPad4**: entrega vários territórios próximos à sua facção, nomeia cargos e governadores onde já
+14. Aperte **]**: entrega vários territórios próximos à sua facção, nomeia cargos e governadores onde já
     há maioria de província. Repita (de pontos diferentes, se quiser) até acumular uma província inteira —
     isso também prepara os testes H e M abaixo. Se sua facção subir de título (ex. para "Jarl"), aparece
     **"Minha Facção (teste) agora é Jarl!"**.
 
 ### H. Governo local (M24)
 
-15. Viaje até a **cidade** da província onde você tem maioria (do passo 14) e aperte **NumPad-**: pergunta
+15. Viaje até a **cidade** da província onde você tem maioria (do passo 14) e aperte **\\**: pergunta
     **"... é a capital de .... Substituir o governo local por um governador seu?"** → **Sim**. Um NPC deve
     aparecer perto do marcador da cidade; ative-o para ver o status da província (população/estabilidade).
 
 ### I. IA e diplomacia (M16, M17)
 
-16. Aperte **NumPad7**: força a avaliação da IA (Legião Imperial e Mantos da Tempestade já começam em guerra
+16. Aperte **,**: força a avaliação da IA (Legião Imperial e Mantos da Tempestade já começam em guerra
     entre si) e lista os ataques em andamento, se houver.
-17. Perto de um território que não é seu, aperte **NumPad8**: alterna a relação da sua facção com o dono dele
+17. Perto de um território que não é seu, aperte **.**: alterna a relação da sua facção com o dono dele
     (paz → guerra → trégua → aliança).
 
 ### J. Lei e prisioneiros (M25)
@@ -133,22 +133,22 @@ A partir daqui você tem uma facção própria, **"Minha Facção (teste)"**, qu
 
 ### K. Ordem pública e rebeliões (M26)
 
-19. Aperte **NumPad.**: mostra a estabilidade de `test_tower` e tenta um sorteio de rebelião (pode dizer que o
+19. Aperte **Delete**: mostra a estabilidade de `test_tower` e tenta um sorteio de rebelião (pode dizer que o
     sorteio falhou — normal, é uma chance por hora). Se quiser ver uma rebelião de verdade, baixe
     `stability.rebellionThreshold` e `stability.graceHours` no `settings.json` antes de abrir o jogo e repita
     os passos F e K.
 
 ### L. Exército e batalhas (M20, M21)
 
-20. Em `test_tower`, aperte **NumPad/**: recruta soldados de campo (gasta ouro/equipamento/população). Depois
-    de esperar o treino (use **NumPad2** para passar as horas), aperte **NumPad\*** para listar seus exércitos.
-21. Aperte **NumPad+** perto de um marcador carregado: nasce uma batalha de teste entre dois grupos pequenos de
+20. Em `test_tower`, aperte **Home**: recruta soldados de campo (gasta ouro/equipamento/população). Depois
+    de esperar o treino (use **=** para passar as horas), aperte **End** para listar seus exércitos.
+21. Aperte **Insert** perto de um marcador carregado: nasce uma batalha de teste entre dois grupos pequenos de
     facções diferentes. Acompanhe: os soldados devem ter roupa, lutar, e a batalha deve terminar sozinha
     (reforços enquanto um lado tiver força, fim quando um lado chega a zero).
 
 ### M. Mapa tático (M11)
 
-22. Ative a mesa de guerra da sede (ou aperte **NumPad9** em qualquer lugar): sem PrismaUI instalado, abre um
+22. Ative a mesa de guerra da sede (ou aperte **/** em qualquer lugar): sem PrismaUI instalado, abre um
     menu com o resumo, seus territórios, territórios próximos, rotas e alvos de ataque; marque um território
     como alvo e crie/remova uma rota pelos menus. Com [PrismaUI](https://www.prismaui.dev/) instalado, a mesma
     mesa abre um mapa visual — clique em territórios, crie rotas e marque alvos diretamente nele.
@@ -166,9 +166,9 @@ A partir daqui você tem uma facção própria, **"Minha Facção (teste)"**, qu
 
 M27 não tem hotkey; ela avalia sozinha quando sua facção tem a maioria de `realm.dominationThreshold` (padrão
 1.0 = todas) das províncias. Para ver a mensagem sem precisar tomar o mapa inteiro, baixe esse número
-temporariamente no `settings.json` (ex. para `0.2`) antes de abrir o jogo, repita o passo **G.14** (**NumPad4**)
+temporariamente no `settings.json` (ex. para `0.2`) antes de abrir o jogo, repita o passo **G.14** (**]**)
 viajando por 2–3 pontos diferentes do mapa até cobrir essa fração das províncias, e aguarde a próxima
-reavaliação (qualquer troca de dono ou **NumPad2**). Deve aparecer **"AoS: Minha Facção (teste) dominou
+reavaliação (qualquer troca de dono ou **=**). Deve aparecer **"AoS: Minha Facção (teste) dominou
 Skyrim!"**. Depois, volte o número ao normal.
 
 ## Opcional: MCM / SkyUI (M9, M10)
